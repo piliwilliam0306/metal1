@@ -11,6 +11,6 @@ sonar_layer:
     topics: ["/sonar1", "/sonar2", "/sonar3", "/sonar4", "/sonar5", "/sonar6", "/sonar7", "/sonar8"]
     #topics: ["sonar7", "sonar8"]
     no_readings_timeout: 0.0
-    clear_threshold: 0.46
-    mark_threshold: 0.98
+    clear_threshold: 0.001
+    mark_threshold: 0.996
     clear_on_max_reading: true

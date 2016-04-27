@@ -2,8 +2,10 @@
 
 
 <launch>
-	<include file="$(find andbot)/launch/display.launch" />
+	<include file="$(find andbot)/launch/display_sonar.launch" />
 	
+	<node pkg="andbot" type="sonar" name="sonar" />
+		
 	<include file="$(find andbot)/launch/fake_move_base_sonar.launch" />
 
 <!--
