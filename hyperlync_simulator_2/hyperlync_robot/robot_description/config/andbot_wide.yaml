@@ -1,0 +1,21 @@
+andbot_wide:
+  # Publish all joint states -----------------------------------
+  joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 50
+
+  # Position Controllers ---------------------------------------
+  laser_position_controller:
+    type: effort_controllers/JointPositionController
+    joint: head_joint
+    pid: {p: 1, i: 1, d: 1}
+
+  # Effort Controllers ---------------------------------------
+  leftWheel_effort_controller:
+    type: effort_controllers/JointEffortController
+    joint: left_wheel_hinge
+    pid: {p: 10.0, i: 0, d: 0.0}
+  rightWheel_effort_controller:
+    type: effort_controllers/JointEffortController
+    joint: right_wheel_hinge
+    pid: {p: 10.0, i: 0, d: 0.0}

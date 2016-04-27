@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+
+<!--
+ 
+   Created Or Edited on: 25/08/2015
+   Author: Dott. Antonio Mauro Galiano
+ 	   antoniomauro.galiano@gmail.com
+
+   -->
+
+<launch>
+
+  <!-- Run the map server  -->
+
+<!--
+  <node name="map_server" pkg="map_server" type="map_server" args="/home/kkuei/catkin_ws/src/hyperlync_simulator_2/hyperlync_robot/my_map2.yaml"/>
+
+-->
+  <!-- Run Amcl -->
+<!--
+  <node pkg="amcl" type="amcl" name="amcl" output="screen" >
+    <remap from="/scan" to="/xv11_scan"/>
+  </node>
+-->
+  
+
+  <!-- Run Move Base -->
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <rosparam file="$(find hyperlync_robot)/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find hyperlync_robot)/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find hyperlync_robot)/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find hyperlync_robot)/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find hyperlync_robot)/base_local_planner_params.yaml" command="load" />
+    <remap from="/cmd_vel" to="/andbot/cmd_vel"/>
+    <remap from="/odom" to="/andbot/odom_diffdrive"/>
+  </node>
+
+
+
+</launch>

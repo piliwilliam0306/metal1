@@ -1,0 +1,1007 @@
+<?xml version="1.0"?>
+<!--
+   Created Or Edited on: 23/09/2015
+   Author: Zach
+           qoogood1234@gmail.com
+   Edited on: 29/09/2015
+   Author: Dott. Antonio Mauro Galiano
+ 	   antoniomauro.galiano@gmail.com
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="andbot_wide">
+  <xacro:property name="PI" value="3.1415926535897931"/>
+  <xacro:property name="length_wheel" value="0.0254"/>
+  <xacro:property name="radius_wheel" value="0.076"/>
+  <xacro:property name="distance_between_wheels" value="0.3996"/>
+  <xacro:property name="height_wheels_from_base" value="0.0392"/>
+ 
+ <arg name="gui" value="true"/>
+  <!-- Base footprint link-->
+  <link name="base_footprint"/>
+
+<!-- Base link -->
+  <link name="base_link">
+    <collision>
+      <origin xyz="0 0 ${radius_wheel-height_wheels_from_base}" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/base_part.STL"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 ${radius_wheel-height_wheels_from_base}" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/base_part.STL"/>
+      </geometry>
+       <material name="Orange">
+         <color rgba="1 0.5 0 1"/>
+       </material>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0.07" rpy="0 0 0"/>
+      <mass value="50"/>
+      <inertia ixx="0.248" ixy="0" ixz="0" iyy="0.748" iyz="0" izz="0.748"/>
+    </inertial>
+  </link>
+  <gazebo reference="base_link">
+    <material>Gazebo/Orange</material>
+  </gazebo>
+
+  <!-- Base footprint link / Base link joint -->
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+  </joint>
+
+
+   <!-- Caster wheel link -->
+  <link name="caster_wheel">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.02"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.02"/>
+      </geometry>
+       <material name="White">
+         <color rgba="1 0 0 1"/>
+       </material>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="25"/>
+      <inertia ixx="0.0098" ixy="0" ixz="0" iyy="0.0098" iyz="0" izz="0.0098"/>
+    </inertial>
+  </link>
+  <gazebo reference="caster_wheel">
+    <mu1>0.04</mu1>
+    <mu2>0.04</mu2>
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <!-- Base link / Caster wheel joint -->
+  <joint name="caster_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="caster_wheel"/>
+    <origin xyz="-0.3 0 0.02" rpy="0 0 0"/>
+  </joint>
+
+<!-- Body link -->
+  <link name="body_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/fake_body.STL"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/fake_body.STL"/>
+      </geometry>
+       <material name="Blue">
+       </material>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0.00" rpy="0 0 0"/>
+      <mass value="50"/>
+      <inertia ixx="0.248" ixy="0" ixz="0" iyy="0.248" iyz="0" izz="0.748"/>
+    </inertial>
+  </link>
+  <gazebo reference="body_link">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+  <!-- Base link /Body Link joint -->
+  <joint name="body_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="body_link"/>
+    <origin xyz="0 0 0.029" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Head link -->
+  <link name="head_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/head.STL"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/head.STL"/>
+      </geometry>
+       <material name="Blue">
+         <color rgba="0 0 1 0.5"/>
+       </material>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="50"/>
+      <inertia ixx="0.248" ixy="0" ixz="0" iyy="0.248" iyz="0" izz="0.748"/>
+    </inertial>
+  </link>
+  <gazebo reference="head_link">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+  <!-- Base link /Head Link joint -->
+  <joint name="head_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="head_link"/>
+    <origin xyz="-0.145 0 1.075" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+          <limit upper="1.57" lower="-1.57" velocity="10" effort="7"/>
+	  <joint_properties damping="0.0" friction="0.0"/> 
+  </joint>
+  <!-- Transmission for laser joint -->
+  <transmission name="head_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="head_joint">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="headMotor">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalWhiteuction>1</mechanicalWhiteuction>
+    </actuator>
+  </transmission>
+
+
+  <!-- left_arm_link1 link -->
+  <link name="left_arm_link1">
+    <collision>
+      <origin xyz="0 0 0" rpy="-1.5707 1.5707 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/arm_link1.STL"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="-1.5707 1.5707 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/arm_link1.STL"/>
+      </geometry>
+       <material name="Blue">
+         <color rgba="0 0 1 0.5"/>
+       </material>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0.00" rpy="0 0 0"/>
+      <mass value="50"/>
+      <inertia ixx="0.148" ixy="0" ixz="0" iyy="0.148" iyz="0" izz="0.748"/>
+    </inertial>
+  </link>
+  <gazebo reference="left_arm_link1">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+  <!-- Base link /left_arm_link1 Link joint -->
+  <joint name="left_arm_link1_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="left_arm_link1"/>
+    <origin xyz="-0.145 0.185 0.909" rpy="0 0 0"/>
+  </joint>
+
+
+  <!-- Left left_arm_link2 link -->
+  <link name="left_arm_link2">
+    <collision>
+      <origin xyz="0 0 0" rpy="-1.5707 1.5707 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/arm_link2.STL"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="-1.5707 1.5707 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/arm_link2.STL"/>
+      </geometry>
+       <material name="Blue">
+         <color rgba="0 0 1 0.5"/>
+       </material>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0.00" rpy="0 0 0"/>
+      <mass value="50"/>
+      <inertia ixx="0.148" ixy="0" ixz="0" iyy="0.148" iyz="0" izz="0.748"/>
+    </inertial>
+  </link>
+  <gazebo reference="left_arm_link2">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+
+  <!-- Base link /Left_arm_link2 Link joint -->
+  <joint name="left_arm_link2_joint" type="fixed">
+    <parent link="left_arm_link1"/>
+    <child link="left_arm_link2"/>
+    <origin xyz="0 0 -0.205" rpy="0 0 0"/>
+  </joint>
+
+
+  <!-- right_arm_link1 link -->
+  <link name="right_arm_link1">
+    <collision>
+      <origin xyz="0 0 0" rpy="1.57 1.5707 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/arm_link1.STL"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="1.57 1.5707 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/arm_link1.STL"/>
+      </geometry>
+       <material name="Blue">
+         <color rgba="0 0 1 0.5"/>
+       </material>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0.00" rpy="0 0 0"/>
+      <mass value="50"/>
+      <inertia ixx="0.148" ixy="0" ixz="0" iyy="0.148" iyz="0" izz="0.748"/>
+    </inertial>
+  </link>
+  <gazebo reference="right_arm_link1">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+  <!-- Base link /Right arm_link1 Link joint -->
+  <joint name="right_arm_link1_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="right_arm_link1"/>
+    <origin xyz="-0.145 -0.185 0.909" rpy="0 0 0"/>
+  </joint>
+
+
+
+  <!-- right_arm_link2 link -->
+  <link name="right_arm_link2">
+    <collision>
+      <origin xyz="0 0 0" rpy="-1.5707 1.5707 3.14"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/arm_link2.STL"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="-1.5707 1.5707 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/arm_link2.STL"/>
+      </geometry>
+       <material name="Blue">
+         <color rgba="0 0 1 0.5"/>
+       </material>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0.00" rpy="0 0 0"/>
+      <mass value="50"/>
+      <inertia ixx="0.148" ixy="0" ixz="0" iyy="0.148" iyz="0" izz="0.748"/>
+    </inertial>
+  </link>
+  <gazebo reference="right_arm_link2">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+
+
+  <!-- Base link /right_arm_link2 Link joint -->
+  <joint name="right_arm_link2_joint" type="fixed">
+    <parent link="right_arm_link1"/>
+    <child link="right_arm_link2"/>
+    <origin xyz="0 0 -0.205" rpy="0 0 0"/>
+  </joint>
+
+
+  <!-- Base link / Laser link joint -->
+  <joint name="laser_joint" type="fixed">
+    <parent link="head_link"/>
+    <child link="laser"/>
+    <origin xyz="0.1 0 -0.05" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Laser link -->
+  <link name="laser">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 1.57 0"/>
+      <geometry>
+        <cylinder length="0.08" radius="0.01"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 1.57 0"/>
+      <geometry>
+        <cylinder length="0.08" radius="0.01"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="2"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="0.01"/>
+    </inertial>
+  </link>
+  <gazebo reference="laser">
+    <mu1 value="5.0"/>
+    <mu2 value="5.0"/>
+    <kp value="10000000.0"/>
+    <kd value="1.0"/>
+  </gazebo>
+
+
+  <!-- Left wheel link -->
+  <link name="left_wheel">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 1.570795 1.570795"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/wheel-D152_SMALL.STL"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 1.570795 1.570795"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/wheel-D152_SMALL.STL"/>
+      </geometry>
+       <material name="Black">
+         <color rgba="0 0 0 1"/>
+       </material>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 1.570795 1.570795"/>
+      <mass value="5"/>
+      <inertia ixx="0.0135" ixy="0" ixz="0" iyy="0.0135" iyz="0" izz="0.025"/>
+    </inertial>
+  </link>
+  <gazebo reference="left_wheel">
+    <mu1 value="2.0"/>
+    <mu2 value="2.0"/>
+    <kp value="10000000.0"/>
+    <kd value="1.0"/>
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <!-- Base link / Left wheel link joint -->
+  <joint name="left_wheel_hinge" type="continuous">
+    <parent link="base_link"/>
+    <child link="left_wheel"/>
+<!--    <origin xyz="0.1 0.125 0.030" rpy="0 0 0"/>-->
+    <origin rpy="0 0 0" xyz="0 0.1998 0.076"/>
+
+    <axis xyz="0 1 0" rpy="0 0 0"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  <!-- Left wheel transmission -->
+  <transmission name="left_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="left_wheel_hinge">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="leftMotor">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalWhiteuction>1</mechanicalWhiteuction>
+    </actuator>
+  </transmission>
+
+  <!-- Right wheel link -->
+  <link name="right_wheel">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 1.570795 1.570795"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/wheel-D152_SMALL.STL"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 1.570795 1.570795"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/wheel-D152_SMALL.STL"/>
+      </geometry>
+       <material name="Black">
+         <color rgba="0 0 0 1"/>
+       </material>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 1.570795 1.570795"/>
+      <mass value="5"/>
+      <inertia ixx="0.0135" ixy="0" ixz="0" iyy="0.0135" iyz="0" izz="0.025"/>
+    </inertial>
+  </link>
+  <gazebo reference="right_wheel">
+    <mu1 value="2.0"/>
+    <mu2 value="2.0"/>
+    <kp value="10000000.0"/>
+    <kd value="1.0"/>
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <!-- Base link / Right wheel link joint -->
+  <joint name="right_wheel_hinge" type="continuous">
+    <parent link="base_link"/>
+    <child link="right_wheel"/>
+<!--    <origin xyz="0.1 -0.125 0.030" rpy="0 0 0"/> -->
+    <origin rpy="0 0 0" xyz="0 -0.1998 0.076"/>
+
+    <axis xyz="0 1 0" rpy="0 0 0"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  <!-- Right wheel transmission -->
+  <transmission name="right_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="right_wheel_hinge">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="rightMotor">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalWhiteuction>1</mechanicalWhiteuction>
+    </actuator>
+  </transmission>
+
+
+<!--Sonar Link -->
+  <!-- Base link / sonar1 link joint -->
+  <joint name="sonar_1_fixed" type="fixed">
+    <parent link="base_link"/>
+    <child link="sonar_1"/>
+    <origin xyz="0.12105 0 ${0.03475+0.029}"  rpy="0 0 0"/>
+  </joint>
+
+<!--Sonar Link1-->
+  <link name="sonar_1">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/sonar_HC_SR04.STL"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/sonar_HC_SR04.STL"/>
+      </geometry>
+       <material name="Yellow">
+         <color rgba=" 1 1 0 1"/>
+       </material>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia ixx="0.0135" ixy="0" ixz="0" iyy="0.0135" iyz="0" izz="0.025"/>
+    </inertial>
+  </link>
+  <gazebo reference="sonar_link1">
+    <mu1 value="2.0"/>
+    <mu2 value="2.0"/>
+    <kp value="10000000.0"/>
+    <kd value="1.0"/>
+    <material>Gazebo/Yellow</material>
+  </gazebo>
+
+<!--Sonar Link 2-->
+  <!-- Base link / sonar2 link joint -->
+  <joint name="sonar_2_fixed" type="fixed">
+    <parent link="base_link"/>
+    <child link="sonar_2"/>
+    <origin xyz="0.11561 0.09192 ${0.03475+0.029}"  rpy="0 0 0"/>
+  </joint>
+
+<!--Sonar Link2-->
+  <link name="sonar_2">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/sonar_HC_SR04.STL"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/sonar_HC_SR04.STL"/>
+      </geometry>
+       <material name="Yellow">
+         <color rgba=" 1 1 0 1"/>
+       </material>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia ixx="0.0135" ixy="0" ixz="0" iyy="0.0135" iyz="0" izz="0.025"/>
+    </inertial>
+  </link>
+  <gazebo reference="sonar_link2">
+    <mu1 value="2.0"/>
+    <mu2 value="2.0"/>
+    <kp value="10000000.0"/>
+    <kd value="1.0"/>
+    <material>Gazebo/Yellow</material>
+  </gazebo>
+
+  <!-- Base link / sonar3 link joint -->
+  <joint name="sonar_3_fixed" type="fixed">
+    <parent link="base_link"/>
+    <child link="sonar_3"/>
+    <origin xyz="-0.10374 0.208 ${0.03475+0.029}"  rpy="0 0 1.5707"/>
+  </joint>
+
+<!--Sonar Link3-->
+  <link name="sonar_3">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/sonar_HC_SR04.STL"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/sonar_HC_SR04.STL"/>
+      </geometry>
+       <material name="Yellow">
+         <color rgba=" 1 1 0 1"/>
+       </material>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia ixx="0.0135" ixy="0" ixz="0" iyy="0.0135" iyz="0" izz="0.025"/>
+    </inertial>
+  </link>
+  <gazebo reference="sonar_link3">
+    <mu1 value="2.0"/>
+    <mu2 value="2.0"/>
+    <kp value="10000000.0"/>
+    <kd value="1.0"/>
+    <material>Gazebo/Yellow</material>
+  </gazebo>
+
+  <!-- Base link / sonar4 link joint -->
+  <joint name="sonar_4_fixed" type="fixed">
+    <parent link="base_link"/>
+    <child link="sonar_4"/>
+    <origin xyz="-0.1931 0.20319 ${0.03475+0.029}"  rpy="0 0 1.5707"/>
+  </joint>
+
+<!--Sonar Link4-->
+  <link name="sonar_4">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/sonar_HC_SR04.STL"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/sonar_HC_SR04.STL"/>
+      </geometry>
+       <material name="Yellow">
+         <color rgba=" 1 1 0 1"/>
+       </material>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia ixx="0.0135" ixy="0" ixz="0" iyy="0.0135" iyz="0" izz="0.025"/>
+    </inertial>
+  </link>
+  <gazebo reference="sonar_link4">
+    <mu1 value="2.0"/>
+    <mu2 value="2.0"/>
+    <kp value="10000000.0"/>
+    <kd value="1.0"/>
+    <material>Gazebo/Yellow</material>
+  </gazebo>
+
+  <!-- Base link / sonar5 link joint -->
+  <joint name="sonar_5_fixed" type="fixed">
+    <parent link="base_link"/>
+    <child link="sonar_5"/>
+    <origin xyz="-0.27047 0.17831 ${0.03475+0.029}"  rpy="0 0 1.5707"/>
+  </joint>
+
+<!--Sonar Link5-->
+  <link name="sonar_5">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://urdf_gazebo_nav/meshes/sonar_HC_SR04.STL"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://urdf_gazebo_nav/meshes/sonar_HC_SR04.STL"/>
+      </geometry>
+       <material name="Yellow">
+         <color rgba=" 1 1 0 1"/>
+       </material>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia ixx="0.0135" ixy="0" ixz="0" iyy="0.0135" iyz="0" izz="0.025"/>
+    </inertial>
+  </link>
+  <gazebo reference="sonar_link5">
+    <mu1 value="2.0"/>
+    <mu2 value="2.0"/>
+    <kp value="10000000.0"/>
+    <kd value="1.0"/>
+    <material>Gazebo/Yellow</material>
+  </gazebo>
+
+
+  <!-- Base link / sonar6 link joint -->
+  <joint name="sonar_6_fixed" type="fixed">
+    <parent link="base_link"/>
+    <child link="sonar_6"/>
+    <origin xyz="-0.34542 0.05695 ${0.03475+0.029}"  rpy="0 0 3.14"/>
+  </joint>
+
+<!--Sonar Link6-->
+  <link name="sonar_6">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/sonar_HC_SR04.STL"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/sonar_HC_SR04.STL"/>
+      </geometry>
+       <material name="Yellow">
+         <color rgba=" 1 1 0 1"/>
+       </material>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia ixx="0.0135" ixy="0" ixz="0" iyy="0.0135" iyz="0" izz="0.025"/>
+    </inertial>
+  </link>
+  <gazebo reference="sonar_link6">
+    <mu1 value="2.0"/>
+    <mu2 value="2.0"/>
+    <kp value="10000000.0"/>
+    <kd value="1.0"/>
+    <material>Gazebo/Yellow</material>
+  </gazebo>
+
+
+  <!-- Base link / sonar7 link joint -->
+  <joint name="sonar_7_fixed" type="fixed">
+    <parent link="base_link"/>
+    <child link="sonar_7"/>
+    <origin xyz="-0.348 0 ${0.03475+0.029}"  rpy="0 0 3.14"/>
+  </joint>
+
+<!--Sonar Link7-->
+  <link name="sonar_7">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/sonar_HC_SR04.STL"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/sonar_HC_SR04.STL"/>
+      </geometry>
+       <material name="Yellow">
+         <color rgba=" 1 1 0 1"/>
+       </material>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia ixx="0.0135" ixy="0" ixz="0" iyy="0.0135" iyz="0" izz="0.025"/>
+    </inertial>
+  </link>
+  <gazebo reference="sonar_link7">
+    <mu1 value="2.0"/>
+    <mu2 value="2.0"/>
+    <kp value="10000000.0"/>
+    <kd value="1.0"/>
+    <material>Gazebo/Yellow</material>
+  </gazebo>
+
+  <!-- Base link / sonar8 link joint -->
+  <joint name="sonar_8_fixed" type="fixed">
+    <parent link="base_link"/>
+    <child link="sonar_8"/>
+    <origin xyz="-0.34542 -0.05695 ${0.03475+0.029}"  rpy="0 0 3.14"/>
+  </joint>
+
+
+<!--Sonar Link8-->
+  <link name="sonar_8">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/sonar_HC_SR04.STL"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/sonar_HC_SR04.STL"/>
+      </geometry>
+       <material name="Yellow">
+         <color rgba=" 1 1 0 1"/>
+       </material>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia ixx="0.0135" ixy="0" ixz="0" iyy="0.0135" iyz="0" izz="0.025"/>
+    </inertial>
+  </link>
+  <gazebo reference="sonar_link8">
+    <mu1 value="2.0"/>
+    <mu2 value="2.0"/>
+    <kp value="10000000.0"/>
+    <kd value="1.0"/>
+    <material>Gazebo/Yellow</material>
+  </gazebo>
+
+  <!-- Base link / sonar9 link joint -->
+  <joint name="sonar_9_fixed" type="fixed">
+    <parent link="base_link"/>
+    <child link="sonar_9"/>
+    <origin xyz="-0.27047 -0.17831 ${0.03475+0.029}"  rpy="0 0 -1.5707"/>
+  </joint>
+
+
+<!--Sonar Link9-->
+  <link name="sonar_9">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/sonar_HC_SR04.STL"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/sonar_HC_SR04.STL"/>
+      </geometry>
+       <material name="Yellow">
+         <color rgba=" 1 1 0 1"/>
+       </material>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia ixx="0.0135" ixy="0" ixz="0" iyy="0.0135" iyz="0" izz="0.025"/>
+    </inertial>
+  </link>
+  <gazebo reference="sonar_link9">
+    <mu1 value="2.0"/>
+    <mu2 value="2.0"/>
+    <kp value="10000000.0"/>
+    <kd value="1.0"/>
+    <material>Gazebo/Yellow</material>
+  </gazebo>
+
+
+  <!-- Base link / sonar10 link joint -->
+  <joint name="sonar_10_fixed" type="fixed">
+    <parent link="base_link"/>
+    <child link="sonar_10"/>
+    <origin xyz="-0.1931 -0.20319 ${0.03475+0.029}"  rpy="0 0 -1.5707"/>
+  </joint>
+
+
+<!--Sonar Link10-->
+  <link name="sonar_10">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/sonar_HC_SR04.STL"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/sonar_HC_SR04.STL"/>
+      </geometry>
+       <material name="Yellow">
+         <color rgba=" 1 1 0 1"/>
+       </material>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia ixx="0.0135" ixy="0" ixz="0" iyy="0.0135" iyz="0" izz="0.025"/>
+    </inertial>
+  </link>
+  <gazebo reference="sonar_link10">
+    <mu1 value="2.0"/>
+    <mu2 value="2.0"/>
+    <kp value="10000000.0"/>
+    <kd value="1.0"/>
+    <material>Gazebo/Yellow</material>
+  </gazebo>
+
+
+  <!-- Base link / sonar11 link joint -->
+  <joint name="sonar_11_fixed" type="fixed">
+    <parent link="base_link"/>
+    <child link="sonar_11"/>
+    <origin xyz="-0.10374 -0.208 ${0.03475+0.029}"  rpy="0 0 -1.5707"/>
+  </joint>
+
+
+<!--Sonar Link11-->
+  <link name="sonar_11">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/sonar_HC_SR04.STL"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/sonar_HC_SR04.STL"/>
+      </geometry>
+       <material name="Yellow">
+         <color rgba=" 1 1 0 1"/>
+       </material>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia ixx="0.0135" ixy="0" ixz="0" iyy="0.0135" iyz="0" izz="0.025"/>
+    </inertial>
+  </link>
+  <gazebo reference="sonar_link11">
+    <mu1 value="2.0"/>
+    <mu2 value="2.0"/>
+    <kp value="10000000.0"/>
+    <kd value="1.0"/>
+    <material>Gazebo/Yellow</material>
+  </gazebo>
+
+
+  <!-- Base link / sonar12 link joint -->
+  <joint name="sonar_12_fixed" type="fixed">
+    <parent link="base_link"/>
+    <child link="sonar_12"/>
+    <origin xyz="0.11561 -0.09192 ${0.03475+0.029}"  rpy="0 0 0"/>
+  </joint>
+
+
+<!--Sonar Link12-->
+  <link name="sonar_12">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/sonar_HC_SR04.STL"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://hyperlync_robot/robot_description/mesh/sonar_HC_SR04.STL"/>
+      </geometry>
+       <material name="Yellow">
+         <color rgba=" 1 1 0 1"/>
+       </material>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia ixx="0.0135" ixy="0" ixz="0" iyy="0.0135" iyz="0" izz="0.025"/>
+    </inertial>
+  </link>
+  <gazebo reference="sonar_link12">
+    <mu1 value="2.0"/>
+    <mu2 value="2.0"/>
+    <kp value="10000000.0"/>
+    <kd value="1.0"/>
+    <material>Gazebo/Yellow</material>
+  </gazebo>
+
+
+
+
+  <!-- Gazebo ROS control plugin -->
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/andbot_wide</robotNamespace>
+    </plugin>
+  </gazebo>
+  <!-- Differential drive plugin -->
+  <gazebo>
+    <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+      <alwaysOn>true</alwaysOn>
+      <updateRate>100</updateRate>
+      <leftJoint>right_wheel_hinge</leftJoint>
+      <rightJoint>left_wheel_hinge</rightJoint>
+      <wheelSeparation>${distance_between_wheels}</wheelSeparation>
+      <wheelDiameter>${2*radius_wheel}</wheelDiameter>
+      <torque>30</torque>
+      <commandTopic>andbot_wide/cmd_vel</commandTopic>
+      <odometryTopic>andbot_wide/odom_diffdrive</odometryTopic>
+      <odometryFrame>odom</odometryFrame>
+      <robotBaseFrame>base_footprint</robotBaseFrame>
+    </plugin>
+  </gazebo>
+  
+<!-- Laser plugin -->
+  <gazebo reference="laser">
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <material>Gazebo/Blue</material>
+    <sensor type="gpu_ray" name="head_hokuyo_sensor">
+      <pose>0 0 0 0 0 0</pose>
+      <visualize>true</visualize>
+      <update_rate>40</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>720</samples>
+            <resolution>1</resolution>
+            <min_angle>-0.785</min_angle>
+            <!-- -0.0174532925 -->
+            <max_angle>0.785</max_angle>
+            <!-- 0.0174532925 -->
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.10</min>
+          <max>30.0</max>
+          <resolution>0.01</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <!-- Noise parameters based on published spec for Hokuyo laser
+		       achieving "+-30mm" accuracy at range < 10m.  A mean of 0.0m and
+		       stddev of 0.01m will put 99.7% of samples within 0.03m of the true
+		       reading. -->
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </ray>
+      <plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_gpu_laser.so">
+        <topicName>scan</topicName>
+        <frameName>laser</frameName>
+      </plugin>
+    </sensor>
+  </gazebo>
+  <!-- Proximity sensor plugin -->
+   <gazebo reference="sonar_1">
+      <sensor name ="sonar1" type="ray">
+
+
+  <plugin name="gazebo_ros_sonar_controller" filename ="libgazebo_ros_sonar.so">
+  <topicName>range_sonar_1</topicName>
+  <frameId>sonar_1</frameId>
+  </plugin>
+</sensor>
+    </gazebo>
+</robot>

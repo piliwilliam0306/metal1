@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<launch>
+ <!--
+ 
+   Created Or Edited on: 05/10/2015
+       Author: Dott. Antonio Mauro Galiano
+		antoniomauro.galiano@gmail.com
+ 
+    Push the right frontal button labeled as 'RB' to activate cmd_vel publishing.
+    Move the left stick around to control the velocity.
+   -->
+
+  <node pkg="joy" type="joy_node" name="joystick"/>
+
+  <!--  smooths inputs from cmd_vel_mux/input/teleop_raw to cmd_vel_mux/input/teleop -->
+  <include file="$(find hyperlync_teleop)/launch/includes/velocity_smoother.launch.xml"/>
+
+  <node pkg="hyperlync_teleop" type="hyperlync_teleop_joy" name="hyperlync_teleop_joystick">
+    <param name="scale_angular" value="1.5"/>
+    <param name="scale_linear" value="0.5"/>
+    <param name="axis_deadman" value="5"/>
+    <param name="axis_linear" value="1"/>
+    <param name="axis_angular" value="0"/>
+    <remap from="hyperlync_teleop_joystick/cmd_vel" to="andbot/cmd_vel"/>
+  </node>
+
+</launch>

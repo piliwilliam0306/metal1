@@ -1,0 +1,74 @@
+/*
+  file: sharpIR_Code.ino
+  date: 20160321
+  description :
+        initial code for ros 
+
+  Author: Zach
+           qoogood1234@gmail.com
+*/
+
+
+
+
+
+#include <SharpIR.h>
+#include <ros.h>
+#include <geometry_msgs/Vector3.h>
+
+
+#define model 1080
+// ir: the pin where your sensor is attached
+// model: an int that determines your sensor:  1080 for GP2Y0A21Y
+//                                            20150 for GP2Y0A02Y
+//    (working distance range according to the datasheets)
+
+SharpIR SharpIR0(A0, model);
+SharpIR SharpIR1(A1, model);
+SharpIR SharpIR2(A2, model);
+
+ros::NodeHandle nh;
+geometry_msgs::Vector3 ir_value;
+ros::Publisher pub_ir_value("sensor/ir_value",&ir_value);
+int dis0,dis1,dis2;
+
+void setup() {
+  nh.initNode();
+  nh.advertise(pub_ir_value);
+
+  // put your setup code here, to run once:
+  Serial.begin(57600);
+}
+
+void loop() {
+  delay(200);   
+
+  //unsigned long pepe1=millis();  // takes the time before the loop on the library begins
+
+  dis0=SharpIR0.distance();  // this returns the distance to the object you're measuring
+  dis1=SharpIR1.distance();  // this returns the distance to the object you're measuring
+  dis2=SharpIR2.distance();  // this returns the distance to the object you're measuring
+  //Serial.print("Mean distance: ");  // returns it to the serial monitor
+  printIRInfo();   
+  //unsigned long pepe2=millis()-pepe1;  // the following gives you the time taken to get the measurement
+  //Serial.print("Time taken (ms): ");
+  //Serial.println(pepe2);  
+
+  ir_value.x = dis0;
+  ir_value.y = dis1;
+  ir_value.z = dis2;
+
+  pub_ir_value.publish(&ir_value);
+  nh.spinOnce();
+
+
+}
+
+void printIRInfo()
+{
+  Serial.print(dis0);
+  Serial.print("  ");
+  Serial.print(dis1);
+  Serial.print(" ");
+  Serial.println(dis2);  
+  }

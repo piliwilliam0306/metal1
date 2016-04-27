@@ -1,0 +1,9 @@
+<launch>
+    <include file="$(find openni2_launch)/launch/openni2.launch">
+      <arg name="depth_registration"              value="true"/>
+    </include>
+
+    <node pkg="mybot_followme" type="xtion_pro_followme" name="xtion_pro_followme" />
+    
+
+</launch>

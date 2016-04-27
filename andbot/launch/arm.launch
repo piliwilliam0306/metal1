@@ -1,0 +1,11 @@
+<launch>
+
+  <node pkg="andbot_test_joint" type="left_arm_moveR" name="left_arm_moveR" >
+  </node>
+  <node pkg="andbot_test_joint" type="right_arm_moveR" name="right_arm_moveR" >
+  </node>
+  <node pkg="andbot_test_joint" type="action" name="action" >
+  </node>
+
+</launch>
+

@@ -1,0 +1,17 @@
+
+*** These modified files were found in JOE when it aborted on Fri Feb  5 19:00:41 2016
+*** JOE was aborted because the terminal closed
+
+*** File '(Unnamed)'
+/home/odroid/catkin_ws/src/mybot_followme/.git/MERGE_MSG
+
+*** File '/home/odroid/catkin_ws/src/mybot_followme/.git/MERGE_MSG'
+:qq
+:qexit
+Merge branch 'master' of https://github.com/wennycooper/mybot_followme
+
+# Please enter a commit message to explain why this merge is necessary,
+# especially if it merges an updated upstream into a topic branch.
+#
+# Lines starting with '#' will be ignored, and an empty message aborts
+# the commit.

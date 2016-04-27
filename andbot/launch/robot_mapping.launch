@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+
+ <!--
+ 
+   Created Or Edited on: 05/10/2015
+   Author: Dott. Antonio Mauro Galiano
+ 	   antoniomauro.galiano@gmail.com
+
+   -->
+<launch>
+
+  <arg name="scan_topic" default="xv11_scan" />
+
+  <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
+    <param name="base_frame" value="base_footprint"/>
+    <param name="odom_frame" value="odom"/>
+    <param name="map_update_interval" value="30"/>
+    <param name="minimalScore" value="200"/>
+<!--
+    <param name="maxUrange" value="4.5"/>
+    <param name="maxRange" value="5.0"/>
+-->
+<!--
+    <param name="delta" value="0.1"/>
+    <param name="particles" value="30"/>
+    <param name="lsigma" value="1"/>
+-->
+
+    <param name="xmin" value="-5"/>
+    <param name="xmax" value="5"/>
+    <param name="ymin" value="-5"/>
+    <param name="ymax" value="5"/>
+    <remap from="scan" to="$(arg scan_topic)"/>
+  </node>
+</launch>
