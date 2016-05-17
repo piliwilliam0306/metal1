@@ -51,6 +51,8 @@ find_package(catkin REQUIRED COMPONENTS
    FILES
    Sonar.msg
    Bump.msg
+   WheelCmd.msg
+   WheelFb.msg
  )
 
 ## Generate services in the 'srv' folder
@@ -134,6 +136,12 @@ include_directories(
 # add_executable(Andbot_node src/Andbot_node.cpp)
 add_executable(mybot_odometry src/mybot_odometry.cpp)
 target_link_libraries(mybot_odometry ${catkin_LIBRARIES})
+
+add_executable(mybot_odometry_v1 src/mybot_odometry_v1.cpp)
+target_link_libraries(mybot_odometry_v1 ${catkin_LIBRARIES})
+
+add_executable(mybot_base_controller_v1 src/mybot_base_controller_v1.cpp)
+target_link_libraries(mybot_base_controller_v1 ${catkin_LIBRARIES})
 
 add_executable(sonar src/sonar.cpp)
 target_link_libraries(sonar ${catkin_LIBRARIES})
