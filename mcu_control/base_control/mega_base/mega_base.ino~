@@ -230,10 +230,10 @@ void loop()
           range_msg12.range = 0;
           pub_range12.publish(&range_msg12);
           */
-          
+          nh.spinOnce();
           //printMotorInfo();
        }     
-	nh.spinOnce();      
+      
 }
 
 void readFeadback_angularVel_L()
