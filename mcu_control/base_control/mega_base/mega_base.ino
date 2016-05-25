@@ -59,7 +59,7 @@ byte rP_R = 0;  //receive stop byte
 #define trig12 44
 #define echo12 45
 */
-#define LOOPTIME        50
+#define LOOPTIME        100
 /*
 SoftwareSerial mySerial_L(Rx_L, Tx_L);
 SoftwareSerial mySerial_R(Rx_R, Tx_R);
@@ -230,10 +230,10 @@ void loop()
           range_msg12.range = 0;
           pub_range12.publish(&range_msg12);
           */
-          nh.spinOnce();
+          
           //printMotorInfo();
        }     
-      
+	nh.spinOnce();      
 }
 
 void readFeadback_angularVel_L()
