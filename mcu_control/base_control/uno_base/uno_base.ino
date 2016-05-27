@@ -77,6 +77,7 @@ double calculated_pidTerm;
 double constrained_pidterm;
 
 void setup() { 
+ TCCR0B = TCCR0B & B11111000 | B00000010; 
  pinMode(encoder0PinA, INPUT); 
  digitalWrite(encoder0PinA, HIGH);       // turn on pullup resistor
  pinMode(encoder0PinB, INPUT); 
