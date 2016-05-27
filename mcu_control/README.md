@@ -1,22 +1,53 @@
-# mcu_control
+# Base Test Proceduce
 
 ## Modify Arduino PWM Frequency 
-     Add this line in setup()
-          TCCR0B = TCCR0B & B11111000 | B00000010; // set timer 0 divisor to 8 for PWM frequency of 7812.50 Hz
      Overwrite wiring.c in: 
           ~/arduino-1.6.5/hardware/arduino/avr/cores/arduino
+          
      Edit line 31 in "wiring.c"     
+     
      Mega Board:
           #define MICROSECONDS_PER_TIMER0_OVERFLOW (clockCyclesToMicroseconds(64 * 256))
+          
      Vnh5019 Board:
           #define MICROSECONDS_PER_TIMER0_OVERFLOW (clockCyclesToMicroseconds(8 * 256))
 
-
 ## Uploading mega code
      Copy "ros_lib" folder into "Arduino/libraries" folder.
-     "mega_base_ultrasonic_v1" is for base mega board
+     
+     "mega_base_ultrasonic_v1" is for base mega board.
+
 ## Uploading vnh5019 code     
      "vnh5019_andbot_test.ino" is to test if motor can achieve desire speed.
+     
      "vnh5019.ino" is for the motor controller board for base. (Upload this if vnh5019 control board pass speed test.
+     
      Please select Arduino Pro Mini when uploading codes for the motor controller boards.
+
+## Check Odroid IP adress
+     $ ifconfig
+
+## Compiling packages (in Terminal)
+     $ cd ~/catkin_ws/src
+     $ git clone https://github.com/piliwilliam0306/metal1.git
+     $ cd ~/catkin_ws
+     $ catkin_make
+     $ rospack profile
+     
+## Test Rosserial
+     $ roscore
+     $ rosrun rosserial_python serial_node.py _port:=/dev/ttyACM0 _baud:=57600
+     $ rostopic pub /cmd_wheel_angularVel andbot/WheelCmd 
+     "speed1: 2.0
+     mode1: true
+     speed2: 2.0
+     mode2: true" 
+     $ rostopic echo feedback_wheel_angularVel
+     * if "feedback_wheel_angularVel" topic output is close to "cmd_wheel_angularVel," rosserial and motor control board is working.
+     $ Ctrl + C
+
+## Make robot move
+     $ roslaunch andbot andbot_v1.launch
+     * Type Odroid IP address into Android App to Teleop. 
+     * You should see map updating after moving the robot for a while
      
