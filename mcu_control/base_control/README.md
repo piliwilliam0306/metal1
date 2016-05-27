@@ -13,18 +13,18 @@
           #define MICROSECONDS_PER_TIMER0_OVERFLOW (clockCyclesToMicroseconds(8 * 256))
 
 ## Uploading mega code
-     * Copy "ros_lib" folder into "Arduino/libraries" folder.
-     
-     * "mega_base_ultrasonic_v1" is for base mega board.
-     
-     * Select Mega2560 when uploading
+  * Copy "ros_lib" folder into "Arduino/libraries" folder.
+  * "mega_base_ultrasonic_v1" is for base mega board.
+  * Select Mega2560 when uploading.
 
-## Uploading vnh5019 code     
-     * "vnh5019_andbot_test.ino" is to test if motor can achieve desire speed. (Speed control test)
-     
-     * "vnh5019.ino" is for the motor controller board for base. (Upload this if vnh5019 control board pass speed test.)
-     
-     * Select Arduino Pro Mini when uploading.
+## Uploading vnh5019 code
+  * "vnh5019_andbot_test.ino" is to test if motor can achieve desire speed. (Speed control test)
+  * "#define WHEEL_TYPE RIGHT_WHEEL" when uploading for right wheel. 
+  * "#define WHEEL_TYPE LEFT_WHEEL" when uploading for left wheel.
+  * Enter 4 charactors target speed in Arduino Serial Window. (Ex: 2.00, -2.0, -4.0)
+  * If "actual speed" is close to "target speed," wiring and control board are working; if not, check wiring or swap encoder pins.
+  * "vnh5019.ino" is for the motor controller board for base. (Upload this if vnh5019 control board pass speed test.)
+  * Select Arduino Pro Mini when uploading.
 
 ## Check Odroid IP adress
      $ ifconfig
@@ -50,6 +50,6 @@
 
 ## Make robot move
      $ roslaunch andbot andbot_v1.launch
-     * Type Odroid IP address into Android App to Teleop. 
-     * You should see map updating after moving the robot for a while
+  * Type Odroid IP address into Android App to Teleop. 
+  * You should see map updating after moving the robot for a while
      
