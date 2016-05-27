@@ -12,9 +12,11 @@
           #define MICROSECONDS_PER_TIMER0_OVERFLOW (clockCyclesToMicroseconds(8 * 256))
 
 
-## MCU firmware
-     "mega_base_ultrasonic_v1" is for base mega board.
+## Uploading mega code
+     Copy "ros_lib" folder into "Arduino/libraries" folder.
+     "mega_base_ultrasonic_v1" is for base mega board
+## Uploading vnh5019 code     
      "vnh5019_andbot_test.ino" is to test if motor can achieve desire speed.
      "vnh5019.ino" is for the motor controller board for base. (Upload this if vnh5019 control board pass speed test.
      Please select Arduino Pro Mini when uploading codes for the motor controller boards.
-     Copy "ros_lib" folder into "Arduino/libraries" folder.
+     
