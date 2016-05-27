@@ -1,16 +1,13 @@
 # Base Test Proceduce
 
 ## Modify Arduino PWM Frequency 
-     Overwrite wiring.c in: 
-          ~/arduino-1.6.5/hardware/arduino/avr/cores/arduino
-          
-     Edit line 31 in "wiring.c"     
-     
-     Mega Board:
-          #define MICROSECONDS_PER_TIMER0_OVERFLOW (clockCyclesToMicroseconds(64 * 256))
-          
-     Vnh5019 Board:
-          #define MICROSECONDS_PER_TIMER0_OVERFLOW (clockCyclesToMicroseconds(8 * 256))
+  * Overwrite wiring.c in: 
+     ~/arduino-1.6.5/hardware/arduino/avr/cores/arduino
+  * Edit line 31 in "wiring.c"     
+  * Mega Board:
+     #define MICROSECONDS_PER_TIMER0_OVERFLOW (clockCyclesToMicroseconds(64 * 256))
+  * Vnh5019 Board:
+     #define MICROSECONDS_PER_TIMER0_OVERFLOW (clockCyclesToMicroseconds(8 * 256))
 
 ## Uploading mega code
   * Copy "ros_lib" folder into "Arduino/libraries" folder.
@@ -51,5 +48,5 @@
 ## Make robot move
      $ roslaunch andbot andbot_v1.launch
   * Type Odroid IP address into Android App to Teleop. 
-  * You should see map updating after moving the robot for a while
+  * You should see map updating after moving the robot for a while.
      
