@@ -1129,19 +1129,19 @@
         </scan>
         <range>
           <min>0.02</min>
-          <max>4</max>
+          <max>3</max>
           <resolution>1</resolution>
         </range>
       </ray>
       <plugin filename="libgazebo_ros_range.so" name="gazebo_ros_range">
-        <robotNamespace>andbot</robotNamespace>
+        <!--<robotNamespace>andbot</robotNamespace>-->
         <gaussianNoise>0.05</gaussianNoise>
         <alwaysOn>true</alwaysOn>
         <updateRate>20</updateRate>
-        <topicName>range_sonar_1</topicName>
+        <topicName>sonar1</topicName>
         <frameName>sonar_1</frameName>
         <minRange>0.02</minRange>
-        <maxRange>4</maxRange>
+        <maxRange>3</maxRange>
         <fov>0.5235987755982988</fov>
         <radiation>ultrasound</radiation>
       </plugin>
@@ -1174,14 +1174,14 @@
         </range>
       </ray>
       <plugin filename="libgazebo_ros_range.so" name="gazebo_ros_range">
-        <robotNamespace>andbot</robotNamespace>
+        <!--<robotNamespace>andbot</robotNamespace>-->
         <gaussianNoise>0.05</gaussianNoise>
         <alwaysOn>true</alwaysOn>
         <updateRate>20</updateRate>
-        <topicName>range_sonar_2</topicName>
+        <topicName>sonar2</topicName>
         <frameName>sonar_2</frameName>
         <minRange>0.02</minRange>
-        <maxRange>4</maxRange>
+        <maxRange>3</maxRange>
         <fov>0.5235987755982988</fov>
         <radiation>ultrasound</radiation>
       </plugin>
@@ -1209,19 +1209,19 @@
         </scan>
         <range>
           <min>0.02</min>
-          <max>4</max>
+          <max>3</max>
           <resolution>1</resolution>
         </range>
       </ray>
       <plugin filename="libgazebo_ros_range.so" name="gazebo_ros_range">
-        <robotNamespace>andbot</robotNamespace>
+        <!--<robotNamespace>andbot</robotNamespace>-->
         <gaussianNoise>0.05</gaussianNoise>
         <alwaysOn>true</alwaysOn>
         <updateRate>20</updateRate>
-        <topicName>range_sonar_3</topicName>
+        <topicName>sonar3</topicName>
         <frameName>sonar_3</frameName>
         <minRange>0.02</minRange>
-        <maxRange>4</maxRange>
+        <maxRange>3</maxRange>
         <fov>0.5235987755982988</fov>
         <radiation>ultrasound</radiation>
       </plugin>
@@ -1249,19 +1249,19 @@
         </scan>
         <range>
           <min>0.02</min>
-          <max>4</max>
+          <max>3</max>
           <resolution>1</resolution>
         </range>
       </ray>
       <plugin filename="libgazebo_ros_range.so" name="gazebo_ros_range">
-        <robotNamespace>andbot</robotNamespace>
+        <!--<robotNamespace>andbot</robotNamespace>-->
         <gaussianNoise>0.05</gaussianNoise>
         <alwaysOn>true</alwaysOn>
         <updateRate>20</updateRate>
-        <topicName>range_sonar_4</topicName>
+        <topicName>sonar4</topicName>
         <frameName>sonar_4</frameName>
         <minRange>0.02</minRange>
-        <maxRange>4</maxRange>
+        <maxRange>3</maxRange>
         <fov>0.5235987755982988</fov>
         <radiation>ultrasound</radiation>
       </plugin>
@@ -1289,19 +1289,19 @@
         </scan>
         <range>
           <min>0.02</min>
-          <max>4</max>
+          <max>3</max>
           <resolution>1</resolution>
         </range>
       </ray>
       <plugin filename="libgazebo_ros_range.so" name="gazebo_ros_range">
-        <robotNamespace>andbot</robotNamespace>
+        <!--<robotNamespace>andbot</robotNamespace>-->
         <gaussianNoise>0.05</gaussianNoise>
         <alwaysOn>true</alwaysOn>
         <updateRate>20</updateRate>
-        <topicName>range_sonar_5</topicName>
+        <topicName>sonar5</topicName>
         <frameName>sonar_5</frameName>
         <minRange>0.022</minRange>
-        <maxRange>4</maxRange>
+        <maxRange>3</maxRange>
         <fov>0.5235987755982988</fov>
         <radiation>ultrasound</radiation>
       </plugin>
@@ -1329,19 +1329,19 @@
         </scan>
         <range>
           <min>0.02</min>
-          <max>4</max>
+          <max>3</max>
           <resolution>1</resolution>
         </range>
       </ray>
       <plugin filename="libgazebo_ros_range.so" name="gazebo_ros_range">
-        <robotNamespace>andbot</robotNamespace>
+        <!--<robotNamespace>andbot</robotNamespace>-->
         <gaussianNoise>0.05</gaussianNoise>
         <alwaysOn>true</alwaysOn>
         <updateRate>20</updateRate>
-        <topicName>range_sonar_6</topicName>
+        <topicName>sonar6</topicName>
         <frameName>sonar_6</frameName>
         <minRange>0.02</minRange>
-        <maxRange>4</maxRange>
+        <maxRange>3</maxRange>
         <fov>0.5235987755982988</fov>
         <radiation>ultrasound</radiation>
       </plugin>
@@ -1369,19 +1369,19 @@
         </scan>
         <range>
           <min>0.02</min>
-          <max>4</max>
+          <max>3</max>
           <resolution>1</resolution>
         </range>
       </ray>
       <plugin filename="libgazebo_ros_range.so" name="gazebo_ros_range">
-        <robotNamespace>andbot</robotNamespace>
+        <!--<robotNamespace>andbot</robotNamespace>-->
         <gaussianNoise>0.05</gaussianNoise>
         <alwaysOn>true</alwaysOn>
         <updateRate>20</updateRate>
-        <topicName>range_sonar_7</topicName>
+        <topicName>sonar7</topicName>
         <frameName>sonar_7</frameName>
         <minRange>0.02</minRange>
-        <maxRange>4</maxRange>
+        <maxRange>3</maxRange>
         <fov>0.5235987755982988</fov>
         <radiation>ultrasound</radiation>
       </plugin>
@@ -1409,24 +1409,25 @@
         </scan>
         <range>
           <min>0.02</min>
-          <max>4</max>
+          <max>3</max>
           <resolution>1</resolution>
         </range>
       </ray>
       <plugin filename="libgazebo_ros_range.so" name="gazebo_ros_range">
-        <robotNamespace>andbot</robotNamespace>
+       <!-- <robotNamespace>andbot</robotNamespace>-->
         <gaussianNoise>0.05</gaussianNoise>
         <alwaysOn>true</alwaysOn>
         <updateRate>20</updateRate>
-        <topicName>range_sonar_8</topicName>
+        <topicName>sonar8</topicName>
         <frameName>sonar_8</frameName>
         <minRange>0.02</minRange>
-        <maxRange>4</maxRange>
+        <maxRange>3</maxRange>
         <fov>0.5235987755982988</fov>
         <radiation>ultrasound</radiation>
       </plugin>
     </sensor>
   </gazebo>
+
 <gazebo reference="sonar_9">
     <sensor name ="sonar9" type="ray">
        <pose>0 0 0 0 0 0</pose>
@@ -1449,24 +1450,25 @@
         </scan>
         <range>
           <min>0.02</min>
-          <max>4</max>
+          <max>3</max>
           <resolution>1</resolution>
         </range>
       </ray>
       <plugin filename="libgazebo_ros_range.so" name="gazebo_ros_range">
-        <robotNamespace>andbot</robotNamespace>
+       <!-- <robotNamespace>andbot</robotNamespace>-->
         <gaussianNoise>0.05</gaussianNoise>
         <alwaysOn>true</alwaysOn>
         <updateRate>20</updateRate>
-        <topicName>range_sonar_9</topicName>
+        <topicName>sonar9</topicName>
         <frameName>sonar_9</frameName>
         <minRange>0.02</minRange>
-        <maxRange>4</maxRange>
+        <maxRange>3</maxRange>
         <fov>0.5235987755982988</fov>
         <radiation>ultrasound</radiation>
       </plugin>
     </sensor>
   </gazebo>
+
 <gazebo reference="sonar_10">
     <sensor name ="sonar10" type="ray">
        <pose>0 0 0 0 0 0</pose>
@@ -1489,24 +1491,25 @@
         </scan>
         <range>
           <min>0.02</min>
-          <max>4</max>
+          <max>3</max>
           <resolution>1</resolution>
         </range>
       </ray>
       <plugin filename="libgazebo_ros_range.so" name="gazebo_ros_range">
-        <robotNamespace>andbot</robotNamespace>
+       <!-- <robotNamespace>andbot</robotNamespace>-->
         <gaussianNoise>0.05</gaussianNoise>
         <alwaysOn>true</alwaysOn>
         <updateRate>20</updateRate>
-        <topicName>range_sonar_10</topicName>
+        <topicName>sonar10</topicName>
         <frameName>sonar_10</frameName>
         <minRange>0.02</minRange>
-        <maxRange>4</maxRange>
+        <maxRange>3</maxRange>
         <fov>0.5235987755982988</fov>
         <radiation>ultrasound</radiation>
       </plugin>
     </sensor>
   </gazebo>
+
 <gazebo reference="sonar_11">
     <sensor name ="sonar11" type="ray">
        <pose>0 0 0 0 0 0</pose>
@@ -1529,24 +1532,25 @@
         </scan>
         <range>
           <min>0.02</min>
-          <max>4</max>
+          <max>3</max>
           <resolution>1</resolution>
         </range>
       </ray>
       <plugin filename="libgazebo_ros_range.so" name="gazebo_ros_range">
-        <robotNamespace>andbot</robotNamespace>
+       <!-- <robotNamespace>andbot</robotNamespace>-->
         <gaussianNoise>0.05</gaussianNoise>
         <alwaysOn>true</alwaysOn>
         <updateRate>20</updateRate>
-        <topicName>range_sonar_11</topicName>
+        <topicName>sonar11</topicName>
         <frameName>sonar_11</frameName>
         <minRange>0.02</minRange>
-        <maxRange>4</maxRange>
+        <maxRange>3</maxRange>
         <fov>0.5235987755982988</fov>
         <radiation>ultrasound</radiation>
       </plugin>
     </sensor>
   </gazebo>
+
 <gazebo reference="sonar_12">
     <sensor name ="sonar12" type="ray">
        <pose>0 0 0 0 0 0</pose>
@@ -1569,19 +1573,19 @@
         </scan>
         <range>
           <min>0.02</min>
-          <max>4</max>
+          <max>3</max>
           <resolution>1</resolution>
         </range>
       </ray>
       <plugin filename="libgazebo_ros_range.so" name="gazebo_ros_range">
-        <robotNamespace>andbot</robotNamespace>
+        <!--<robotNamespace>andbot</robotNamespace>-->
         <gaussianNoise>0.05</gaussianNoise>
         <alwaysOn>true</alwaysOn>
         <updateRate>20</updateRate>
-        <topicName>range_sonar_12</topicName>
+        <topicName>sonar12</topicName>
         <frameName>sonar_12</frameName>
         <minRange>0.02</minRange>
-        <maxRange>4</maxRange>
+        <maxRange>3</maxRange>
         <fov>0.5235987755982988</fov>
         <radiation>ultrasound</radiation>
       </plugin>
