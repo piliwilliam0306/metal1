@@ -8,9 +8,9 @@
      ~/arduino-1.6.5/hardware/arduino/avr/cores/arduino
   * Edit line 31 in "wiring.c"     
   * For Mega Board:
-     #define MICROSECONDS_PER_TIMER0_OVERFLOW (clockCyclesToMicroseconds(64 * 256))
+       #define MICROSECONDS_PER_TIMER0_OVERFLOW (clockCyclesToMicroseconds(64 * 256))
   * For Vnh5019 Board:
-     #define MICROSECONDS_PER_TIMER0_OVERFLOW (clockCyclesToMicroseconds(8 * 256))
+       #define MICROSECONDS_PER_TIMER0_OVERFLOW (clockCyclesToMicroseconds(8 * 256))
 
 ## Uploading mega code
   * Copy "ros_lib" folder into "Arduino/libraries" folder.
