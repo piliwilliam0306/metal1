@@ -29,7 +29,7 @@
   * Select Arduino Pro Mini when uploading.
 
 
-# Base Test Proceduce without ROS
+# Base Test Proceduce with ROS
 ## Hardware
   * Connect Vnh5019 board to mega board
   * Connect mega board to Odroid board via USB
