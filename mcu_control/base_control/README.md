@@ -1,12 +1,15 @@
-# Base Test Proceduce
+# Overview
+* Base Test Procedure without ROS
+* Base Test Procedure with ROS
 
-## Modify Arduino PWM Frequency 
+# Base Test Proceduce without ROS
+## Modify Arduino PWM Frequency in Arduino IDE
   * Overwrite wiring.c in: 
      ~/arduino-1.6.5/hardware/arduino/avr/cores/arduino
   * Edit line 31 in "wiring.c"     
-  * Mega Board:
+  * For Mega Board:
      #define MICROSECONDS_PER_TIMER0_OVERFLOW (clockCyclesToMicroseconds(64 * 256))
-  * Vnh5019 Board:
+  * For Vnh5019 Board:
      #define MICROSECONDS_PER_TIMER0_OVERFLOW (clockCyclesToMicroseconds(8 * 256))
 
 ## Uploading mega code
@@ -18,22 +21,34 @@
   * "vnh5019_andbot_test.ino" is to test if motor can achieve desire speed. (Speed control test)
   * "#define WHEEL_TYPE RIGHT_WHEEL" when uploading for right wheel. 
   * "#define WHEEL_TYPE LEFT_WHEEL" when uploading for left wheel.
-  * Enter 4 charactors target speed in Arduino Serial Window. (Ex: 2.00, -2.0, -4.0)
+
+## Test speed control
+  * Enter 4 charactors target speed in Arduino Serial Console/Window. (Ex: 2.00, -2.0, -4.0)
   * If "actual speed" is close to "target speed," wiring and control board are working; if not, check wiring or swap encoder pins.
   * "vnh5019.ino" is for the motor controller board for base. (Upload this if vnh5019 control board pass speed test.)
   * Select Arduino Pro Mini when uploading.
 
-## Check Odroid IP adress
-     $ ifconfig
 
-## Compiling packages (in Terminal)
+# Base Test Proceduce without ROS
+## Hardware
+  * Connect Vnh5019 board to mega board
+  * Connect mega board to Odroid board via USB
+  * Connect HDMI monitor, mouse and keyboard to Odroid board
+  * Power on Odroid board, mega board and Vnh5019 board
+  * Prepare an Android phone, and install teleop app
+
+## Check Odroid IP adress (In Odroid board)
+     $ ifconfig  
+
+## Compiling packages (in ssh terminal)
+     $ ssh odroid@[Odroid IP address]
      $ cd ~/catkin_ws/src
      $ git clone https://github.com/piliwilliam0306/metal1.git
      $ cd ~/catkin_ws
      $ catkin_make
      $ rospack profile
      
-## Test Rosserial
+## Test Rosserial (in ssh terminal)
      $ roscore
      $ rosrun rosserial_python serial_node.py _port:=/dev/ttyACM0 _baud:=57600
      $ rostopic pub /cmd_wheel_angularVel andbot/WheelCmd 
@@ -45,8 +60,13 @@
      * if "feedback_wheel_angularVel" topic output is close to "cmd_wheel_angularVel," rosserial and motor control board is working.
      $ Ctrl + C
 
-## Make robot move
+## Make robot move via Teleop app
+  * Now, put the robot on the ground
+  * In ssh terminal in Odroid board, launch startup script
      $ roslaunch andbot andbot_v1.launch
-  * Type Odroid IP address into Android App to Teleop. 
-  * You should see map updating after moving the robot for a while.
+  * Open Teleop app in Android phone
+    * Enter "http://[Odroid IP address]:11311 as ROS_MASTER_URI. 
+  * Now you should see a map in the Teleop app
+  * Use the teleop app to control the robot movement/rotation for a few meters, and check if the map updating is correct.
+ 
      
