@@ -7,23 +7,25 @@
   * Overwrite wiring.c in: 
      ~/arduino-1.6.5/hardware/arduino/avr/cores/arduino
   * Edit line 31 in "wiring.c"     
-  * For Mega Board:
-       #define MICROSECONDS_PER_TIMER0_OVERFLOW (clockCyclesToMicroseconds(64 * 256))
-  * For Vnh5019 Board:
-       #define MICROSECONDS_PER_TIMER0_OVERFLOW (clockCyclesToMicroseconds(8 * 256))
+     #define MICROSECONDS_PER_TIMER0_OVERFLOW (clockCyclesToMicroseconds(8 * 256))
 
 ## Uploading mega code
   * Copy "ros_lib" folder into "Arduino/libraries" folder.
   * "mega_base_ultrasonic_v1" is for base mega board.
+  * "#define ANDBOT 1" when uploading Andbot.
+  * "#define RUGBY 2" when uploading Rugby or Angel.
   * Select Mega2560 when uploading.
 
 ## Uploading vnh5019 code
-  * "vnh5019_andbot_test.ino" is to test if motor can achieve desire speed. (Speed control test)
+  * "vnh5019_base_test.ino" is to test if motor can achieve desire speed. (Speed control test)
   * "#define WHEEL_TYPE RIGHT_WHEEL" when uploading for right wheel. 
   * "#define WHEEL_TYPE LEFT_WHEEL" when uploading for left wheel.
+  * "#define ANDBOT 3" when uploading Andbot.
+  * "#define RUGBY 4" when uploading Rugby or Angel.
 
 ## Test speed control
-  * Enter 4 charactors target speed in Arduino Serial Console/Window. (Ex: 2.00, -2.0, -4.0)
+  * Enter 4 charactors target speed in Arduino Serial Console/Window. 
+     Any value from -10.9 to +10.9 for Andbot, Any value from -31 to +31 for Rugby or Angel
   * If "actual speed" is close to "target speed," wiring and control board are working; if not, check wiring or swap encoder pins.
   * "vnh5019.ino" is for the motor controller board for base. (Upload this if vnh5019 control board pass speed test.)
   * Select Arduino Pro Mini when uploading.
