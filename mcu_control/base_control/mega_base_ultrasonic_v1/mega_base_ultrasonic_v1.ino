@@ -1,21 +1,20 @@
 //This code uses direct port manipulation which only works on Arduino Mega 2560
-//#define USE_USBCON
+#define ANDBOT 1
+//#define RUGBY 2
+
 #include <ros.h>
 #include <andbot/Bump.h>
 #include <andbot/Sonar.h>
 #include <andbot/WheelCmd.h>
 #include <andbot/WheelFb.h>
 #include <avr/io.h>
+#include <andbot/DriverState.h>
 
-const int bump1 = 23; //PA1
-const int bump2 = 25; //PA3
-const int bump3 = 27; //PA5
-const int bump4 = 29; //PA7
-
-const int cliff1 = 22; //PA0
-const int cliff2 = 24; //PA2
-const int cliff3 = 26; //PA4
-const int cliff4 = 28; //PA6
+#if defined (ANDBOT)
+  #define MaxSpeed 10.96
+#else
+  #define MaxSpeed 31
+#endif
 
 const int TrigPin1 = 30;  //PC7
 const int TrigPin2 = 31;  //PC6
@@ -35,26 +34,6 @@ const int EchoPin6 = 47;  //PL2
 const int EchoPin7 = 48;  //PL1
 const int EchoPin8 = 49;  //PL0
 
-byte sT_L = 0;  //send start byte
-byte sH_L = 0;  //send high byte
-byte sL_L = 0;  //send low byte
-byte sP_L = 0;  //send stop byte
-
-byte rT_L = 0;  //receive start byte
-byte rH_L = 0;  //receive high byte
-byte rL_L = 0;  //receive low byte
-byte rP_L = 0;  //receive stop byte
-
-byte sT_R = 0;  //send start byte
-byte sH_R = 0;  //send high byte
-byte sL_R = 0;  //send low byte
-byte sP_R = 0;  //send stop byte
-
-byte rT_R = 0;  //receive start byte
-byte rH_R = 0;  //receive high byte
-byte rL_R = 0;  //receive low byte
-byte rP_R = 0;  //receive stop byte
-
 #define LOOPTIME        100
 #define BOOLTIME        1000 //1 Hz publish rate for cliff and bump sensor
 
@@ -66,10 +45,6 @@ unsigned long lastMilli = 0;
 unsigned long lastBool = 0;
 
 long dT = 0;
-int left_actual_receive = 0;
-int left_target_send = 0;
-int right_actual_receive = 0;
-int right_target_send = 0;
 
 bool bump1_reading;
 bool bump2_reading;
@@ -80,18 +55,14 @@ bool cliff2_reading;
 bool cliff3_reading;
 bool cliff4_reading;
 //Max.Distance(cm) = 200cm
-unsigned long TimeOut = 5000;//TimeOut = Max.Distance(cm) * 58
-unsigned long duration;
-uint8_t cm;
+#define TimeOut 5000//TimeOut = Max.Distance(cm) * 58
+
 unsigned int current_left = 0;
 unsigned int current_right = 0;
-bool driver_left_mode;
-bool driver_right_mode;
-bool driver_left_status;
-bool driver_right_status;
+bool driver_mode;
 
 ros::NodeHandle nh;
-
+using andbot::DriverState;
 bool set_; 
 
 andbot::WheelFb wheel_msg;
@@ -108,8 +79,7 @@ void messageCb(const andbot::WheelCmd& msg)
 {
   omega_left_target = msg.speed1;  
   omega_right_target = msg.speed2;
-  driver_left_mode = msg.mode1;
-  driver_right_mode = msg.mode2;
+  driver_mode = msg.driverstate;
   sendCmd_wheel_angularVel_L();
   sendCmd_wheel_angularVel_R();
 }
@@ -118,6 +88,7 @@ ros::Subscriber<andbot::WheelCmd> s("cmd_wheel_angularVel",messageCb);
 
 void setup() 
 {
+  TCCR0B = TCCR0B & B11111000 | B00000010; 
   //set baud rate for rosserial
   nh.getHardware()->setBaud(57600); 
   nh.initNode();
@@ -147,8 +118,6 @@ void loop()
           wheel_msg.speed2 = omega_right_actual;
           wheel_msg.current1 = current_left;
           wheel_msg.current2 = current_right;
-          wheel_msg.status1 = driver_left_status;
-          wheel_msg.status2 = driver_right_status;
           p.publish(&wheel_msg);
        }     
     
@@ -175,7 +144,6 @@ void loop()
           bump_msg.cliff3 = !cliff3_reading;
           cliff4_reading = (PINA & (1<<PA6));
           bump_msg.cliff4 = !cliff4_reading;
-
           pub_bump.publish(&bump_msg);
           
           //sonar
@@ -194,6 +162,8 @@ void loop()
 
 uint8_t ping(int TrigPin, int EchoPin) 
 {
+  unsigned long duration;
+  uint8_t cm;
   digitalWrite( TrigPin, LOW );
   delayMicroseconds( 2 );
   digitalWrite( TrigPin, HIGH );
@@ -206,7 +176,7 @@ uint8_t ping(int TrigPin, int EchoPin)
 
 void readFeadback_angularVel_L()
 {
-  //if (Serial2.available() >= 4) 
+  int actual_receive;
   if (Serial2.available() >= 5) 
   {
     char rT_L = (char)Serial2.read(); //read actual speed from Uno
@@ -218,81 +188,63 @@ void readFeadback_angularVel_L()
         byte rL_L = commandArray_L[1];
         byte rCS_L = commandArray_L[2];
         char rP_L = commandArray_L[3];
-        if(rP_L == '}') //B01111101 motor driver on        
+        if(rP_L == '}')       
           {
-            left_actual_receive = (rH_L << 8) + rL_L; 
-            omega_left_actual = double (left_actual_receive * 0.00031434064); //convert received 16 bit integer to actual speed
+            actual_receive = (rH_L << 8) + rL_L; 
+            omega_left_actual = double (actual_receive * (MaxSpeed/32767)); //convert received 16 bit integer to actual speed
             //max current is 20400mA, 255 * 80 = 20400mA
             current_left = (rCS_L * 80); 
-            driver_left_status = true;
           }
-        if(rP_L == '|') //B01111100 motor driver off        
-          {
-            left_actual_receive = (rH_L << 8) + rL_L; 
-            omega_left_actual = double (left_actual_receive * 0.00031434064); //convert received 16 bit integer to actual speed
-            current_left = (rCS_L * 80);
-            driver_left_status = false;
-          }  
       }   
   }
 }
 
 void readFeadback_angularVel_R()
 {
-  //if (Serial1.available() >= 4) 
+  int actual_receive;
   if (Serial1.available() >= 5) 
   {  
     char rT_R = (char)Serial1.read(); //read actual speed from Uno
     if(rT_R == '{')
      {
-       //char commandArray_R[3];
        char commandArray_R[4];
-       //Serial1.readBytes(commandArray_R,3);
        Serial1.readBytes(commandArray_R,4);
        byte rH_R = commandArray_R[0];
        byte rL_R = commandArray_R[1];
        byte rCS_R = commandArray_R[2];
        char rP_R = commandArray_R[3];
-       if(rP_R == '}') //B01111101 motor driver on         
+       if(rP_R == '}')          
         {
-          right_actual_receive = (rH_R << 8) + rL_R; 
-          omega_right_actual = double (right_actual_receive * 0.00031434064); //convert received 16 bit integer to actual speed
+          actual_receive = (rH_R << 8) + rL_R; 
+          omega_right_actual = double (actual_receive * (MaxSpeed/32767)); //convert received 16 bit integer to actual speed
           current_right = rCS_R * 80;
-          driver_right_status = true;
-        }
-       if(rP_R == '|') //B01111100 motor driver off        
-        {
-            right_actual_receive = (rH_R << 8) + rL_R; 
-            omega_right_actual = double (right_actual_receive * 0.00031434064); //convert received 16 bit integer to actual speed
-            current_right = rCS_R * 80;
-            driver_right_status = false;
-        }   
+        }  
      }
   }   
 }
 
 void sendCmd_wheel_angularVel_L()
 {
-  left_target_send = int(omega_left_target/0.00031434064); //convert rad/s to 16 bit integer to send
-  char sT_L = '{'; //send start byte
-  byte sH_L = highByte(left_target_send); //send high byte
-  byte sL_L = lowByte(left_target_send);  //send low byte
-  if (driver_left_mode == true)  sP_L = '}'; //send stop byte motor on
-  if (driver_left_mode == false)  sP_L = '|'; //send stop byte motor off
-  //char sP_L = '}';
-  Serial2.write(sT_L); Serial2.write(sH_L); Serial2.write(sL_L); Serial2.write(sP_L);
+  int left_target_send = int(omega_left_target/(MaxSpeed/32767)); //convert rad/s to 16 bit integer to send
+  byte buf[4];
+  buf[0] = '{'; //send start byte
+  buf[1] = highByte(left_target_send); //send high byte
+  buf[2] = lowByte(left_target_send);  //send low byte
+  if (driver_mode == true)  buf[3] = '}'; //send stop byte motor on
+  if (driver_mode == false)  buf[3] = '|'; //send stop byte motor off
+  Serial2.write(buf, sizeof(buf));
 }
 
 void sendCmd_wheel_angularVel_R()
 {
-  right_target_send = int(omega_right_target/0.00031434064); //convert rad/s to 16 bit integer to send
-  char sT_R = '{'; //send start byte
-  byte sH_R = highByte(right_target_send); //send high byte
-  byte sL_R = lowByte(right_target_send);  //send low byte
-  if (driver_right_mode == true) sP_R = '}'; //send stop byte motor on
-  if (driver_right_mode == false) sP_R = '|'; //send stop byte motor off
-
-  Serial1.write(sT_R); Serial1.write(sH_R); Serial1.write(sL_R); Serial1.write(sP_R);
+  int right_target_send = int(omega_right_target/(MaxSpeed/32767)); //convert rad/s to 16 bit integer to send
+  byte buf[4];
+  buf[0] = '{'; //send start byte
+  buf[1] = highByte(right_target_send); //send high byte
+  buf[2] = lowByte(right_target_send);  //send low byte
+  if (driver_mode == true) buf[3] = '}'; //send stop byte motor on
+  if (driver_mode == false) buf[3] = '|'; //send stop byte motor off
+  Serial1.write(buf, sizeof(buf));
 }
 
 

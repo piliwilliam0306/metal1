@@ -1,11 +1,12 @@
+
 #define ANDBOT 3
 //#define RUGBY 4
 
 #define RIGHT_WHEEL 1
 #define LEFT_WHEEL 2
 
-#define WHEEL_TYPE LEFT_WHEEL
-//#define WHEEL_TYPE RIGHT_WHEEL
+//#define WHEEL_TYPE LEFT_WHEEL
+#define WHEEL_TYPE RIGHT_WHEEL
 
 #define encoder0PinA  2
 #define encoder0PinB  3
@@ -44,7 +45,7 @@ volatile long unknownvalue = 0;
 int pinAState = 0;
 int pinAStateOld = 0;
 int pinBState = 0;
-int pinBStateOld = 0;
+int pinBStateOld = 0; 
 
 volatile int lastEncoded = 0;
 unsigned long lastMilli = 0;                    // loop timing 
@@ -62,112 +63,67 @@ double sum_error, d_error=0;
 int analogPin = A0;
 unsigned int current = 0;
 
-//Motor Driver mode
-bool driver_mode = false;
-
 void setup() 
 { 
  //Set PWM frequency for D5 & D6
  // set timer 0 divisor to     8 for PWM frequency of  7812.50 Hz
  TCCR0B = TCCR0B & B11111000 | B00000010;
- pinMode(encoder0PinA, INPUT);  digitalWrite(encoder0PinA, HIGH);       // turn on pullup resistor
- pinMode(encoder0PinB, INPUT);  digitalWrite(encoder0PinB, HIGH);       // turn on pullup resistor
+ pinMode(encoder0PinA, INPUT); 
+ digitalWrite(encoder0PinA, HIGH);       // turn on pullup resistor
+ pinMode(encoder0PinB, INPUT); 
+ digitalWrite(encoder0PinB, HIGH);       // turn on pullup resistor
 
  attachInterrupt(0, doEncoder, CHANGE);  // encoder pin on interrupt 0 - pin 2
  attachInterrupt(1, doEncoder, CHANGE);
- pinMode(InA, OUTPUT);  pinMode(InB, OUTPUT); pinMode(EN, OUTPUT);
- //digitalWrite(EN, LOW);
+ pinMode(InA, OUTPUT); 
+ pinMode(InB, OUTPUT); 
+ pinMode(EN, OUTPUT);
  digitalWrite(EN, HIGH);
  Serial.begin (57600);
 } 
 
 void loop() 
-{       
-  readCmd_wheel_angularVel();
+{ 
+  if (Serial.available() >= 4)  omega_target = Serial.parseFloat();
   CurrentMonitor();
   if((millis()-lastMilli) >= LOOPTIME)  
      {                                    // enter tmed loop
         dT = millis()-lastMilli;
         lastMilli = millis();
-        
+
         getMotorData();                                                           // calculate speed
 
         PWM_val = (updatePid(omega_target, omega_actual));                       // compute PWM value from rad/s 
-        if ((omega_target == 0) && (driver_mode == true))  { PWM_val = 0;  sum_error = 0;  digitalWrite(EN, HIGH); }
-        //if (omega_target == 0)  { PWM_val = 0;  sum_error = 0;  }
+        
+        if (omega_target == 0)  { PWM_val = 0;  sum_error = 0;  }
         
         if (PWM_val <= 0)   { analogWrite(motorIn1,abs(PWM_val));  digitalWrite(InA, LOW);  digitalWrite(InB, HIGH); }
         if (PWM_val > 0)    { analogWrite(motorIn1,abs(PWM_val));  digitalWrite(InA, HIGH);   digitalWrite(InB, LOW);}
+        printMotorInfo();
      }
-     
-  if((millis()-lastSend) >= FeedbackTime)    
-     {                                    // enter tmed loop
-        lastSend = millis();
-        sendFeedback_wheel_angularVel(); //send actually speed to mega
-     }
-}
-
-void readCmd_wheel_angularVel()
-{
-  int target_receive;
-  if (Serial.available() >= 4) 
-  {
-    char rT = (char)Serial.read(); //read target speed from mega
-          if(rT == '{')
-            {
-              char commandArray[3];
-              Serial.readBytes(commandArray,3);
-              byte rH=commandArray[0];  byte rL=commandArray[1];  char rP=commandArray[2];
-              if(rP=='}') //B01111101 motor driver on         
-                {
-                  target_receive = (rH<<8)+rL; 
-                  omega_target = double (target_receive*(MaxSpeed/32767));  //convert received 16 bit integer to actual speed
-                  driver_mode = true;
-                }
-              if(rP=='|') //B01111100 motor driver off         
-                {
-                  target_receive = (rH<<8)+rL; 
-                  omega_target = double (target_receive*(MaxSpeed/32767));  //convert received 16 bit integer to actual speed
-                  driver_mode = false;
-                }  
-            }
-  }         
-}
-
-void sendFeedback_wheel_angularVel()
-{
-  //getMotorData();
-  byte current_send;
-  int actual_send = int(omega_actual/(MaxSpeed/32767)); //convert rad/s to 16 bit integer to send
-  //max current is 20400mA 20400/255 = 80
-  current_send = current/80; 
-  byte buf[5];
-  buf[0] = '{'; //send start byte
-  buf[1] = highByte(actual_send);  buf[2] = lowByte(actual_send);  //send low byte
-  buf[3] = current_send;  //send current value
-  buf[4] = '}'; //send stop byte 
-  Serial.write(buf, sizeof(buf));
 }
 
 void getMotorData()  
 {                               
   static long EncoderposPre = 0;   
-  if (WHEEL_TYPE == RIGHT_WHEEL)  omega_actual = ((Encoderpos - EncoderposPre)*(1000/dT))*2*PI/(CPR*gear_ratio);  //ticks/s to rad/s
-  else                            omega_actual = -(((Encoderpos - EncoderposPre)*(1000/dT))*2*PI/(CPR*gear_ratio));  //ticks/s to rad/s
+  if (WHEEL_TYPE == RIGHT_WHEEL)    
+    omega_actual = ((Encoderpos - EncoderposPre)*(1000/dT))*2*PI/(CPR*gear_ratio);  //ticks/s to rad/s
+  else  //left wheel
+    omega_actual = -(((Encoderpos - EncoderposPre)*(1000/dT))*2*PI/(CPR*gear_ratio));  //ticks/s to rad/s
   EncoderposPre = Encoderpos;                 
 }
 
 void CurrentMonitor()
 {
-  current = analogRead(analogPin) * 34;  // 5V / 1024 ADC counts / 144 mV per A = 34 mA per count
-  if ((current > CurrentLimit) || (driver_mode == false))  digitalWrite(EN, LOW);
+    current = analogRead(analogPin) * 34;  // 5V / 1024 ADC counts / 144 mV per A = 34 mA per count
+    //if (current > CurrentLimit)  digitalWrite(EN, LOW);
 }
 
 double updatePid(double targetValue,double currentValue)   
 {              
-  static double last_error=0;                 
-  double calculated_pidTerm, constrained_pidterm, error, pidTerm;        
-    
+  static double last_error=0;        
+  double calculated_pidTerm, constrained_pidterm, error, pidTerm;
+                      
   error = targetValue - currentValue; 
 
   sum_error = sum_error + error * dT;
@@ -176,7 +132,7 @@ double updatePid(double targetValue,double currentValue)
   
   d_error = (error - last_error) / dT;
   pidTerm = Kp * error + Ki * sum_error + Kd * d_error;   
-                       
+                        
   last_error = error;  
   if (WHEEL_TYPE == RIGHT_WHEEL)  calculated_pidTerm = pidTerm/(MaxSpeed/MaxPWM);
   else                            calculated_pidTerm = -pidTerm/(MaxSpeed/MaxPWM);  
@@ -187,7 +143,7 @@ double updatePid(double targetValue,double currentValue)
 
 
 void doEncoder() {
-
+ 
   pinAState = digitalRead(2);
   pinBState = digitalRead(3);
 
