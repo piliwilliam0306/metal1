@@ -13,66 +13,87 @@ namespace andbot
   {
     public:
       float speed1;
-      bool mode1;
       float speed2;
-      bool mode2;
+      bool driverstate;
 
     WheelCmd():
       speed1(0),
-      mode1(0),
       speed2(0),
-      mode2(0)
+      driverstate(0)
     {
     }
 
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
-      offset += serializeAvrFloat64(outbuffer + offset, this->speed1);
+      union {
+        float real;
+        uint32_t base;
+      } u_speed1;
+      u_speed1.real = this->speed1;
+      *(outbuffer + offset + 0) = (u_speed1.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_speed1.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_speed1.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_speed1.base >> (8 * 3)) & 0xFF;
+      offset += sizeof(this->speed1);
+      union {
+        float real;
+        uint32_t base;
+      } u_speed2;
+      u_speed2.real = this->speed2;
+      *(outbuffer + offset + 0) = (u_speed2.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_speed2.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_speed2.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_speed2.base >> (8 * 3)) & 0xFF;
+      offset += sizeof(this->speed2);
       union {
         bool real;
         uint8_t base;
-      } u_mode1;
-      u_mode1.real = this->mode1;
-      *(outbuffer + offset + 0) = (u_mode1.base >> (8 * 0)) & 0xFF;
-      offset += sizeof(this->mode1);
-      offset += serializeAvrFloat64(outbuffer + offset, this->speed2);
-      union {
-        bool real;
-        uint8_t base;
-      } u_mode2;
-      u_mode2.real = this->mode2;
-      *(outbuffer + offset + 0) = (u_mode2.base >> (8 * 0)) & 0xFF;
-      offset += sizeof(this->mode2);
+      } u_driverstate;
+      u_driverstate.real = this->driverstate;
+      *(outbuffer + offset + 0) = (u_driverstate.base >> (8 * 0)) & 0xFF;
+      offset += sizeof(this->driverstate);
       return offset;
     }
 
     virtual int deserialize(unsigned char *inbuffer)
     {
       int offset = 0;
-      offset += deserializeAvrFloat64(inbuffer + offset, &(this->speed1));
+      union {
+        float real;
+        uint32_t base;
+      } u_speed1;
+      u_speed1.base = 0;
+      u_speed1.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_speed1.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_speed1.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_speed1.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      this->speed1 = u_speed1.real;
+      offset += sizeof(this->speed1);
+      union {
+        float real;
+        uint32_t base;
+      } u_speed2;
+      u_speed2.base = 0;
+      u_speed2.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_speed2.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_speed2.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_speed2.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      this->speed2 = u_speed2.real;
+      offset += sizeof(this->speed2);
       union {
         bool real;
         uint8_t base;
-      } u_mode1;
-      u_mode1.base = 0;
-      u_mode1.base |= ((uint8_t) (*(inbuffer + offset + 0))) << (8 * 0);
-      this->mode1 = u_mode1.real;
-      offset += sizeof(this->mode1);
-      offset += deserializeAvrFloat64(inbuffer + offset, &(this->speed2));
-      union {
-        bool real;
-        uint8_t base;
-      } u_mode2;
-      u_mode2.base = 0;
-      u_mode2.base |= ((uint8_t) (*(inbuffer + offset + 0))) << (8 * 0);
-      this->mode2 = u_mode2.real;
-      offset += sizeof(this->mode2);
+      } u_driverstate;
+      u_driverstate.base = 0;
+      u_driverstate.base |= ((uint8_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      this->driverstate = u_driverstate.real;
+      offset += sizeof(this->driverstate);
      return offset;
     }
 
     const char * getType(){ return "andbot/WheelCmd"; };
-    const char * getMD5(){ return "733c147faf50d6f14134c7e87d662d3c"; };
+    const char * getMD5(){ return "173609e82190eaee99c6e251573e54e9"; };
 
   };
 
