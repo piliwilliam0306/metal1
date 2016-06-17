@@ -34,8 +34,7 @@ void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
   // publish to /cmd_wheel_angularVel
   wheel.speed1 = left_vel;
   wheel.speed2 = right_vel;
-  wheel.mode1 = true;
-  wheel.mode2 = true;
+  wheel.driverstate = true;
   cmd_wheel_angularVel_pub.publish(wheel);
   
 }

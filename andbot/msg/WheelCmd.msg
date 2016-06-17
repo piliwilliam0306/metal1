@@ -1,4 +1,3 @@
-float64 speed1
-bool    mode1
-float64 speed2
-bool    mode2
+float32 speed1
+float32 speed2
+bool driverstate

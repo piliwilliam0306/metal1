@@ -53,14 +53,19 @@ find_package(catkin REQUIRED COMPONENTS
    Bump.msg
    WheelCmd.msg
    WheelFb.msg
+   JointCmd.msg
+   JointFb.msg
+   Cmd.msg
+   Fb.msg
  )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+   FILES
+   Calibrate.srv
+   DeviceCheck.srv
+   DriverState.srv
+ )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -143,6 +148,8 @@ target_link_libraries(mybot_odometry_v1 ${catkin_LIBRARIES})
 add_executable(mybot_base_controller_v1 src/mybot_base_controller_v1.cpp)
 target_link_libraries(mybot_base_controller_v1 ${catkin_LIBRARIES})
 
+add_executable(acc_lim_test src/acc_lim_test.cpp)
+target_link_libraries(acc_lim_test ${catkin_LIBRARIES})
 add_executable(sonar src/sonar.cpp)
 target_link_libraries(sonar ${catkin_LIBRARIES})
 

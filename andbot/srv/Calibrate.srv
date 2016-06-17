@@ -1,0 +1,11 @@
+uint8 id
+uint8 kp
+uint8 ki
+uint8 kd
+uint8 currentlim
+---
+uint8 id
+uint8 kp
+uint8 ki
+uint8 kd
+uint8 currentlim
