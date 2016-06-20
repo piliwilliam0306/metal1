@@ -28,4 +28,4 @@
 	#define ARM_LEFT_A0_A1_EN 0
 	#define ARM_LEFT_A2_A3_EN 1
 
-
+![](https://github.com/piliwilliam0306/metal1/blob/master/mcu_control/arms_control/mega2560_code/arm_mega_architecture.jpg)
