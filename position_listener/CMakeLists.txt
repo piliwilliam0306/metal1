@@ -142,6 +142,9 @@ include_directories(
 
 add_executable(position_listener src/position_listener.cpp)
 target_link_libraries(position_listener ${catkin_LIBRARIES})
+add_executable(position_listener_ekf src/position_listener_ekf.cpp)
+target_link_libraries(position_listener_ekf ${catkin_LIBRARIES})
+
 
 
 #############

@@ -1,5 +1,5 @@
 
-conntroller_frequency: 3.0
+controller_frequency: 10.0
 recovery_behavior_enabled: true
 clearing_rotation_allowed: true
 

@@ -1,10 +1,3 @@
-/*
- *
- *  Created Or Edited on: 13/01/2016
- *      Author: Dott. Antonio Mauro Galiano
- *		antoniomauro.galiano@gmail.com
- */
-
 #include <ros/ros.h>
 #include <tf/transform_listener.h>
 #include <geometry_msgs/PoseStamped.h>

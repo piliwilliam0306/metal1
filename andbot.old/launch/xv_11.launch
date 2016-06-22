@@ -1,0 +1,9 @@
+<launch>
+
+  <!-- Run the depthimage_to_laserscan node -->
+  <node pkg="xv_11_laser_driver" type="neato_laser_publisher" name="neato_laser_publisher" output="screen">
+  </node>
+ <!--  
+ <node pkg="tf" type="static_transform_publisher" name="base_to_camera" args = "0.11 0.0 0.2 0.0 0.0 0.0 /base_link /neato_laser 100" />
+  -->
+</launch>
