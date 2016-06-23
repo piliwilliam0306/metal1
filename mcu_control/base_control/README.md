@@ -16,7 +16,7 @@
   * "#define RUGBY 2" when uploading Rugby or Angel.
   * Select Mega2560 when uploading.
 
-## Uploading vnh5019 code
+## Uploading motor driver code
   * "vnh5019_base_test.ino" is to test if motor can achieve desire speed. (Speed control test)
   * "#define WHEEL_TYPE RIGHT_WHEEL" when uploading for right wheel. 
   * "#define WHEEL_TYPE LEFT_WHEEL" when uploading for left wheel.
