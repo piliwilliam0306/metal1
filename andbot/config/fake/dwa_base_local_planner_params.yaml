@@ -1,9 +1,9 @@
-planner_frequency: 0.2
+planner_frequency: 0.5
 controller_frequency: 10.0
 
 DWAPlannerROS:
    max_vel_x: 0.2
-   min_vel_x: -0.05
+   min_vel_x: -0.1
    #min_vel_x: 0.05
    max_vel_y: 0.0  # zero for a differential drive robot
    min_vel_y: 0.0
@@ -15,8 +15,11 @@ DWAPlannerROS:
    #acc_lim_theta: 1.0
 
 #   holonomic_robot: false
-   yaw_goal_tolerance: 0.5 # about 6 degrees
-   xy_goal_tolerance: 0.2  # 1 cm
+#   yaw_goal_tolerance: 0.5 # about 6 degrees
+#   xy_goal_tolerance: 0.2  # 1 cm
+   yaw_goal_tolerance: 0.1 
+   xy_goal_tolerance: 0.05  
+
 #   latch_xy_goal_tolerance: false
    occdist_scale: 0.01
 
