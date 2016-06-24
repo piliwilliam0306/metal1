@@ -1,0 +1,3 @@
+[submodule "andbot_test_joint"]
+	path = andbot_test_joint
+	url = https://github.com/ChingHengWang/andbot_test_joint.git
