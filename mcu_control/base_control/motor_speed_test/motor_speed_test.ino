@@ -1,12 +1,12 @@
 
-#define ANDBOT 3
-//#define RUGBY 4
+//#define ANDBOT 3
+#define RUGBY 4
 
 #define RIGHT_WHEEL 1
 #define LEFT_WHEEL 2
 
-//#define WHEEL_TYPE LEFT_WHEEL
-#define WHEEL_TYPE RIGHT_WHEEL
+#define WHEEL_TYPE LEFT_WHEEL
+//#define WHEEL_TYPE RIGHT_WHEEL
 
 #define MC33926 0
 #define VNH5019 1
@@ -47,7 +47,7 @@
   #define Kp 0.9
   #define Ki 0.005
   #define Kd 0
-  #define DRIVER MC33926
+  //#define DRIVER MC33926
   #define current_factor 9.30059523 // 5V / 1024 / 525 mV per amp = 9.30059523 mA per count for MC33926
 #endif
 
@@ -92,11 +92,11 @@ void setup()
  pinMode(motorIn1, OUTPUT); 
  pinMode(EN, OUTPUT);
  digitalWrite(EN, HIGH);
- pinMode(RS485Enable, OUTPUT);
+ //pinMode(RS485Enable, OUTPUT);
  //digitalWrite(RS485Enable, RS485Receive); //DE,RE=LOW, RX enabled
- digitalWrite(RS485Enable, RS485Transmit); //DE,RE=HIGH, TX enabled
- //Serial.begin (57600);
- Serial.begin (2000000);
+ //digitalWrite(RS485Enable, RS485Transmit); //DE,RE=HIGH, TX enabled
+ Serial.begin (57600);
+ //Serial.begin (2000000);
 } 
 
 void loop() 
@@ -108,22 +108,23 @@ void loop()
         dT = millis()-lastMilli;
         lastMilli = millis();
         
-        CurrentMonitor();
+        //CurrentMonitor();
         getMotorData();                                                           // calculate speed
 
         PWM_val = (updatePid(omega_target, omega_actual));                       // compute PWM value from rad/s 
         
         if (omega_target == 0)  { PWM_val = 0;  sum_error = 0;  }
-        if  (DRIVER == VNH5019)
+        /*if  (DRIVER == VNH5019)
         {
           if (PWM_val <= 0)   { analogWrite(motorIn1,abs(PWM_val));  digitalWrite(InA, LOW);  digitalWrite(InB, HIGH); }
           if (PWM_val > 0)    { analogWrite(motorIn1,abs(PWM_val));  digitalWrite(InA, HIGH);   digitalWrite(InB, LOW); }
-        }
-        if (DRIVER == MC33926)  
-        {
-          if (PWM_val <= 0)   { analogWrite(motorIn1,abs(PWM_val));  analogWrite(InB, 0); }
-          if (PWM_val > 0)    { analogWrite(motorIn1, 0); analogWrite(InB, abs(PWM_val)); }
-        }
+        }*/
+        //if (DRIVER == MC33926)  
+        //{
+          if (PWM_val <= 0) { analogWrite(motorIn1, 0);  analogWrite(InB, abs(PWM_val)); }
+          if (PWM_val > 0)  { analogWrite(InB, 0);analogWrite(motorIn1, abs(PWM_val));  }
+          
+        //}
         printMotorInfo();
      }
 }

@@ -8,7 +8,8 @@
 #include <andbot/WheelCmd.h>
 #include <andbot/WheelFb.h>
 #include <avr/io.h>
-#include <andbot/DriverState.h>
+//#include <andbot/DriverState.h>
+#include <andbot/Battery.h>
 
 #if defined (ANDBOT)
   #define MaxSpeed 10.96
@@ -59,10 +60,16 @@ bool cliff4_reading;
 
 unsigned int current_left = 0;
 unsigned int current_right = 0;
-bool driver_mode;
+bool driver_mode = false;
+
+int Vin = 0;           // variable to store the value read
+int Cin = 0;
+unsigned int current = 0;           // variable to store the value read
+byte capacity = 0;
+double voltage = 0;
 
 ros::NodeHandle nh;
-using andbot::DriverState;
+//using andbot::DriverState;
 bool set_; 
 
 andbot::WheelFb wheel_msg;
@@ -73,6 +80,9 @@ ros::Publisher pub_bump("bump", &bump_msg);
 
 andbot::Sonar sonar_msg;
 ros::Publisher pub_sonar( "sonar", &sonar_msg);
+
+andbot::Battery battery_msg;
+ros::Publisher pub_battery("battery", &battery_msg);
 
 //callback
 void messageCb(const andbot::WheelCmd& msg)
@@ -85,6 +95,16 @@ void messageCb(const andbot::WheelCmd& msg)
 }
 
 ros::Subscriber<andbot::WheelCmd> s("cmd_wheel_angularVel",messageCb);
+/*
+void callback(const DriverState::Request & req, DriverState::Response & res)
+{
+  driver_mode = req.driverstate;  
+  res.driverstate = driver_mode;
+  sendCmd_wheel_angularVel_L();
+  sendCmd_wheel_angularVel_R();
+}
+*/
+//ros::ServiceServer<DriverState::Request, DriverState::Response> server("DriverState",&callback);
 
 void setup() 
 {
@@ -96,6 +116,8 @@ void setup()
   nh.advertise(p);
   nh.advertise(pub_sonar);
   nh.advertise(pub_bump);
+  nh.advertise(pub_battery);
+  //nh.advertiseService(server);
 
   Serial2.begin (57600);  //left
   Serial1.begin (57600);  //right
@@ -156,8 +178,29 @@ void loop()
           sonar_msg.sonar7 = ping(TrigPin7,EchoPin7);
           sonar_msg.sonar8 = ping(TrigPin8,EchoPin8);
           pub_sonar.publish(&sonar_msg);
+
+          batteryStatus();
+          battery_msg.capacity = capacity;
+          battery_msg.current = current;
+          pub_battery.publish(&battery_msg);
         }  
   nh.spinOnce();
+}
+
+void batteryStatus()
+{
+  Vin = analogRead(A0);
+  delay(20);
+  Vin = analogRead(A0);
+  
+  voltage = Vin * 0.01642228739;
+  if (voltage > 16.66)  capacity = 100;
+  else if (voltage <= 14)  capacity = 0;
+  else          capacity = (voltage-14)/0.028;
+
+  Cin = analogRead(A1);
+  //voltage at 0A = vcc/2, nominally 2.5VDC, 509 count by measurement
+  current = ((double(Cin-510)*5)/1024)/0.066*1000; //convert to mA
 }
 
 uint8_t ping(int TrigPin, int EchoPin) 

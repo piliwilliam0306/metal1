@@ -63,7 +63,7 @@ int analogPin = A0;
 unsigned int current = 0;
 
 //Motor Driver mode
-bool driver_mode = false;
+bool driver_mode = true;
 
 void setup() 
 { 
@@ -139,8 +139,8 @@ void sendFeedback_wheel_angularVel()
   //getMotorData();
   byte current_send;
   int actual_send = int(omega_actual/(MaxSpeed/32767)); //convert rad/s to 16 bit integer to send
-  //max current is 20400mA 20400/255 = 80
-  current_send = current/80; 
+  //max current is 10200mA 10200/255 = 40
+  current_send = current/40; 
   byte buf[5];
   buf[0] = '{'; //send start byte
   buf[1] = highByte(actual_send);  buf[2] = lowByte(actual_send);  //send low byte
