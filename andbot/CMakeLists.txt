@@ -59,6 +59,7 @@ find_package(catkin REQUIRED COMPONENTS
    Cmd.msg
    Fb.msg
    Offset.msg
+   Battery.msg
  )
 
 ## Generate services in the 'srv' folder
@@ -157,6 +158,9 @@ target_link_libraries(sonar ${catkin_LIBRARIES})
 
 add_executable(mybot_odom_ekf src/mybot_odom_ekf.cpp)
 target_link_libraries(mybot_odom_ekf ${catkin_LIBRARIES})
+
+add_executable(mybot_odom_fusion src/mybot_odom_fusion.cpp)
+target_link_libraries(mybot_odom_fusion ${catkin_LIBRARIES})
 
 add_executable(mybot_base_controller src/mybot_base_controller.cpp)
 target_link_libraries(mybot_base_controller ${catkin_LIBRARIES})
