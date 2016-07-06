@@ -51,7 +51,7 @@ int main(int argc, char **argv)
  
   std_msgs::UInt16 rpms; 
 
-  priv_nh.param("port", port, std::string("/dev/ttyUSB0"));
+  priv_nh.param("port", port, std::string("/dev/xv11"));
   priv_nh.param("baud_rate", baud_rate, 115200);
   //priv_nh.param("frame_id", frame_id, std::string("neato_laser"));
   priv_nh.param("frame_id", frame_id, std::string("xv11"));
