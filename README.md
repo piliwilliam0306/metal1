@@ -2,7 +2,6 @@
 ##NOTE
   * use "andbot.launch" when working with plastic model.
   * use "metal.launch" when working with metal model.
-  * wtf
 
 ## TF_TREE for wheel odom only
 ![](https://github.com/piliwilliam0306/metal1/blob/master/andbot_launch.png)
