@@ -10,6 +10,7 @@
 #include <avr/io.h>
 //#include <andbot/DriverState.h>
 #include <andbot/Battery.h>
+#include <std_msgs/UInt8.h>
 
 #if defined (ANDBOT)
   #define MaxSpeed 10.96
@@ -80,8 +81,12 @@ ros::Publisher pub_bump("bump", &bump_msg);
 
 andbot::Sonar sonar_msg;
 ros::Publisher pub_sonar( "sonar", &sonar_msg);
-
+/*
 andbot::Battery battery_msg;
+ros::Publisher pub_battery("battery", &battery_msg);
+*/
+
+std_msgs::UInt8 battery_msg;
 ros::Publisher pub_battery("battery", &battery_msg);
 
 //callback
@@ -108,7 +113,7 @@ void callback(const DriverState::Request & req, DriverState::Response & res)
 
 void setup() 
 {
-  TCCR0B = TCCR0B & B11111000 | B00000010; 
+  //TCCR0B = TCCR0B & B11111000 | B00000010; 
   //set baud rate for rosserial
   nh.getHardware()->setBaud(57600); 
   nh.initNode();
@@ -180,8 +185,9 @@ void loop()
           pub_sonar.publish(&sonar_msg);
 
           batteryStatus();
-          battery_msg.capacity = capacity;
-          battery_msg.current = current;
+          /*battery_msg.capacity = capacity;
+          battery_msg.current = current;*/
+          battery_msg.data = capacity;
           pub_battery.publish(&battery_msg);
         }  
   nh.spinOnce();
@@ -190,17 +196,17 @@ void loop()
 void batteryStatus()
 {
   Vin = analogRead(A0);
-  delay(20);
-  Vin = analogRead(A0);
+  //delay(20);
+  //Vin = analogRead(A0);
   
   voltage = Vin * 0.01642228739;
   if (voltage > 16.66)  capacity = 100;
   else if (voltage <= 14)  capacity = 0;
-  else          capacity = (voltage-14)/0.028;
+  else                     capacity = (voltage-14)/0.028;
 
-  Cin = analogRead(A1);
+  //Cin = analogRead(A1);
   //voltage at 0A = vcc/2, nominally 2.5VDC, 509 count by measurement
-  current = ((double(Cin-510)*5)/1024)/0.066*1000; //convert to mA
+  //current = ((double(Cin-510)*5)/1024)/0.066*1000; //convert to mA
 }
 
 uint8_t ping(int TrigPin, int EchoPin) 
