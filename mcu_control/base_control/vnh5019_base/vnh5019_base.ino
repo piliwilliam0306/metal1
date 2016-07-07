@@ -51,7 +51,7 @@ unsigned long lastMilli = 0;                    // loop timing
 unsigned long lastSend = 0;                    // send timing 
 long dT = 0;
 
-double omega_target = 0.0;
+double omega_target = 0;
 double omega_actual = 0;
 
 int PWM_val = 0;                                // (25% = 64; 50% = 127; 75% = 191; 100% = 255)
@@ -75,9 +75,10 @@ void setup()
 
  attachInterrupt(0, doEncoder, CHANGE);  // encoder pin on interrupt 0 - pin 2
  attachInterrupt(1, doEncoder, CHANGE);
- pinMode(InA, OUTPUT);  pinMode(InB, OUTPUT); pinMode(EN, OUTPUT);
+ pinMode(InA, OUTPUT);  pinMode(InB, OUTPUT); 
+ //pinMode(EN, OUTPUT);
  //digitalWrite(EN, LOW);
- digitalWrite(EN, HIGH);
+ //digitalWrite(EN, HIGH);
  Serial.begin (57600);
 } 
 
@@ -93,7 +94,7 @@ void loop()
         getMotorData();                                                           // calculate speed
 
         PWM_val = (updatePid(omega_target, omega_actual));                       // compute PWM value from rad/s 
-        if ((omega_target == 0) && (driver_mode == true))  { PWM_val = 0;  sum_error = 0;  digitalWrite(EN, HIGH); }
+        //if ((omega_target == 0) && (driver_mode == true))  { PWM_val = 0;  sum_error = 0;  digitalWrite(EN, HIGH); }
         //if (omega_target == 0)  { PWM_val = 0;  sum_error = 0;  }
         
         if (PWM_val <= 0)   { analogWrite(motorIn1,abs(PWM_val));  digitalWrite(InA, LOW);  digitalWrite(InB, HIGH); }
@@ -104,6 +105,7 @@ void loop()
      {                                    // enter tmed loop
         lastSend = millis();
         sendFeedback_wheel_angularVel(); //send actually speed to mega
+        //printMotorInfo() ;
      }
 }
 
@@ -160,7 +162,7 @@ void getMotorData()
 void CurrentMonitor()
 {
   current = analogRead(analogPin) * 34;  // 5V / 1024 ADC counts / 144 mV per A = 34 mA per count
-  if ((current > CurrentLimit) || (driver_mode == false))  digitalWrite(EN, LOW);
+  //if ((current > CurrentLimit) || (driver_mode == false))  digitalWrite(EN, LOW);
 }
 
 double updatePid(double targetValue,double currentValue)   
