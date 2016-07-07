@@ -1,11 +1,16 @@
-#define ANDBOT 3
-//#define RUGBY 4
+/*
+ * Motor driver
+ */
+
+//#define ANDBOT 3
+#define RUGBY 4
+//#define ANGELBOT 5
 
 #define RIGHT_WHEEL 1
 #define LEFT_WHEEL 2
 
-#define WHEEL_TYPE LEFT_WHEEL
-//#define WHEEL_TYPE RIGHT_WHEEL
+//#define WHEEL_TYPE LEFT_WHEEL
+#define WHEEL_TYPE RIGHT_WHEEL
 
 #define encoder0PinA  2
 #define encoder0PinB  3
@@ -24,6 +29,14 @@
   #define CPR 28
   #define MaxSumError 2500
   #define gear_ratio 65.5
+  #define MaxSpeed 10.96
+  #define Kp 0.9
+  #define Ki 0.005
+  #define Kd 0
+#elif (ANGELBOT)
+  #define CPR 28  // counter per revolution
+  #define MaxSumError 2500
+  #define gear_ratio 18.8
   #define MaxSpeed 10.96
   #define Kp 0.9
   #define Ki 0.005
@@ -75,9 +88,10 @@ void setup()
 
  attachInterrupt(0, doEncoder, CHANGE);  // encoder pin on interrupt 0 - pin 2
  attachInterrupt(1, doEncoder, CHANGE);
- pinMode(InA, OUTPUT);  pinMode(InB, OUTPUT); pinMode(EN, OUTPUT);
+ pinMode(InA, OUTPUT);  pinMode(InB, OUTPUT); 
+ //pinMode(EN, OUTPUT);
  //digitalWrite(EN, LOW);
- digitalWrite(EN, HIGH);
+ //digitalWrite(EN, HIGH);
  Serial.begin (57600);
 } 
 
@@ -93,7 +107,7 @@ void loop()
         getMotorData();                                                           // calculate speed
 
         PWM_val = (updatePid(omega_target, omega_actual));                       // compute PWM value from rad/s 
-        if ((omega_target == 0) && (driver_mode == true))  { PWM_val = 0;  sum_error = 0;  digitalWrite(EN, HIGH); }
+        //if ((omega_target == 0) && (driver_mode == true))  { PWM_val = 0;  sum_error = 0;  digitalWrite(EN, HIGH); }
         //if (omega_target == 0)  { PWM_val = 0;  sum_error = 0;  }
         
         if (PWM_val <= 0)   { analogWrite(motorIn1,abs(PWM_val));  digitalWrite(InA, LOW);  digitalWrite(InB, HIGH); }
@@ -104,7 +118,9 @@ void loop()
      {                                    // enter tmed loop
         lastSend = millis();
         sendFeedback_wheel_angularVel(); //send actually speed to mega
+        printMotorInfo();
      }
+     
 }
 
 void readCmd_wheel_angularVel()
@@ -160,7 +176,7 @@ void getMotorData()
 void CurrentMonitor()
 {
   current = analogRead(analogPin) * 34;  // 5V / 1024 ADC counts / 144 mV per A = 34 mA per count
-  if ((current > CurrentLimit) || (driver_mode == false))  digitalWrite(EN, LOW);
+  //if ((current > CurrentLimit) || (driver_mode == false))  digitalWrite(EN, LOW);
 }
 
 double updatePid(double targetValue,double currentValue)   

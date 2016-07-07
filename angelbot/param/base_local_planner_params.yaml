@@ -33,7 +33,7 @@ TrajectoryPlannerROS:
 # Oscillation Prevention Parameters
   oscillation_reset_dist: 0.05
 
-# Differential-drive robot configuration : If the robot is holonomic configuration, set to true other vice set to false. Chefbot is a non holonomic robot.
+# Differential-drive robot configuration : If the robot is holonomic configuration, set to true other vice set to false. 
   holonomic_robot: false
   max_vel_y: 0.0
   min_vel_y: 0.0

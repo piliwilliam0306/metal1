@@ -31,7 +31,7 @@
 		</visual>
 		<inertial>
 			<mass value="0.42642"/>
-			<inertia ixx="0.0119" ixy="0.0" ixz="-0.0001" iyy="0.0035" iyz="0.0" izz="0.0063"/>
+			<inertia ixx="0.0119" ixy="0.0" ixz="0.0" iyy="0.0118" iyz="0.0" izz="0.0063"/>
 		</inertial>
 	</link>
 	<link name="${robotname}_shaft">
@@ -63,7 +63,7 @@
 		</visual>
 		<inertial>
 			<mass value="0.3871"/>
-			<inertia ixx="0.0002" ixy="0.0" ixz="0.0" iyy="0.0003" iyz="0.0" izz="0.0002"/>
+			<inertia ixx="0.0238" ixy="0.0" ixz="0.0" iyy="0.0003" iyz="0.0" izz="0.0238"/>
 		</inertial>
 	</link>
 	<link name="${robotname}_rightwheel">
@@ -79,7 +79,7 @@
 		</visual>
 		<inertial>
 			<mass value="0.3871"/>
-			<inertia ixx="0.0002" ixy="0.0" ixz="0.0" iyy="0.0003" iyz="0.0" izz="0.0002"/>
+			<inertia ixx="0.0238" ixy="0.0" ixz="0.0" iyy="0.0003" iyz="0.0" izz="0.0238"/>
 		</inertial>
 	</link>
 	<link name="${robotname}_rplidar">
@@ -96,19 +96,19 @@
 	<joint name="base2shaft" type="fixed">
 		<parent link="${robotname}_base"/>
 		<child link="${robotname}_shaft"/>
-		<origin xyz="-0.07 0 0.0255"/>
+		<origin xyz="0.07 0 0.0255"/>
 	</joint>
 	<joint name="shaft2leftwheel" type="continuous">
 		<parent link="${robotname}_shaft"/>
 		<child link="${robotname}_leftwheel"/>
 		<origin xyz="0 0.1235 0"/>
-		<axis xyz="0 1 0"/>
+		<axis xyz="0 -1 0"/>
 	</joint>
 	<joint name="shaft2rightwheel" type="continuous">
 		<parent link="${robotname}_shaft"/>
 		<child link="${robotname}_rightwheel"/>
 		<origin xyz="0 -0.1235 0"/>
-		<axis xyz="0 -1 0"/>
+		<axis xyz="0 1 0"/>
 	</joint>
 	<joint name="base2rplidar" type="fixed">
 		<parent link="${robotname}_base"></parent>

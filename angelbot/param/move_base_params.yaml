@@ -1,0 +1,28 @@
+# Move base node parameters. For full documentation of the parameters in this file, please see
+#
+#  http://www.ros.org/wiki/move_base
+#
+
+#This parameter determine whether the cost map need to shutdown when move_base in inactive state
+shutdown_costmaps: false
+
+#The rate at which move base run the update loop and send the velocity commands
+controller_frequency: 5.0
+
+#Controller wait time for a valid command before a space-clearing operations
+controller_patience: 3.0
+
+#The rate at which the global planning loop is running, if it is 0, planner only plan when a new goal is received
+planner_frequency: 1.0
+
+#Planner wait time for finding a valid path befire the space-clearing operations
+planner_patience: 5.0
+
+#Time allowed for oscillation before starting robot recovery operations
+oscillation_timeout: 10.0
+
+#Distance that robot should move to be considered which not be oscillating. Moving above this distance will reset the oscillation_ timeout
+oscillation_distance: 0.2
+
+# local planner - default is trajectory rollout
+base_local_planner: "dwa_local_planner/DWAPlannerROS"
