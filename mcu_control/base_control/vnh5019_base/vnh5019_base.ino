@@ -1,7 +1,17 @@
-/*
- * Motor driver
- */
+/**
+ *
+ * @file vnh5019_base.ino
+ * driver for vnh5019 board to control motor.
+ * @brief Motor driver vnh5019.
+ * @author will
+ * @version 1.00
+ *
+ *
+ **/
 
+/**
+ * Marco
+ */
 //#define ANDBOT 3
 #define RUGBY 4
 //#define ANGELBOT 5
@@ -78,6 +88,10 @@ unsigned int current = 0;
 //Motor Driver mode
 bool driver_mode = false;
 
+/**
+ * Initializations of vnh5019 board.
+ * Start serial port.
+ */
 void setup() 
 { 
  //Set PWM frequency for D5 & D6
@@ -95,6 +109,15 @@ void setup()
  Serial.begin (57600);
 } 
 
+/**
+ * Main function
+ *
+ * @dot
+ * digraph G {
+ * readCmd -> CurrentMonitor;
+ * }
+ * @enddot
+ */
 void loop() 
 {       
   readCmd_wheel_angularVel();
@@ -123,6 +146,9 @@ void loop()
      
 }
 
+/**
+ * Read cmd [velocity] from mega2560.
+ */
 void readCmd_wheel_angularVel()
 {
   int target_receive;
@@ -150,6 +176,9 @@ void readCmd_wheel_angularVel()
   }         
 }
 
+/**
+ * Send feedback to calculate cmd for next sampling time.
+ */
 void sendFeedback_wheel_angularVel()
 {
   //getMotorData();
@@ -165,6 +194,9 @@ void sendFeedback_wheel_angularVel()
   Serial.write(buf, sizeof(buf));
 }
 
+/**
+ * Get Encoder data of each wheel.
+ */
 void getMotorData()  
 {                               
   static long EncoderposPre = 0;   
@@ -173,12 +205,21 @@ void getMotorData()
   EncoderposPre = Encoderpos;                 
 }
 
+/**
+ * Limit current flow. (new development)
+ */
 void CurrentMonitor()
 {
   current = analogRead(analogPin) * 34;  // 5V / 1024 ADC counts / 144 mV per A = 34 mA per count
   //if ((current > CurrentLimit) || (driver_mode == false))  digitalWrite(EN, LOW);
 }
 
+/**
+ * Implement PID control.
+ * @param[in] targetValue
+ * @param[in] currentValue
+ * @return constrained_pidterm
+ */
 double updatePid(double targetValue,double currentValue)   
 {              
   static double last_error=0;                 
@@ -201,7 +242,29 @@ double updatePid(double targetValue,double currentValue)
   return constrained_pidterm;
 }
 
-
+/**
+ * Read encoder.\n
+ * Read pin 2 & pin 3 State.
+ *
+ * @dot
+ * digraph {
+ * label="read encoder flow"
+ *
+ * start[shape="box", style="rounded"]
+ * end[shape="box", style="rounded"]
+ *
+ * pinAZeroState[shape="diamond",style=""]
+ * pinBZeroState[shape="diamond",style=""]
+ * pinAZeroStateOld[shape="diamond",style=""]
+ * pinBZeroStateOld[shape="diamond",style=""]
+ *
+ * start -> pinAZeroState;
+ * start -> pinBZeroState;
+ * pinAZeroState -> end[label="YES"];
+ * pinBZeroState -> end[label="YES"];
+ * }
+ * @enddot
+ */
 void doEncoder() {
 
   pinAState = digitalRead(2);
@@ -236,14 +299,17 @@ void doEncoder() {
   pinBStateOld = pinBState;
 }
 
+/**
+ * Serial transmission for motor status.
+ */
 void printMotorInfo()  
 {                                                                      
    Serial.print(" target:");                  Serial.print(omega_target);
    Serial.print(" actual:");                  Serial.print(omega_actual);
-   Serial.print("  dT:");                  Serial.print(dT);
-   Serial.print("  sum_err:");                  Serial.print(sum_error);
-   Serial.print("  Current:");                  Serial.print(current);
-   Serial.print("  PWM_val:");                  Serial.print(PWM_val);
+   Serial.print("  dT:");                     Serial.print(dT);
+   Serial.print("  sum_err:");                Serial.print(sum_error);
+   Serial.print("  Current:");                Serial.print(current);
+   Serial.print("  PWM_val:");                Serial.print(PWM_val);
 
    Serial.println();
 }
