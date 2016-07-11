@@ -159,6 +159,9 @@ target_link_libraries(sonar ${catkin_LIBRARIES})
 add_executable(mybot_odom_ekf src/mybot_odom_ekf.cpp)
 target_link_libraries(mybot_odom_ekf ${catkin_LIBRARIES})
 
+add_executable(mybot_odom_ekf_v1 src/mybot_odom_ekf_v1.cpp)
+target_link_libraries(mybot_odom_ekf_v1 ${catkin_LIBRARIES})
+
 add_executable(mybot_odom_fusion src/mybot_odom_fusion.cpp)
 target_link_libraries(mybot_odom_fusion ${catkin_LIBRARIES})
 
