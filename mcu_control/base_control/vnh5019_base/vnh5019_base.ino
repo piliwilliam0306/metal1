@@ -12,23 +12,29 @@
 /**
  * Marco
  */
-//#define ANDBOT 3
-#define RUGBY 4
+#define ANDBOT 3
+//#define RUGBY 4
 //#define ANGELBOT 5
 
 #define RIGHT_WHEEL 1
 #define LEFT_WHEEL 2
 
+/**
+ * Be very much aware!!  
+ * For now, we actually use define "right_wheel" to left wheel.
+ * And vice versa.
+ * This is an issue to be solved either configing software or hardware.
+ **/
 //#define WHEEL_TYPE LEFT_WHEEL
 #define WHEEL_TYPE RIGHT_WHEEL
 
-#define encoder0PinA  2
-#define encoder0PinB  3
+#define encoder0PinA  2 /*! encoder A phrase */
+#define encoder0PinB  3 /*! encoder B phrase */
 
-#define motorIn1 6
-#define InA 4
-#define InB 5
-#define EN 7
+#define motorIn1 6 /*! 328p -> vnh ; PWM */
+#define InA 4 /*! 328p -> vnh ; Output for forward/reverse*/
+#define InB 5 /*! 328p -> vnh ; Output for forward/reverse*/
+#define EN 7 /*! 328p -> vnh ; Enable command*/
 
 #define LOOPTIME 40
 #define FeedbackTime 100
@@ -36,32 +42,32 @@
 #define MaxPWM 255
 
 #if defined (ANDBOT)
-  #define CPR 28
-  #define MaxSumError 2500
+  #define CPR 28 /*! count per rev */
+  #define MaxSumError 2500 /*! limit integration */
   #define gear_ratio 65.5
   #define MaxSpeed 10.96
   #define Kp 0.9
   #define Ki 0.005
   #define Kd 0
 #elif (ANGELBOT)
-  #define CPR 28  // counter per revolution
-  #define MaxSumError 2500
-  #define gear_ratio 18.8
-  #define MaxSpeed 10.96
-  #define Kp 0.9
-  #define Ki 0.005
-  #define Kd 0
+  #define CPR 64  /*! count per rev */
+  #define MaxSumError 2500 /*! limit integration */
+  #define gear_ratio 18.8 
+  #define MaxSpeed 10.96 /*! to be determined */
+  #define Kp 0.9 /*! need tuning */
+  #define Ki 0.005 /*! need tuning */
+  #define Kd 0 /* need tuning */
 #else
-  #define CPR 64
+  #define CPR 64 
   #define MaxSumError 6000
   #define gear_ratio 18.8
-  #define MaxSpeed 31
+  #define MaxSpeed 31 
   #define Kp 0.9
   #define Ki 0.005
   #define Kd 0
 #endif
 
-volatile long Encoderpos = 0;
+volatile long Encoderpos = 0; /*! counting encoder position */
 volatile long unknownvalue = 0;
 
 int pinAState = 0;
@@ -70,16 +76,16 @@ int pinBState = 0;
 int pinBStateOld = 0;
 
 volatile int lastEncoded = 0;
-unsigned long lastMilli = 0;                    // loop timing 
-unsigned long lastSend = 0;                    // send timing 
-long dT = 0;
+unsigned long lastMilli = 0;  /*! loop timing */
+unsigned long lastSend = 0;   /*! send timing */
+long dT = 0; /*! differential time */
 
-double omega_target = 0.0;
-double omega_actual = 0;
+double omega_target = 0.0; /*! target angular velocity */
+double omega_actual = 0; /*! actural angular velocity */
 
-int PWM_val = 0;                                // (25% = 64; 50% = 127; 75% = 191; 100% = 255)
+int PWM_val = 0;  /*! (25% = 64; 50% = 127; 75% = 191; 100% = 255) */
 
-double sum_error, d_error=0;
+double sum_error, d_error=0; /*! feedback block */
 
 //current sense
 int analogPin = A0;
@@ -103,9 +109,8 @@ void setup()
  attachInterrupt(0, doEncoder, CHANGE);  // encoder pin on interrupt 0 - pin 2
  attachInterrupt(1, doEncoder, CHANGE);
  pinMode(InA, OUTPUT);  pinMode(InB, OUTPUT); 
- //pinMode(EN, OUTPUT);
- //digitalWrite(EN, LOW);
- //digitalWrite(EN, HIGH);
+//digitalWrite(EN, LOW);
+ digitalWrite(EN, HIGH);
  Serial.begin (57600);
 } 
 
@@ -120,17 +125,17 @@ void setup()
  */
 void loop() 
 {       
-  readCmd_wheel_angularVel();
+  readCmd_wheel_angularVel(); /*! command from mega */
   CurrentMonitor();
   if((millis()-lastMilli) >= LOOPTIME)  
      {                                    // enter tmed loop
         dT = millis()-lastMilli;
         lastMilli = millis();
         
-        getMotorData();                                                           // calculate speed
+        getMotorData();                                                        // calculate speed
 
         PWM_val = (updatePid(omega_target, omega_actual));                       // compute PWM value from rad/s 
-        //if ((omega_target == 0) && (driver_mode == true))  { PWM_val = 0;  sum_error = 0;  digitalWrite(EN, HIGH); }
+        if ((omega_target == 0) && (driver_mode == true))  { PWM_val = 0;  sum_error = 0;  digitalWrite(EN, HIGH); }
         //if (omega_target == 0)  { PWM_val = 0;  sum_error = 0;  }
         
         if (PWM_val <= 0)   { analogWrite(motorIn1,abs(PWM_val));  digitalWrite(InA, LOW);  digitalWrite(InB, HIGH); }
@@ -196,6 +201,7 @@ void sendFeedback_wheel_angularVel()
 
 /**
  * Get Encoder data of each wheel.
+ * actual anglar velocity = diff(Encoderpos) * 1000 / dT
  */
 void getMotorData()  
 {                               
@@ -310,6 +316,7 @@ void printMotorInfo()
    Serial.print("  sum_err:");                Serial.print(sum_error);
    Serial.print("  Current:");                Serial.print(current);
    Serial.print("  PWM_val:");                Serial.print(PWM_val);
+   Serial.print("  Encoderpos:");                Serial.print(Encoderpos);
 
    Serial.println();
 }
