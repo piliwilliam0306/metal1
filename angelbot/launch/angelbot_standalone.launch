@@ -10,8 +10,7 @@
 	<param name="robot_description" command="$(find xacro)/xacro '$(find angelbot)/modeldescription/urdf/angelbot.xacro'" />
 	
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher">
-		<param name="publish_frequency" type="double" value="50.0"></param>
-		</node>
+		<param name="publish_frequency" type="double" value="50.0"></param></node>
 
 
 </launch>

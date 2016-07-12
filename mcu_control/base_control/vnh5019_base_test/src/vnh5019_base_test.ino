@@ -1,6 +1,6 @@
 
-#define ANDBOT 3
-//#define RUGBY 4
+//#define ANDBOT 3
+#define RUGBY 4
 
 #define RIGHT_WHEEL 1
 #define LEFT_WHEEL 2
@@ -95,7 +95,7 @@ void loop()
 
         PWM_val = (updatePid(omega_target, omega_actual));                       // compute PWM value from rad/s 
         
-        if (omega_target == 0)  { PWM_val = 0;  sum_error = 0;  }
+        if (omega_target == 0)  { PWM_val = 0;  sum_error = 0;}
         
         if (PWM_val <= 0)   { analogWrite(motorIn1,abs(PWM_val));  digitalWrite(InA, LOW);  digitalWrite(InB, HIGH); }
         if (PWM_val > 0)    { analogWrite(motorIn1,abs(PWM_val));  digitalWrite(InA, HIGH);   digitalWrite(InB, LOW);}
@@ -134,8 +134,8 @@ double updatePid(double targetValue,double currentValue)
   pidTerm = Kp * error + Ki * sum_error + Kd * d_error;   
                         
   last_error = error;  
-  if (WHEEL_TYPE == RIGHT_WHEEL)  calculated_pidTerm = pidTerm/(MaxSpeed/MaxPWM);
-  else                            calculated_pidTerm = -pidTerm/(MaxSpeed/MaxPWM);  
+  if (WHEEL_TYPE == RIGHT_WHEEL)  calculated_pidTerm = pidTerm/(double(MaxSpeed)/double(MaxPWM));
+  else                            calculated_pidTerm = -pidTerm/(double(MaxSpeed)/double(MaxPWM));
   constrained_pidterm = constrain(calculated_pidTerm, -MaxPWM, MaxPWM);
   
   return constrained_pidterm;

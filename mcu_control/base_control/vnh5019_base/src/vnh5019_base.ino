@@ -12,9 +12,9 @@
 /**
  * Marco
  */
-#define ANDBOT 3
+//#define ANDBOT 3
 //#define RUGBY 4
-//#define ANGELBOT 5
+#define ANGELBOT 5
 
 #define RIGHT_WHEEL 1
 #define LEFT_WHEEL 2
@@ -25,8 +25,8 @@
  * And vice versa.
  * This is an issue to be solved either configing software or hardware.
  **/
-//#define WHEEL_TYPE LEFT_WHEEL
-#define WHEEL_TYPE RIGHT_WHEEL
+#define WHEEL_TYPE LEFT_WHEEL
+//#define WHEEL_TYPE RIGHT_WHEEL
 
 #define encoder0PinA  2 /*! encoder A phrase */
 #define encoder0PinB  3 /*! encoder B phrase */
@@ -51,12 +51,12 @@
   #define Kd 0
 #elif (ANGELBOT)
   #define CPR 64  /*! count per rev */
-  #define MaxSumError 2500 /*! limit integration */
+  #define MaxSumError 6000 /*! limit integration */
   #define gear_ratio 18.8 
-  #define MaxSpeed 10.96 /*! to be determined */
-  #define Kp 0.9 /*! need tuning */
-  #define Ki 0.005 /*! need tuning */
-  #define Kd 0 /* need tuning */
+  #define MaxSpeed 31 /*! to be determined? */
+  #define Kp 0.9
+  #define Ki 0.005
+  #define Kd 0
 #else
   #define CPR 64 
   #define MaxSumError 6000
@@ -168,13 +168,13 @@ void readCmd_wheel_angularVel()
               if(rP=='}') //B01111101 motor driver on         
                 {
                   target_receive = (rH<<8)+rL; 
-                  omega_target = double (target_receive*(MaxSpeed/32767));  //convert received 16 bit integer to actual speed
+                  omega_target = double (target_receive*((double(MaxSpeed)/32767)));  //convert received 16 bit integer to actual speed
                   driver_mode = true;
                 }
               if(rP=='|') //B01111100 motor driver off         
                 {
                   target_receive = (rH<<8)+rL; 
-                  omega_target = double (target_receive*(MaxSpeed/32767));  //convert received 16 bit integer to actual speed
+                  omega_target = double (target_receive*((double(MaxSpeed)/32767)));  //convert received 16 bit integer to actual speed
                   driver_mode = false;
                 }  
             }
@@ -188,7 +188,7 @@ void sendFeedback_wheel_angularVel()
 {
   //getMotorData();
   byte current_send;
-  int actual_send = int(omega_actual/(MaxSpeed/32767)); //convert rad/s to 16 bit integer to send
+  int actual_send = int(omega_actual/(double(MaxSpeed)/32767)); //convert rad/s to 16 bit integer to send
   //max current is 20400mA 20400/255 = 80
   current_send = current/80; 
   byte buf[5];
@@ -241,8 +241,8 @@ double updatePid(double targetValue,double currentValue)
   pidTerm = Kp * error + Ki * sum_error + Kd * d_error;   
                        
   last_error = error;  
-  if (WHEEL_TYPE == RIGHT_WHEEL)  calculated_pidTerm = pidTerm/(MaxSpeed/MaxPWM);
-  else                            calculated_pidTerm = -pidTerm/(MaxSpeed/MaxPWM);  
+  if (WHEEL_TYPE == RIGHT_WHEEL)  calculated_pidTerm = pidTerm/(double(MaxSpeed)/double(MaxPWM));
+  else                            calculated_pidTerm = -pidTerm/(double(MaxSpeed)/double(MaxPWM));
   constrained_pidterm = constrain(calculated_pidTerm, -MaxPWM, MaxPWM);
   
   return constrained_pidterm;
