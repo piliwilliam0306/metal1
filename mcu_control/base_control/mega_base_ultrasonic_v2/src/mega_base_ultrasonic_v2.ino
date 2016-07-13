@@ -1,19 +1,22 @@
 //This code uses direct port manipulation which only works on Arduino Mega 2560
-#define ANDBOT 1
+//#define ANDBOT 1
 //#define RUGBY 2
+#define ANGELBOT 3
 
 #include <ros.h>
-#include <andbot/Bump.h>
-#include <andbot/Sonar.h>
-#include <andbot/WheelCmd.h>
-#include <andbot/WheelFb.h>
+#include <Bump.h>
+#include <Sonar.h>
+#include <WheelCmd.h>
+#include <WheelFb.h>
 #include <avr/io.h>
-#include <andbot/DriverState.h>
+#include <DriverState.h>
 
 #if defined (ANDBOT)
-  #define MaxSpeed 10.96
+	#define MaxSpeed 10.96
+#elif (ANGELBOT)
+	#define MaxSpeed 31
 #else
-  #define MaxSpeed 31
+	#define MaxSpeed 31
 #endif
 
 const int TrigPin1 = 30;  //PC7
@@ -73,6 +76,34 @@ ros::Publisher pub_bump("bump", &bump_msg);
 
 andbot::Sonar sonar_msg;
 ros::Publisher pub_sonar( "sonar", &sonar_msg);
+
+void sendCmd_wheel_angularVel_L()
+{
+  int left_target_send = int(omega_left_target/(double(MaxSpeed)/32767)); //convert rad/s to 16 bit integer to send
+  byte buf[4];
+  buf[0] = '{'; //send start byte
+  buf[1] = highByte(left_target_send); //send high byte
+  buf[2] = lowByte(left_target_send);  //send low byte
+  if (driver_mode == true)  buf[3] = '}'; //send stop byte motor on
+  if (driver_mode == false)  buf[3] = '|'; //send stop byte motor off
+  Serial2.write(buf, sizeof(buf));
+}
+
+void sendCmd_wheel_angularVel_R()
+{
+  int right_target_send = int(omega_right_target/(double(MaxSpeed)/32767)); //convert rad/s to 16 bit integer to send
+  byte buf[4];
+  buf[0] = '{'; //send start byte
+  buf[1] = highByte(right_target_send); //send high byte
+  buf[2] = lowByte(right_target_send);  //send low byte
+  if (driver_mode == true) buf[3] = '}'; //send stop byte motor on
+  if (driver_mode == false) buf[3] = '|'; //send stop byte motor off
+  Serial1.write(buf, sizeof(buf));
+}
+
+
+
+
 
 //callback
 void messageCb(const andbot::WheelCmd& msg)
@@ -191,7 +222,7 @@ void readFeadback_angularVel_L()
         if(rP_L == '}')       
           {
             actual_receive = (rH_L << 8) + rL_L; 
-            omega_left_actual = double (actual_receive * (MaxSpeed/32767)); //convert received 16 bit integer to actual speed
+            omega_left_actual = double (actual_receive * (double(MaxSpeed)/32767)); //convert received 16 bit integer to actual speed
             //max current is 20400mA, 255 * 80 = 20400mA
             current_left = (rCS_L * 80); 
           }
@@ -216,36 +247,10 @@ void readFeadback_angularVel_R()
        if(rP_R == '}')          
         {
           actual_receive = (rH_R << 8) + rL_R; 
-          omega_right_actual = double (actual_receive * (MaxSpeed/32767)); //convert received 16 bit integer to actual speed
+          omega_right_actual = double (actual_receive * (double(MaxSpeed)/32767)); //convert received 16 bit integer to actual speed
           current_right = rCS_R * 80;
         }  
      }
   }   
 }
-
-void sendCmd_wheel_angularVel_L()
-{
-  int left_target_send = int(omega_left_target/(MaxSpeed/32767)); //convert rad/s to 16 bit integer to send
-  byte buf[4];
-  buf[0] = '{'; //send start byte
-  buf[1] = highByte(left_target_send); //send high byte
-  buf[2] = lowByte(left_target_send);  //send low byte
-  if (driver_mode == true)  buf[3] = '}'; //send stop byte motor on
-  if (driver_mode == false)  buf[3] = '|'; //send stop byte motor off
-  Serial2.write(buf, sizeof(buf));
-}
-
-void sendCmd_wheel_angularVel_R()
-{
-  int right_target_send = int(omega_right_target/(MaxSpeed/32767)); //convert rad/s to 16 bit integer to send
-  byte buf[4];
-  buf[0] = '{'; //send start byte
-  buf[1] = highByte(right_target_send); //send high byte
-  buf[2] = lowByte(right_target_send);  //send low byte
-  if (driver_mode == true) buf[3] = '}'; //send stop byte motor on
-  if (driver_mode == false) buf[3] = '|'; //send stop byte motor off
-  Serial1.write(buf, sizeof(buf));
-}
-
-
 

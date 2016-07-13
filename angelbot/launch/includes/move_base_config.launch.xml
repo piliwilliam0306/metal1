@@ -10,25 +10,6 @@
 
 	<!-- Defining parameters for move_base node -->
 
-  <!-- arg name="odom_topic" default="odom" /-->
-
-  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-    <rosparam file="$(find angelbot)/param/costmap_common_params.yaml" command="load" ns="global_costmap" />
-    <rosparam file="$(find angelbot)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />
-    <rosparam file="$(find angelbot)/param/local_costmap_params.yaml" command="load" />
-    <rosparam file="$(find angelbot)/param/global_costmap_params.yaml" command="load" />
-    <rosparam file="$(find angelbot)/para<?xml version="1.0"?>
-
-<!-- ROS navigation stack with velocity smoother and safety (reactive) controller -->
-<launch>
-
-<!--
-  <include file="$(find diff_wheeled_robot_gazebo)/launch/includes/velocity_smoother.launch.xml"/>
-  <include file="$(find diff_wheeled_robot_gazebo)/launch/includes/safety_controller.launch.xml"/>
--->
-
-	<!-- Defining parameters for move_base node -->
-
   <arg name="odom_topic" default="odom" />
   
   <!-- Starting move_base node -->
