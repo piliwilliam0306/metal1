@@ -29,7 +29,6 @@
 -->	
 	<include file="$(find andbot)/launch/amcl.launch" />
 
-
 	<node pkg="rosserial_python" type="serial_node1.py" name="serial_node1">
                 <param name="port" value="/dev/ttyACM1"/>
                 <param name="baud" value="57600"/>
@@ -59,9 +58,8 @@
                 <param name="port" value="/dev/ttyACM6"/>
                 <param name="baud" value="57600"/>
         </node>        
-
 	<include file="$(find andbot)/launch/arm.launch" />
-	
+
 	<include file="$(find robot_pose_ekf)/robot_pose_ekf.launch" />
         <node pkg="position_listener" type="position_listener_ekf" name="position_listener_ekf"/>
 
