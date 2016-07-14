@@ -101,10 +101,6 @@ void sendCmd_wheel_angularVel_R()
   Serial1.write(buf, sizeof(buf));
 }
 
-
-
-
-
 //callback
 void messageCb(const andbot::WheelCmd& msg)
 {

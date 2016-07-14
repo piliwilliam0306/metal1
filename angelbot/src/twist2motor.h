@@ -11,21 +11,21 @@ public:
 
 private:
 	ros::NodeHandle n;
-
-	ros::Publisher pub_left_motor;
-	ros::Publisher pub_right_motor;
+	ros::Publisher cmd_wheel_angularVel_pub;
 	ros::Subscriber cmd_vel_sub;
 
-	float left;
-	float right;
+	double rate;
+
+	double wheelRadius;
+	double wheelSeparation;
+
+	double leftwheel_angularVel;
+	double rightwheel_angularVel;
+	double vel_x;
+	double vel_th;
 
 	float ticks_since_target;
 	double timeout_ticks;
-
-	double w;
-	double rate;
-
-	float dx,dy,dr;
 
 	void init_variables();
 	void get_parameters();

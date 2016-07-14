@@ -10,12 +10,13 @@
 	<param name="robot_description" command="$(find xacro)/xacro '$(find angelbot)/modeldescription/urdf/angelbot.xacro'" />
 	
 	<!-- Robot parameters -->
-	<rosparam param="base_width">0.247</rosparam>
+	<rosparam param="wheelSeparation">0.247</rosparam>
+	<rosparam param="wheelRadius">0.075</rosparam>
 	<rosparam param="ticks_meter">853</rosparam> 
 	
 	<!-- Starting robot state publisher -->
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher">
-		<param name="publish_frequency" type="double" value="50.0"></param></node>
+		<param name="publish_frequency" type="double" value="5.0"></param></node>
 		
 	<!-- Starting twist to motor and diff_tf nodes -->
 	<node pkg="angelbot" type="twist2motor" name="twist2motor" output="screen"/>

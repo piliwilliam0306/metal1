@@ -10,20 +10,21 @@ public:
 	void spin();
 
 private:
-	ros::NodeHandle n;
+	ros::NodeHandle n1,n2;
 
 	ros::Publisher cmd_wheel_angularVel_pub;
 	ros::Subscriber cmd_vel_sub;
 
-	float left;
-	float right;
-
-	float ticks_since_target;
+	double rate;
 
 	double wheelRadius;
 	double wheelSeparation;
 
-	float dx,dy,dr;
+	double leftwheel_angularVel;
+	double rightwheel_angularVel;
+
+	double vel_x;
+	double vel_th;
 
 	void init_variables();
 	void get_parameters();
