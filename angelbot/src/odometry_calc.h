@@ -10,8 +10,7 @@ public:
 private:
 	ros::NodeHandle n;
 	ros::Subscriber sub;
-	ros::Subscriber left_wheel_sub;
-	ros::Subscriber right_wheel_sub;
+	ros::Subscriber feedback_wheel_angularVel_sub;
 	ros::Publisher odom_pub;
 
 	tf::TransformBroadcaster odom_broadcaster;
@@ -57,9 +56,7 @@ private:
 	ros::Time current_time, last_time;
 
 
-	void leftencoderCb(const std_msgs::Int64::ConstPtr& left_ticks);
-
-	void rightencoderCb(const std_msgs::Int64::ConstPtr& right_ticks);
+	void feedback_wheel_angularVelCallback(const angelbot::WheelFb &vector);
 
 	void init_variables();
 

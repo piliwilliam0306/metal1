@@ -14,13 +14,16 @@
 	<rosparam param="wheelRadius">0.075</rosparam>
 	<rosparam param="ticks_meter">853</rosparam> 
 	
+	<!-- Starting Joint state publisher node which will publish the joint values -->
+	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
 	<!-- Starting robot state publisher -->
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher">
-		<param name="publish_frequency" type="double" value="5.0"></param></node>
+		<param name="publish_frequency" type="double" value="50.0"></param></node>
 		
 	<!-- Starting twist to motor and diff_tf nodes -->
 	<node pkg="angelbot" type="twist2motor" name="twist2motor" output="screen"/>
- 	<node pkg="angelbot" type="odometry_calc" name="odometry_calc" output="screen"/> 
+ 	<node pkg="angelbot" type="odometry_calc" name="odometry_calc" output="screen"/>
+ 	 
 
 
 </launch>

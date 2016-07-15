@@ -24,8 +24,6 @@ void TwistToMotors::init_variables()
 	rightwheel_angularVel = 0.0;
 	vel_x = 0.0;
 	vel_th= 0.0;
-	wheelRadius = 0.075;
-	wheelSeparation = 0.247;
 
 	rate = 50;
 	timeout_ticks = 2;

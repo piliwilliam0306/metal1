@@ -3,6 +3,7 @@
 #include "std_msgs/Int64.h"
 #include <tf/transform_broadcaster.h>
 #include <nav_msgs/Odometry.h>
+#include <angelbot/WheelFb.h>
 #include <math.h>
 #include "odometry_calc.h"
 
@@ -13,8 +14,7 @@ Odometry_calc::Odometry_calc(){
 	ROS_INFO("Started odometry computing node");
 
 	//Subscribing left and right wheel encoder values
-	left_wheel_sub = n.subscribe("/leftWheel",10, &Odometry_calc::leftencoderCb, this);
-	right_wheel_sub = n.subscribe("/rightWheel",10, &Odometry_calc::rightencoderCb, this);
+	feedback_wheel_angularVel_sub = n.subscribe("/feedback_wheel_angularVel", 10, &Odometry_calc::feedback_wheel_angularVelCallback, this);
 
 	//Creating a publisher for odom
   	odom_pub = n.advertise<nav_msgs::Odometry>("odom", 50);
@@ -222,51 +222,41 @@ void Odometry_calc::update()
 	 else ;
 //		ROS_INFO_STREAM("Not in loop");
 }
-void Odometry_calc::leftencoderCb(const std_msgs::Int64::ConstPtr& left_ticks)
+void Odometry_calc::feedback_wheel_angularVelCallback(const angelbot::WheelFb &vector)
 {
-// ROS_INFO_STREAM("Left tick" << left_ticks->data);
-	double enc = left_ticks->data;
+	// ROS_INFO_STREAM("Right tick" << right_ticks->data);
+  double left_enc = vector.speed1;
+  double right_enc = vector.speed2;
 
-	if((enc < encoder_low_wrap) && (prev_left_encoder > encoder_high_wrap))
-	{
+  if((left_enc < encoder_low_wrap) && (prev_left_encoder > encoder_high_wrap))
+  	{
 
-		leftmult = leftmult + 1;
-	}
+  		leftmult = leftmult + 1;
+  	}
 
-	if((enc > encoder_high_wrap) && (prev_left_encoder < encoder_low_wrap))
-	{
-		leftmult = leftmult - 1;
-	}
+  if((left_enc > encoder_high_wrap) && (prev_left_encoder < encoder_low_wrap))
+  	{
+  		leftmult = leftmult - 1;
+  	}
+  	left = 1.0 * (left_enc + leftmult * (encoder_max - encoder_min ));
 
-	left = 1.0 * (enc + leftmult * (encoder_max - encoder_min ));
+  	prev_left_encoder = left_enc;
 
-	prev_left_encoder = enc;
-//	ROS_INFO_STREAM("Left " << left);
-}
-
-//Right encoder callback
-void Odometry_calc::rightencoderCb(const std_msgs::Int64::ConstPtr& right_ticks)
-{
-// ROS_INFO_STREAM("Right tick" << right_ticks->data);
-	double enc = right_ticks->data;
-
-	if((enc < encoder_low_wrap) && (prev_right_encoder > encoder_high_wrap))
+  	if((right_enc < encoder_low_wrap) && (prev_right_encoder > encoder_high_wrap))
 	{
 		rightmult = rightmult + 1;
 	}
 
-	if((enc > encoder_high_wrap) && (prev_right_encoder < encoder_low_wrap))
+	if((right_enc > encoder_high_wrap) && (prev_right_encoder < encoder_low_wrap))
 	{
 		rightmult = rightmult - 1;
 	}
 
-	right = 1.0 * (enc + rightmult * (encoder_max - encoder_min ));
+	right = 1.0 * (right_enc + rightmult * (encoder_max - encoder_min ));
 
-	prev_right_encoder = enc;
-
-//	ROS_INFO_STREAM("Right " << right);
+	prev_right_encoder = right_enc;
+	//	ROS_INFO_STREAM("Right " << right);
 }
-
 int main(int argc, char **argv)
 
 {
