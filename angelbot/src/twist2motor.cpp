@@ -10,7 +10,7 @@
 TwistToMotors::TwistToMotors()
 {
 	init_variables();
-	get_parameters();
+	get_node_params();
 
 	ROS_INFO("Started Twist to Motor node");
 
@@ -20,17 +20,17 @@ TwistToMotors::TwistToMotors()
 
 void TwistToMotors::init_variables()
 {
-	leftwheel_angularVel = 0.0;
-	rightwheel_angularVel = 0.0;
-	vel_x = 0.0;
-	vel_th= 0.0;
+	left_omega = 0.0;
+	right_omega = 0.0;
+	vel = 0.0;
+	omega= 0.0;
 
 	rate = 50;
 	timeout_ticks = 2;
 }
 
 
-void TwistToMotors::get_parameters()
+void TwistToMotors::get_node_params()
 {
 //
 //	std::string xml_string;
@@ -95,14 +95,14 @@ void TwistToMotors::spinOnce()
 {
 	angelbot::WheelCmd msg;
 	// (vel_x, vel_th) --> (leftwheel_vel, rightwheel_vel)
-	leftwheel_angularVel = (2*vel_x - vel_th * wheelSeparation) / 2 / wheelRadius;
-	rightwheel_angularVel = (2*vel_x + vel_th * wheelSeparation) / 2 / wheelRadius;
+	left_omega = (2*vel - omega * wheelSeparation) / 2 / wheelRadius;
+	right_omega = (2*vel + omega * wheelSeparation) / 2 / wheelRadius;
 
 //	ROS_INFO_STREAM("right = " << right << "\t" << "left = " << left << "dr"<< dr);
 
 	// publish to /cmd_wheel_angularVel
-	msg.speed1 = leftwheel_angularVel;
-	msg.speed2 = rightwheel_angularVel;
+	msg.speed1 = left_omega;
+	msg.speed2 = right_omega;
 	cmd_wheel_angularVel_pub.publish(msg);
 
 	ticks_since_target += 1;
@@ -113,8 +113,8 @@ void TwistToMotors::twistCallback(const geometry_msgs::Twist &twist_aux)
 {
 	ticks_since_target = 0;
 	geometry_msgs::Twist twist = twist_aux;
-	vel_x = twist_aux.linear.x;
-	vel_th = twist_aux.angular.z;
+	vel = twist_aux.linear.x;
+	omega = twist_aux.angular.z;
 }
 
 int main(int argc, char **argv)
@@ -123,4 +123,5 @@ int main(int argc, char **argv)
 	TwistToMotors obj;
 
 	obj.spin();
+
 }

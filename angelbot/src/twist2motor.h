@@ -19,16 +19,16 @@ private:
 	double wheelRadius;
 	double wheelSeparation;
 
-	double leftwheel_angularVel;
-	double rightwheel_angularVel;
-	double vel_x;
-	double vel_th;
+	double left_omega;
+	double right_omega;
+	double vel;
+	double omega;
 
 	float ticks_since_target;
 	double timeout_ticks;
 
 	void init_variables();
-	void get_parameters();
+	void get_node_params();
 
 	void spinOnce();
 	void twistCallback(const geometry_msgs::Twist &twist_aux);
