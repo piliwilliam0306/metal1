@@ -1,12 +1,12 @@
-#ifndef _ROS_andbot_WheelCmd_h
-#define _ROS_andbot_WheelCmd_h
+#ifndef _ROS_angelbot_WheelCmd_h
+#define _ROS_angelbot_WheelCmd_h
 
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
 #include "ros/msg.h"
 
-namespace andbot
+namespace angelbot
 {
 
   class WheelCmd : public ros::Msg
@@ -92,7 +92,7 @@ namespace andbot
      return offset;
     }
 
-    const char * getType(){ return "andbot/WheelCmd"; };
+    const char * getType(){ return "angelbot/WheelCmd"; };
     const char * getMD5(){ return "173609e82190eaee99c6e251573e54e9"; };
 
   };

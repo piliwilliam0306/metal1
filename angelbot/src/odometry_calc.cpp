@@ -30,10 +30,16 @@ void Odometry_calc::init_variables()
 	t_delta = ros::Duration(1.0 / rate);
 	t_next = ros::Time::now() + t_delta;
 
-	then = ros::Time::now();
+	vel = 0.0;
+	omega = 0.0;
 
-	vel = 0;
-	omega = 0;
+	left_omega=0.0;
+	right_omega=0.0;
+
+	disXdir=0.0,disYdir=0.0,disTheta=0.0;
+
+	current_time = ros::Time::now();
+	last_time = ros::Time::now();
 }
 void Odometry_calc::get_node_params()
 {
@@ -42,14 +48,14 @@ void Odometry_calc::get_node_params()
 		ROS_INFO_STREAM("Rate from param" << rate);
 	}
 
-	if(n.getParam("robot_description/angelbot_base/", wheelSeparation))
+	if(n.getParam("wheelSeparation", wheelSeparation))
 	{
-		ROS_INFO_STREAM("wheelSeparation from param" << wheelSeparation);
+		ROS_INFO_STREAM("wheelSeparation from param =" << wheelSeparation);
 	}
 
 	if(n.getParam("wheelRadius", wheelRadius))
 	{
-		ROS_INFO_STREAM("wheelRadius from param" << wheelRadius);
+		ROS_INFO_STREAM("wheelRadius from param =" << wheelRadius);
 	}
 /*
 	ROS_INFO_STREAM("wheelSeparation" << wheelSeparation);
@@ -69,66 +75,63 @@ void Odometry_calc::spin()
 //Update function
 void Odometry_calc::update()
 {
-	now = ros::Time::now();
+	//current_time = ros::Time::now();
 
-	if ( now > t_next)
-	{
-		geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(disTheta);
 
-		//first, we'll publish the transform over tf
-		geometry_msgs::TransformStamped odom_trans;
-		odom_trans.header.stamp = now;
-		odom_trans.header.frame_id = "odom";
-		odom_trans.child_frame_id = "angelbot_base";
+	geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(disTheta);
 
-		odom_trans.transform.translation.x = disXdir;
-		odom_trans.transform.translation.y = disYdir;
-		odom_trans.transform.translation.z = 0.0;
-		odom_trans.transform.rotation = odom_quat;
+	//first, we'll publish the transform over tf
+	geometry_msgs::TransformStamped odom_trans;
+	odom_trans.header.stamp = current_time;
+	odom_trans.header.frame_id = "odom";
+	odom_trans.child_frame_id = "angelbot_base";
 
-		//send the transform
-		odom_broadcaster.sendTransform(odom_trans);
+	odom_trans.transform.translation.x = disXdir;
+	odom_trans.transform.translation.y = disYdir;
+	odom_trans.transform.translation.z = 0.0;
+	odom_trans.transform.rotation = odom_quat;
 
-		//next, we'll publish the odometry message over ROS
-		nav_msgs::Odometry odom;
-		odom.header.stamp = now;
-		odom.header.frame_id = "odom";
+	//send the transform
+	odom_broadcaster.sendTransform(odom_trans);
 
-		//set the position
-		odom.pose.pose.position.x = disXdir;
-		odom.pose.pose.position.y = disYdir;
-		odom.pose.pose.position.z = 0.0;
-		odom.pose.pose.orientation = odom_quat;
+	//next, we'll publish the odometry message over ROS
+	nav_msgs::Odometry odom;
+	odom.header.stamp = current_time;
+	odom.header.frame_id = "odom";
 
-		//set the velocity
-		odom.child_frame_id = "angelbot_base";
-		odom.twist.twist.linear.x = vel;
-		odom.twist.twist.linear.y = 0;
-		odom.twist.twist.angular.z = omega;
+	//set the position
+	odom.pose.pose.position.x = disXdir;
+	odom.pose.pose.position.y = disYdir;
+	odom.pose.pose.position.z = 0.0;
+	odom.pose.pose.orientation = odom_quat;
 
-		//publish the message
-		odom_pub.publish(odom);
+	//set the velocity
+	odom.child_frame_id = "angelbot_base";
+	odom.twist.twist.linear.x = vel;
+	odom.twist.twist.linear.y = 0;
+	odom.twist.twist.angular.z = omega;
 
-		ros::spinOnce();
-	}
-	 else ;
+	//publish the message
+	odom_pub.publish(odom);
+
+	ros::spinOnce();
 //		ROS_INFO_STREAM("Not in loop");
 }
-void Odometry_calc::feedback_wheel_angularVelCallback(const angelbot::WheelFb &msg)
+void Odometry_calc::feedback_wheel_angularVelCallback(const angelbot::WheelFb &wheel)
 {
 	// ROS_INFO_STREAM("Right tick" << right_ticks->data);
-  double left_omega = msg.speed1;
-  double right_omega = msg.speed2;
-  double elapsed;
-  double deltaX,deltaY,deltaTheta;
+  left_omega = wheel.speed1;
+  right_omega = wheel.speed2;
+  double deltaX,deltaY,deltaTheta,elapsed;
 
-  now = ros::Time::now();
+  vel = (right_omega + left_omega) * wheelRadius / 2;
+  omega = (right_omega - left_omega) * wheelRadius / wheelSeparation;
 
-  vel = (left_omega + right_omega) * wheelRadius / 2;
-  omega = (left_omega - right_omega) * wheelSeparation;
+  current_time = ros::Time::now();
+  elapsed = (current_time - last_time).toSec();
+  last_time = current_time;
 
-  elapsed = now.toSec() - then.toSec();
-  now = then;
+  ROS_INFO_STREAM("elapsed =" << elapsed);
 
   deltaX = vel * cos(disTheta) * elapsed;
   deltaY = vel * sin(disTheta) * elapsed;

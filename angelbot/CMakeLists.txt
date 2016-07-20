@@ -218,8 +218,8 @@ install(PROGRAMS
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-add_executable(odometry_calc src/odometry_calc.cpp)
-target_link_libraries(odometry_calc ${catkin_LIBRARIES})
+add_executable(mybot_odometry_v1 src/mybot_odometry_v1.cpp)
+target_link_libraries(mybot_odometry_v1 ${catkin_LIBRARIES})
 
 add_executable(twist2motor src/twist2motor.cpp)
 target_link_libraries(twist2motor ${catkin_LIBRARIES})

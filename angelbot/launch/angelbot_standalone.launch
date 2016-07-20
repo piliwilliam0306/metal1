@@ -10,9 +10,9 @@
 	<param name="robot_description" command="$(find xacro)/xacro '$(find angelbot)/modeldescription/urdf/angelbot.xacro'" />
 	
 	<!-- Robot parameters -->
-	<rosparam param="wheelSeparation">0.247</rosparam>
-	<rosparam param="wheelRadius">0.075</rosparam>
-	<rosparam param="ticks_meter">853</rosparam> 
+	<param name="wheelSeparation" value="0.247"></param>
+	<param name="wheelRadius" value="0.0375"></param>
+	<param name="Rate" value="10"></param>  
 	
 	<!-- Starting Joint state publisher node which will publish the joint values -->
 	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
@@ -22,7 +22,7 @@
 		
 	<!-- Starting twist to motor and diff_tf nodes -->
 	<node pkg="angelbot" type="twist2motor" name="twist2motor" output="screen"/>
- 	<node pkg="angelbot" type="odometry_calc" name="odometry_calc" output="screen"/>
+ 	<node pkg="angelbot" type="mybot_odometry_v1" name="mybot_odometry_v1" output="screen"/>
  	 
 
 

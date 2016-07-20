@@ -32,31 +32,9 @@ void TwistToMotors::init_variables()
 
 void TwistToMotors::get_node_params()
 {
-//
-//	std::string xml_string;
-//
-//	// gets the location of the robot description on the parameter server
-//	std::string full_param;
-//	if (!n.searchParam(param, full_param))
-//	{
-//		ROS_ERROR("Could not find parameter %s on parameter server", param.c_str());
-//		return false;
-//	}
-//	// read the robot description from the parameter server
-//	if (!n.getParam(full_param, xml_string))
-//	{
-//		ROS_ERROR("Could not read parameter %s on parameter server", full_param.c_str());
-//		return false;
-//	}
-//	return Model::initString(xml_string);
-
     if(n.getParam("rate", rate))
     {
 		ROS_INFO_STREAM("Rate from param" << rate);
-	}
-    if(n.getParam("timeout_ticks", timeout_ticks))
-    {
-		ROS_INFO_STREAM("timeout_ticks from param" << timeout_ticks);
 	}
 	if(n.getParam("wheelSeparation", wheelSeparation))
 	{
@@ -75,18 +53,9 @@ void TwistToMotors::spin()
 	ros::Rate repeat(rate);
 	ros::Rate idle(10);
 
-	ros::Time then = ros::Time::now();
-
-	ticks_since_target = timeout_ticks;
-
 	while (ros::ok())
 	{
-		while (ros::ok() && (ticks_since_target <= timeout_ticks))
-		{
-			spinOnce();
-			repeat.sleep();
-		}
-		ros::spinOnce();
+		spinOnce();
         idle.sleep();
 	}
 }
@@ -105,7 +74,6 @@ void TwistToMotors::spinOnce()
 	msg.speed2 = right_omega;
 	cmd_wheel_angularVel_pub.publish(msg);
 
-	ticks_since_target += 1;
 	ros::spinOnce();
 }
 

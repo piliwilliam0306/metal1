@@ -4,7 +4,8 @@
 	  	<joint name="base2rplidar" type="fixed">
 			<parent link="${parent}"></parent>
 			<child link="${name}_rplidar"></child>
-			<origin xyz="-0.0007 0.00015 0.15949"></origin>
+			<!--  rotate z axis 180 degree according to the placement on angelbot -->
+			<origin xyz="-0.0007 0.00015 0.15949" rpy="0 0 3.1415"></origin> 
 		</joint>
 	  	<link name="${name}_rplidar">
 			<collision>

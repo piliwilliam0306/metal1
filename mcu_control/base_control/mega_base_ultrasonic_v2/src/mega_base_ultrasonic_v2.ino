@@ -65,16 +65,16 @@ unsigned int current_right = 0;
 bool driver_mode;
 
 ros::NodeHandle nh;
-using andbot::DriverState;
+using angelbot::DriverState;
 bool set_; 
 
-andbot::WheelFb wheel_msg;
+angelbot::WheelFb wheel_msg;
 ros::Publisher p("feedback_wheel_angularVel", &wheel_msg);
 
-andbot::Bump bump_msg;
+angelbot::Bump bump_msg;
 ros::Publisher pub_bump("bump", &bump_msg);
 
-andbot::Sonar sonar_msg;
+angelbot::Sonar sonar_msg;
 ros::Publisher pub_sonar( "sonar", &sonar_msg);
 
 void sendCmd_wheel_angularVel_L()
@@ -102,7 +102,7 @@ void sendCmd_wheel_angularVel_R()
 }
 
 //callback
-void messageCb(const andbot::WheelCmd& msg)
+void messageCb(const angelbot::WheelCmd& msg)
 {
   omega_left_target = msg.speed1;  
   omega_right_target = msg.speed2;
@@ -111,7 +111,7 @@ void messageCb(const andbot::WheelCmd& msg)
   sendCmd_wheel_angularVel_R();
 }
 
-ros::Subscriber<andbot::WheelCmd> s("cmd_wheel_angularVel",messageCb);
+ros::Subscriber<angelbot::WheelCmd> s("cmd_wheel_angularVel",messageCb);
 
 void setup() 
 {

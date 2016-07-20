@@ -17,7 +17,10 @@ private:
 	double rate; //
 
 	ros::Duration t_delta;
-	ros::Time now, then, t_next;;
+	ros::Time current_time, last_time, t_next;
+
+	double left_omega;
+	double right_omega;
 
 	double wheelSeparation;
 	double wheelRadius;

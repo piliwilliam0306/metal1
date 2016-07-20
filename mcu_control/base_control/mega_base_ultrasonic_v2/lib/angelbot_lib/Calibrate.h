@@ -5,10 +5,10 @@
 #include <stdlib.h>
 #include "ros/msg.h"
 
-namespace andbot
+namespace angelbot
 {
 
-static const char CALIBRATE[] = "andbot/Calibrate";
+static const char CALIBRATE[] = "angelbot/Calibrate";
 
   class CalibrateRequest : public ros::Msg
   {

@@ -1,12 +1,12 @@
-#ifndef _ROS_andbot_Bump_h
-#define _ROS_andbot_Bump_h
+#ifndef _ROS_angelbot_Bump_h
+#define _ROS_angelbot_Bump_h
 
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
 #include "ros/msg.h"
 
-namespace andbot
+namespace angelbot
 {
 
   class Bump : public ros::Msg
@@ -165,8 +165,8 @@ namespace andbot
      return offset;
     }
 
-    const char * getType(){ return "andbot/Bump"; };
-    const char * getMD5(){ return "dcf86067a133ab838a092a0bf1d6200d"; };
+    const char * getType(){ return "angelbot/Bump"; };
+    const char * getMD5(){ return "d41d8cd98f00b204e9800998ecf8427e"; };
 
   };
 

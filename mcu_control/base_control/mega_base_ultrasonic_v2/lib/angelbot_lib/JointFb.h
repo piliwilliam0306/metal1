@@ -1,22 +1,22 @@
-#ifndef _ROS_andbot_JointFb_h
-#define _ROS_andbot_JointFb_h
+#ifndef _ROS_angelbot_JointFb_h
+#define _ROS_angelbot_JointFb_h
 
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
 #include "ros/msg.h"
-#include "andbot/Fb.h"
+#include "angelbot/Fb.h"
 
-namespace andbot
+namespace angelbot
 {
 
   class JointFb : public ros::Msg
   {
     public:
-      andbot::Fb joint0;
-      andbot::Fb joint1;
-      andbot::Fb joint2;
-      andbot::Fb joint3;
+      angelbot::Fb joint0;
+      angelbot::Fb joint1;
+      angelbot::Fb joint2;
+      angelbot::Fb joint3;
 
     JointFb():
       joint0(),
@@ -46,8 +46,8 @@ namespace andbot
      return offset;
     }
 
-    const char * getType(){ return "andbot/JointFb"; };
-    const char * getMD5(){ return "ced444daa570aeb4fd281959abac65d8"; };
+    const char * getType(){ return "angelbot/JointFb"; };
+    const char * getMD5(){ return "d41d8cd98f00b204e9800998ecf8427e"; };
 
   };
 
