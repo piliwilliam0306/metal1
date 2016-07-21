@@ -218,8 +218,13 @@ install(PROGRAMS
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-add_executable(mybot_odometry_v1 src/mybot_odometry_v1.cpp)
-target_link_libraries(mybot_odometry_v1 ${catkin_LIBRARIES})
+add_executable(mybot_odom_v1_angelbot src/mybot_odom_v1_angelbot.cpp)
+target_link_libraries(mybot_odom_v1_angelbot ${catkin_LIBRARIES})
 
-add_executable(twist2motor src/twist2motor.cpp)
-target_link_libraries(twist2motor ${catkin_LIBRARIES})
+add_executable(mybot_odom_ekf_angelbot src/mybot_odom_ekf_angelbot.cpp)
+target_link_libraries(mybot_odom_ekf_angelbot ${catkin_LIBRARIES})
+
+add_executable(mybot_base_controller_v1_angelbot src/mybot_base_controller_v1_angelbot.cpp)
+target_link_libraries(mybot_base_controller_v1_angelbot ${catkin_LIBRARIES})
+
+
