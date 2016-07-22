@@ -10,7 +10,7 @@
 
 	<!-- Defining parameters for move_base node -->
 
-  <arg name="odom_topic" default="odom" />
+  <arg name="odom_topic" default="/angelbot/odom" />
   
   <!-- Starting move_base node -->
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" clear_params="true">

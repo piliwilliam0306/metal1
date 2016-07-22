@@ -9,20 +9,20 @@ class OdomEKF():
         rospy.init_node('odom_ekf', anonymous=False)
 
         # Publisher of type nav_msgs/Odometry
-        self.ekf_pub = rospy.Publisher('andbot/odom_diffdrive_ekf', Odometry, queue_size=5)
+        self.ekf_pub = rospy.Publisher('angelbot/odom_ekf', Odometry, queue_size=5)
 
         # Wait for the /odom_combined topic to become available
-        rospy.wait_for_message('odom_combined', PoseWithCovarianceStamped)
+        rospy.wait_for_message('angelbot/odom_combined', PoseWithCovarianceStamped)
 
         # Subscribe to the /odom_combined topic
-        rospy.Subscriber('odom_combined', PoseWithCovarianceStamped, self.pub_ekf_odom)
+        rospy.Subscriber('angelbot/odom_combined', PoseWithCovarianceStamped, self.pub_ekf_odom)
 
-        rospy.loginfo("Publishing combined odometry on /odom_ekf")
+        rospy.loginfo("Publishing combined odometry on /angelbot/odom_ekf")
 
     def pub_ekf_odom(self, msg):
         odom = Odometry()
         odom.header = msg.header
-        odom.child_frame_id = 'base_footprint'
+        odom.child_frame_id = 'angelbot_base'
         odom.pose = msg.pose
 
         self.ekf_pub.publish(odom)

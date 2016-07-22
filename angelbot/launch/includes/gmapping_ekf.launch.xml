@@ -7,7 +7,7 @@
 	
 	<!-- Frame of mobile base -->
 	<param name="base_frame" value="angelbot_base"></param>
-	<param name="odom_frame" value="odom"></param>
+	<param name="odom_frame" value="odom_combined"></param>
 	
 	<!-- The interval of map updation, reducing this value will speed of map generation but increase computation load -->
 	<param name="map_update_interval" value="30.0"></param>
@@ -19,7 +19,8 @@
 	<!-- param name="maxRange" value="8.0"></param-->
 	
 	<param name="sigma" value="0.05"></param>
-	<param name="kernelSize" value="1"></param>	
+	<param name="kernelSize" value="1"></param>
+	
 	<param name="lstep" value="0.05"></param>
 	<param name="astep" value="0.05"></param>
 	<param name="iterations" value="5"></param>
@@ -37,10 +38,10 @@
 	<param name="particles" value="30"></param>
 	<param name="minimumScore" value="100"></param>
 	
-	<param name="xmin" value="-5.0"></param>
-	<param name="ymin" value="-5.0"></param>
-	<param name="xmax" value="5.0"></param>
-	<param name="ymax" value="5.0"></param>
+	<param name="xmin" value="-1.0"></param>
+	<param name="ymin" value="-1.0"></param>
+	<param name="xmax" value="1.0"></param>
+	<param name="ymax" value="1.0"></param>
 	
 	<!-- Increase resolution -->
 	<param name="delta" value="0.05"></param>
