@@ -25,6 +25,6 @@
  	<node pkg="angelbot" type="mybot_odom_ekf_angelbot" name="mybot_odom_ekf_angelbot" output="screen"/>
  	 
  	 <!-- Starting robot_pose_ekf nodes -->
-	
+	<include file="$(find angelbot)/launch/robot_pose_ekf.launch" />
 
 </launch>

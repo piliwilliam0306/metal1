@@ -1,17 +1,17 @@
-planner_frequency: 0.5
+planner_frequency: 0 #0.5 20160725, SW
 controller_frequency: 10.0
 
 DWAPlannerROS:
-   max_vel_x: 0.2
-   min_vel_x: -0.1
+   max_vel_x: 0.25 #0.2 20160725, SW 
+   min_vel_x: -0.05 # -0.1 20160725, SW
    #min_vel_x: 0.05
    max_vel_y: 0.0  # zero for a differential drive robot
    min_vel_y: 0.0
    max_rot_vel: 1.0
-   min_rot_vel: 0.3
+   min_rot_vel: 0.05 # 0.3 20160725, SW 
    acc_lim_x: 2.5
    acc_lim_y: 0.0  # zero for a differential drive robot
-   acc_lim_theta: 3.2
+   acc_lim_theta: 5.0 #3.2 20160725, SW
    #acc_lim_theta: 1.0
 
 #   holonomic_robot: false

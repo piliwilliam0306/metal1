@@ -8,7 +8,8 @@
 	<node name="map_server" pkg="map_server" type="map_server" args="$(find angelbot)/map/advanced_robotics_office_modify.yaml"/>
 	
 	<arg name="use_map_topic"   default="false"/>
-	<arg name="scan_topic"      default="scan"/> 
+	<arg name="scan_topic"      default="scan"/>
+	<!-- add initial position 20160722 --> 
 	<arg name="initial_pose_x"  default="7.7138"/>
 	<arg name="initial_pose_y"  default="-1.1537"/>
 	<arg name="initial_pose_a"  default="-3.14"/>
@@ -61,5 +62,5 @@
 	
 	<!-- Start move_base node and its configuration -->
 	<include file="$(find angelbot)/launch/includes/move_base_dwa_ekf.launch.xml"/>
-	<include file="$(find angelbot)/launch/robot_pose_ekf.launch" />
+	
 </launch>

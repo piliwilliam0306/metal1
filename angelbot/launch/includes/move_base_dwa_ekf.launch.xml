@@ -10,7 +10,7 @@
 
 	<!-- Defining parameters for move_base node -->
 
-  <!-- arg name="odom_topic" default="angelbot/odom_ekf" /-->
+  <arg name="odom_topic" default="angelbot/odom_ekf" />
   
   <!-- Starting move_base node -->
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" clear_params="true">
@@ -29,7 +29,7 @@
     <rosparam file="$(find angelbot)/param/dwa_base_local_planner_params.yaml" command="load" />
 
     <!--remap from="cmd_vel" to="navigation_velocity_smoother/raw_cmd_vel"/-->
-    <remap from="odom" to="/angelbot/odom_ekf"/>
+    <remap from="odom" to="$(arg odom_topic)"/>
     <remap from="cmd_vel" to="/angelbot/cmd_vel" />
 
   </node>
