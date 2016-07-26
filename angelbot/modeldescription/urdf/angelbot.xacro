@@ -106,7 +106,7 @@
 	</joint>
 	<xacro:rplidar_laser name="${robotname}" parent="${robotname}_base" ros_topic="scan" update_rate="40" min_angle="-1.3962634" max_angle="1.3962634" >
     </xacro:rplidar_laser>
-    <xacro:imu_mpu6050 name="${robotname}" parent="${robotname}_base">
-    </xacro:imu_mpu6050>
+    <xacro:mpu6050_imu name="${robotname}" parent="${robotname}_base">
+    </xacro:mpu6050_imu>
 	
 </robot>
