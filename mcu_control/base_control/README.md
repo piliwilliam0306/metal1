@@ -2,8 +2,9 @@
 * Base Test Procedure without ROS
 * Base Test Procedure with ROS
 
-## Sonar wiring
-![](https://github.com/piliwilliam0306/metal1/blob/andbot2/mcu_control/base_control/sonar.png)
+## Sonar wiring on mega base
+  * Replaced with 8 sonars only.
+![](https://github.com/piliwilliam0306/metal1/blob/andbot2/mcu_control/base_control/sonar_new.jpg)
 
 # Base Test Proceduce without ROS
 ## Modify Arduino PWM Frequency in Arduino IDE
