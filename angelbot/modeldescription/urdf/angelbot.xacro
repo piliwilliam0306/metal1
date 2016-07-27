@@ -7,7 +7,7 @@
 	<xacro:include filename="$(find angelbot)/modeldescription/urdf/angelbotmaterial4rviz.xacro"/>
 	
 	<xacro:include filename="$(find angelbot)/modeldescription/urdf/sensors/rplidar_laser.urdf.xacro" />
-	<xacro:include filename="$(find angelbot)/modeldescription/urdf/sensors/imu_mpu6050.urdf.xacro" />
+	<xacro:include filename="$(find angelbot)/modeldescription/urdf/sensors/mpu6050_imu.urdf.xacro" />
 	
 	<transmission name="trans_mobile_left">
 		<type>transmission_interface/SimpleTransmission</type>

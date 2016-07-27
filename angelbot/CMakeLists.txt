@@ -227,4 +227,7 @@ target_link_libraries(mybot_odom_ekf_angelbot ${catkin_LIBRARIES})
 add_executable(mybot_base_controller_v1_angelbot src/mybot_base_controller_v1_angelbot.cpp)
 target_link_libraries(mybot_base_controller_v1_angelbot ${catkin_LIBRARIES})
 
+add_executable(send_angelbot_goal src/send_angelbot_goal.cpp)
+target_link_libraries(send_angelbot_goal ${catkin_LIBRARIES})
+
 
