@@ -2,16 +2,19 @@
 * Base Test Procedure without ROS
 * Base Test Procedure with ROS
 
+## Sonar wiring
+![](https://github.com/piliwilliam0306/metal1/blob/andbot2/mcu_control/base_control/sonar.png)
+
 # Base Test Proceduce without ROS
 ## Modify Arduino PWM Frequency in Arduino IDE
   * Overwrite wiring.c in: 
      ~/arduino-1.6.5/hardware/arduino/avr/cores/arduino
-  * Edit line 31 in "wiring.c"     
+  * Edit line 31 in "wiring.c" (For Vnh5019 board only)
      #define MICROSECONDS_PER_TIMER0_OVERFLOW (clockCyclesToMicroseconds(8 * 256))
 
 ## Uploading mega code
   * Copy "ros_lib" folder into "Arduino/libraries" folder.
-  * "mega_base_ultrasonic_v1" is for base mega board.
+  * "mega_base_v1" is for base mega board.
   * "#define ANDBOT 1" when uploading Andbot.
   * "#define RUGBY 2" when uploading Rugby or Angel.
   * Select Mega2560 when uploading.
