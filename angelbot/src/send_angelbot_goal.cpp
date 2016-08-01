@@ -69,6 +69,24 @@ int main(int argc, char** argv)
 				ac.sendGoal(goal);
 				ac.waitForResult();
 			}
+			else if (argv[1] == std::string("randomA"))
+			{
+				goal.target_pose.pose.position.x = 3.0;
+				goal.target_pose.pose.position.y = -2.0;
+				goal.target_pose.pose.orientation.z = 3.14159;
+				ROS_INFO("Sending move base goal");
+				ac.sendGoal(goal);
+				ac.waitForResult();
+			}
+			else if (argv[1] == std::string("randomB"))
+			{
+				goal.target_pose.pose.position.x = -3.0;
+				goal.target_pose.pose.position.y = -2.0;
+				goal.target_pose.pose.orientation.z = 3.14159;
+				ROS_INFO("Sending move base goal");
+				ac.sendGoal(goal);
+				ac.waitForResult();
+			}
 			else if (argv[1] == std::string("cancelgoal"))
 			{
 				if (ac.getState() == actionlib::SimpleClientGoalState::ACTIVE)
