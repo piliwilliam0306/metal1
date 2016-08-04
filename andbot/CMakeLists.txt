@@ -142,8 +142,11 @@ include_directories(
 
 ## Declare a C++ executable
 # add_executable(Andbot_node src/Andbot_node.cpp)
-add_executable(mybot_odometry src/mybot_odometry.cpp)
-target_link_libraries(mybot_odometry ${catkin_LIBRARIES})
+#add_executable(compliance_control src/compliance_control.cpp)
+#target_link_libraries(compliance_control ${catkin_LIBRARIES})
+
+#add_executable(mybot_odometry src/mybot_odometry.cpp)
+#target_link_libraries(mybot_odometry ${catkin_LIBRARIES})
 
 add_executable(mybot_odometry_v1 src/mybot_odometry_v1.cpp)
 target_link_libraries(mybot_odometry_v1 ${catkin_LIBRARIES})
@@ -151,13 +154,13 @@ target_link_libraries(mybot_odometry_v1 ${catkin_LIBRARIES})
 add_executable(mybot_base_controller_v1 src/mybot_base_controller_v1.cpp)
 target_link_libraries(mybot_base_controller_v1 ${catkin_LIBRARIES})
 
-add_executable(acc_lim_test src/acc_lim_test.cpp)
-target_link_libraries(acc_lim_test ${catkin_LIBRARIES})
+#add_executable(acc_lim_test src/acc_lim_test.cpp)
+#target_link_libraries(acc_lim_test ${catkin_LIBRARIES})
 add_executable(sonar src/sonar.cpp)
 target_link_libraries(sonar ${catkin_LIBRARIES})
 
-add_executable(mybot_odom_ekf src/mybot_odom_ekf.cpp)
-target_link_libraries(mybot_odom_ekf ${catkin_LIBRARIES})
+#add_executable(mybot_odom_ekf src/mybot_odom_ekf.cpp)
+#target_link_libraries(mybot_odom_ekf ${catkin_LIBRARIES})
 
 add_executable(mybot_odom_ekf_v1 src/mybot_odom_ekf_v1.cpp)
 target_link_libraries(mybot_odom_ekf_v1 ${catkin_LIBRARIES})
@@ -165,11 +168,11 @@ target_link_libraries(mybot_odom_ekf_v1 ${catkin_LIBRARIES})
 add_executable(mybot_odom_fusion src/mybot_odom_fusion.cpp)
 target_link_libraries(mybot_odom_fusion ${catkin_LIBRARIES})
 
-add_executable(mybot_base_controller src/mybot_base_controller.cpp)
-target_link_libraries(mybot_base_controller ${catkin_LIBRARIES})
+#add_executable(mybot_base_controller src/mybot_base_controller.cpp)
+#target_link_libraries(mybot_base_controller ${catkin_LIBRARIES})
 
-add_executable(mybot_loop src/mybot_loop.cpp)
-target_link_libraries(mybot_loop ${catkin_LIBRARIES})
+#add_executable(mybot_loop src/mybot_loop.cpp)
+#target_link_libraries(mybot_loop ${catkin_LIBRARIES})
 
 add_executable(mybot_xv11_angular_bound_filter src/mybot_xv11_angular_bound_filter.cpp)
 target_link_libraries(mybot_xv11_angular_bound_filter ${catkin_LIBRARIES})
@@ -177,8 +180,8 @@ target_link_libraries(mybot_xv11_angular_bound_filter ${catkin_LIBRARIES})
 #add_executable(mybot_laser_obstacle_clearing_filter src/mybot_laser_obstacle_clearing_filter.cpp)
 #target_link_libraries(mybot_laser_obstacle_clearing_filter ${catkin_LIBRARIES})
 
-add_executable(mybot_stop_when_goal_reached src/mybot_stop_when_goal_reached.cpp)
-target_link_libraries(mybot_stop_when_goal_reached ${catkin_LIBRARIES})
+#add_executable(mybot_stop_when_goal_reached src/mybot_stop_when_goal_reached.cpp)
+#target_link_libraries(mybot_stop_when_goal_reached ${catkin_LIBRARIES})
 
 #add_executable(teleop_home src/teleop_home.cpp)
 #target_link_libraries(teleop_home ${catkin_LIBRARIES})
