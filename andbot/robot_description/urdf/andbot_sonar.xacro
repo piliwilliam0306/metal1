@@ -728,7 +728,9 @@
   <joint name="sonar_1_fixed" type="fixed">
     <parent link="base_link"/>
     <child link="sonar_1"/>
-    <origin xyz="-0.37437 0.05695 ${0.03475+0.029}"  rpy="0 0 3.14"/>
+    <!--<origin xyz="-0.37437 0.05695 ${0.03475+0.029}"  rpy="0 0 3.14"/>
+    -->
+    <origin xyz="-0.37437 0.05695 ${0.03475+0.029}"  rpy="0 0 2.878200612"/>
   </joint>
 
 <!--Sonar Link6-->
@@ -805,7 +807,9 @@
   <joint name="sonar_3_fixed" type="fixed">
     <parent link="base_link"/>
     <child link="sonar_3"/>
-    <origin xyz="-0.37437 -0.05695 ${0.03475+0.029}"  rpy="0 0 3.14"/>
+    <!--<origin xyz="-0.37437 -0.05695 ${0.03475+0.029}"  rpy="0 0 3.14"/>
+    -->	    
+    <origin xyz="-0.37437 -0.05695 ${0.03475+0.029}"  rpy="0 0 -2.878200612"/>
   </joint>
 
 

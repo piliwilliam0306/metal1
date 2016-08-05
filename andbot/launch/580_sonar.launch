@@ -2,9 +2,9 @@
 
 
 <launch>
-	<include file="$(find andbot)/launch/display.launch" />
+	<include file="$(find andbot)/launch/display_sonar.launch" />
 	
-	<include file="$(find andbot)/launch/dwa_move_base_ekf.launch" />
+	<include file="$(find andbot)/launch/dwa_move_base_ekf_sonar.launch" />
 	
 	<include file="$(find andbot)/launch/xv_11.launch" />
 
@@ -20,7 +20,7 @@
 <!--
 	<include file="$(find andbot)/launch/gmapping_ekf.launch" />
 -->	
-	<include file="$(find andbot)/launch/amcl_lab.launch" />
+	<include file="$(find andbot)/launch/amcl_580.launch" />
 
 <!--
 	<node pkg="rosserial_python" type="serial_node1.py" name="serial_node1">

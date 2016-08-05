@@ -54,7 +54,7 @@ int main(int argc, char** argv){
 
   sonar_sub = n2.subscribe("sonar", 10, sonarCallback);
 
-  ros::Rate r(1.0); // rate for publishing sonar
+  ros::Rate r(5.0); // rate for publishing sonar
 
   //publish the range message over ROS
   sensor_msgs::Range range_msg;
