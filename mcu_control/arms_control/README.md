@@ -50,3 +50,49 @@ Sending PID, current limit, and driver state as service through rosserial to dri
 
 # Working mode
 Sending Angle and duration through rosserial.
+
+## programming RS485 firmware
+* program position_control_master.ino into mega 2560.
+* program position_control_slave.ino into 3in1 board.
+  * Edit line 31 in "wiring.c": #define MICROSECONDS_PER_TIMER0_OVERFLOW (clockCyclesToMicroseconds(8 * 256))  
+  * Select #define L0 ~ R3 when programming each slave devices.
+
+# andbot_test_joint
+
+## Step
+* cd ~/catkin_ws/src/metal1
+* git pull
+* rospack profile
+* roslaunch andbot arm_test.launch 
+* rostopic list
+  * check topic alive
+
+* rosrun andbot_test_joint teleop_home 0 0.1
+  * left arm 0 Axis & 1 Axis (speed = 0.1rad/s)
+  * Press '↑' and '↓'to control the 0 Axix forward and backward, and move this Axis to 'mechanical origin point'
+  * Press '←' and '→'to control the 1 Axix left and right, and move this Axis to 'mechanical origin point'
+  * press 'p' to pause the mvoement
+  
+* rosrun andbot_test_joint teleop_home 1 0.1
+  * left arm 2 Axis & 3 Axis (speed = 0.1rad/s)
+  * Press '↑' and '↓'to control the 3 Axix forward and backward, and move this Axis to 'mechanical origin point'
+  * Press '←' and '→'to control the 2 Axix left and right, and move this Axis to 'mechanical origin point'
+  * press 'p' to pause the mvoement
+  
+* rosrun andbot_test_joint teleop_home 2 0.1
+  * right arm 0 Axis & 1 Axis (speed = 0.1rad/s)
+  * Press '↑' and '↓'to control the 0 Axix forward and backward, and move this Axis to 'mechanical origin point'
+  * Press '←' and '→'to control the 1 Axix left and right, and move this Axis to 'mechanical origin point'
+  * press 'p' to pause the mvoement
+  
+* rosrun andbot_test_joint teleop_home 3 0.1
+  * right arm 2 Axis & 3 Axis (speed = 0.1rad/s)
+  * Press '↑' and '↓'to control the 3 Axix forward and backward, and move this Axis to 'mechanical origin point'
+  * Press '←' and '→'to control the 2 Axix left and right, and move this Axis to 'mechanical origin point'
+  * press 'p' to pause the mvoement
+
+* Finally press 'Ctrl+C' to kill this node
+
+# andbot predefined pose
+* rostopic pub /andbot/predefinedPoses std_msgs/UInt8 "data: 3" (strong)
+* rostopic pub /andbot/predefinedPoses std_msgs/UInt8 "data: 2" (holdtray)
