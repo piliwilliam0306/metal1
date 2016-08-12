@@ -183,17 +183,17 @@ target_link_libraries(mybot_xv11_angular_bound_filter ${catkin_LIBRARIES})
 #add_executable(mybot_stop_when_goal_reached src/mybot_stop_when_goal_reached.cpp)
 #target_link_libraries(mybot_stop_when_goal_reached ${catkin_LIBRARIES})
 
-#add_executable(teleop_home src/teleop_home.cpp)
-#target_link_libraries(teleop_home ${catkin_LIBRARIES})
+add_executable(teleop_home src/teleop_home.cpp)
+target_link_libraries(teleop_home ${catkin_LIBRARIES})
 
-#add_executable(action src/action.cpp)
-#target_link_libraries(action ${catkin_LIBRARIES})
+add_executable(action src/action.cpp)
+target_link_libraries(action ${catkin_LIBRARIES})
 
-#add_executable(left_arm_moveR src/left_arm_moveR.cpp)
-#target_link_libraries(left_arm_moveR ${catkin_LIBRARIES})
+add_executable(left_arm_moveR src/left_arm_moveR.cpp)
+target_link_libraries(left_arm_moveR ${catkin_LIBRARIES})
 
-#add_executable(right_arm_moveR src/right_arm_moveR.cpp)
-#target_link_libraries(right_arm_moveR ${catkin_LIBRARIES})
+add_executable(right_arm_moveR src/right_arm_moveR.cpp)
+target_link_libraries(right_arm_moveR ${catkin_LIBRARIES})
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
