@@ -8,8 +8,11 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   sensor_msgs
+  geometry_msgs
+  nav_msgs
   std_msgs
   tf
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -51,6 +54,19 @@ find_package(catkin REQUIRED COMPONENTS
 #   Message1.msg
 #   Message2.msg
 # )
+add_message_files(
+   FILES
+   Sonar.msg
+   Bump.msg
+   WheelCmd.msg
+   WheelFb.msg
+   JointCmd.msg
+   JointFb.msg
+   JointOffset.msg
+   Cmd.msg
+   Fb.msg
+   Offset.msg
+ )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -58,6 +74,12 @@ find_package(catkin REQUIRED COMPONENTS
 #   Service1.srv
 #   Service2.srv
 # )
+add_service_files(
+   FILES
+   Calibrate.srv
+   DeviceCheck.srv
+   DriverState.srv
+ )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -71,6 +93,10 @@ find_package(catkin REQUIRED COMPONENTS
 #   DEPENDENCIES
 #   sensor_msgs#   std_msgs
 # )
+generate_messages(
+   DEPENDENCIES
+   std_msgs
+ )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -102,8 +128,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES andbot1dot2
+  INCLUDE_DIRS include
+  LIBRARIES andbot1dot2
 #  CATKIN_DEPENDS roscpp rospy sensor_msgs std_msgs tf
 #  DEPENDS system_lib
 )
@@ -154,6 +180,10 @@ include_directories(
 #   scripts/my_python_script
 #   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 # )
+install(PROGRAMS
+  scripts/andbot1dot2_teleop_key
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 ## Mark executables and/or libraries for installation
 # install(TARGETS andbot1dot2 andbot1dot2_node
@@ -188,3 +218,9 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+add_executable(mybot_odom_v1_andbot1dot2 src/mybot_odom_v1_andbot1dot2.cpp)
+target_link_libraries(mybot_odom_v1_andbot1dot2 ${catkin_LIBRARIES})
+
+add_executable(mybot_base_controller_v1_andbot1dot2 src/mybot_base_controller_v1_andbot1dot2.cpp)
+target_link_libraries(mybot_base_controller_v1_andbot1dot2 ${catkin_LIBRARIES})
