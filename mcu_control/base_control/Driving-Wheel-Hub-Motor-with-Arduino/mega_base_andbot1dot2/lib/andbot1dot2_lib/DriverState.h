@@ -5,10 +5,10 @@
 #include <stdlib.h>
 #include "ros/msg.h"
 
-namespace andbot
+namespace andbot1dot2
 {
 
-static const char DRIVERSTATE[] = "andbot/DriverState";
+static const char DRIVERSTATE[] = "andbot1dot2/DriverState";
 
   class DriverStateRequest : public ros::Msg
   {

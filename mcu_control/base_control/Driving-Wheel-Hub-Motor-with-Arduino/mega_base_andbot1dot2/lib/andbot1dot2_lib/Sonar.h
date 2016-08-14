@@ -1,12 +1,12 @@
-#ifndef _ROS_andbot_Sonar_h
-#define _ROS_andbot_Sonar_h
+#ifndef _ROS_andbot1dot2_Sonar_h
+#define _ROS_andbot1dot2_Sonar_h
 
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
 #include "ros/msg.h"
 
-namespace andbot
+namespace andbot1dot2
 {
 
   class Sonar : public ros::Msg
@@ -77,7 +77,7 @@ namespace andbot
      return offset;
     }
 
-    const char * getType(){ return "andbot/Sonar"; };
+    const char * getType(){ return "andbot1dot2/Sonar"; };
     const char * getMD5(){ return "04d71fb19ce8c75f894eb2825b414fa0"; };
 
   };

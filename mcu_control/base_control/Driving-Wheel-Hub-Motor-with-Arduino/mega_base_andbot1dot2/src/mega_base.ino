@@ -11,10 +11,10 @@ Serial3 port (connect to BT (Test only))
 #include <ArduinoHardware.h>
 #include <ros.h>
 #include <geometry_msgs/Vector3.h>
-#include <WheelCmd.h>
-#include <WheelFb.h>
 #include <sensor_msgs/Range.h>
 #include <std_msgs/Char.h>
+#include <WheelCmd.h>
+#include <WheelFb.h>
 
 char val;
 char commandArray_L[3];

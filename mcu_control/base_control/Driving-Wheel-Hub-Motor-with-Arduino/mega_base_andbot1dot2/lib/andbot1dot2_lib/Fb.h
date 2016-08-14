@@ -1,12 +1,12 @@
-#ifndef _ROS_andbot_Fb_h
-#define _ROS_andbot_Fb_h
+#ifndef _ROS_andbot1dot2_Fb_h
+#define _ROS_andbot1dot2_Fb_h
 
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
 #include "ros/msg.h"
 
-namespace andbot
+namespace andbot1dot2
 {
 
   class Fb : public ros::Msg
@@ -94,7 +94,7 @@ namespace andbot
      return offset;
     }
 
-    const char * getType(){ return "andbot/Fb"; };
+    const char * getType(){ return "andbot1dot2/Fb"; };
     const char * getMD5(){ return "0a1591cf25ecbe115246ad41c3b6dcbd"; };
 
   };

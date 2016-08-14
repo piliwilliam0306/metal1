@@ -1,12 +1,12 @@
-#ifndef _ROS_andbot_Battery_h
-#define _ROS_andbot_Battery_h
+#ifndef _ROS_andbot1dot2_Battery_h
+#define _ROS_andbot1dot2_Battery_h
 
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
 #include "ros/msg.h"
 
-namespace andbot
+namespace andbot1dot2
 {
 
   class Battery : public ros::Msg
@@ -43,7 +43,7 @@ namespace andbot
      return offset;
     }
 
-    const char * getType(){ return "andbot/Battery"; };
+    const char * getType(){ return "andbot1dot2/Battery"; };
     const char * getMD5(){ return "f818fff1424893c4b50712b496df5eba"; };
 
   };

@@ -5,10 +5,10 @@
 #include <stdlib.h>
 #include "ros/msg.h"
 
-namespace andbot
+namespace andbot1dot2
 {
 
-static const char DEVICECHECK[] = "andbot/DeviceCheck";
+static const char DEVICECHECK[] = "andbot1dot2/DeviceCheck";
 
   class DeviceCheckRequest : public ros::Msg
   {

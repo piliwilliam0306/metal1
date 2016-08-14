@@ -1,24 +1,25 @@
-#ifndef _ROS_andbot_JointCmd_h
-#define _ROS_andbot_JointCmd_h
+#ifndef _ROS_andbot1dot2_JointOffset_h
+#define _ROS_andbot1dot2_JointOffset_h
 
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
-#include "ros/msg.h"
-#include "andbot/Cmd.h"
 
-namespace andbot
+#include "../andbot1dot2_lib/Offset.h"
+#include "ros/msg.h"
+
+namespace andbot1dot2
 {
 
-  class JointCmd : public ros::Msg
+  class JointOffset : public ros::Msg
   {
     public:
-      andbot::Cmd joint0;
-      andbot::Cmd joint1;
-      andbot::Cmd joint2;
-      andbot::Cmd joint3;
+      andbot::Offset joint0;
+      andbot::Offset joint1;
+      andbot::Offset joint2;
+      andbot::Offset joint3;
 
-    JointCmd():
+    JointOffset():
       joint0(),
       joint1(),
       joint2(),
@@ -46,8 +47,8 @@ namespace andbot
      return offset;
     }
 
-    const char * getType(){ return "andbot/JointCmd"; };
-    const char * getMD5(){ return "3856bd0a0dfcf1992fa06dccefaae7c7"; };
+    const char * getType(){ return "andbot1dot2/JointOffset"; };
+    const char * getMD5(){ return "ce981bbff8f82311c298b84fabb89ca4"; };
 
   };
 

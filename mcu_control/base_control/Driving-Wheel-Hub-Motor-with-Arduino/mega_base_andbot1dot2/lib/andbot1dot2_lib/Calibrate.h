@@ -8,7 +8,7 @@
 namespace andbot
 {
 
-static const char CALIBRATE[] = "andbot/Calibrate";
+static const char CALIBRATE[] = "andbot1dot2/Calibrate";
 
   class CalibrateRequest : public ros::Msg
   {

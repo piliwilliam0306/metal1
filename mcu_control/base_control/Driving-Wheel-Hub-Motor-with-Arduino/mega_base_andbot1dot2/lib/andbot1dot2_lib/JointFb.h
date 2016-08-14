@@ -1,24 +1,25 @@
-#ifndef _ROS_andbot_JointOffset_h
-#define _ROS_andbot_JointOffset_h
+#ifndef _ROS_andbot1dot2_JointFb_h
+#define _ROS_andbot1dot2_JointFb_h
 
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
-#include "ros/msg.h"
-#include "andbot/Offset.h"
 
-namespace andbot
+#include "andbot1dot2_lib/Fb.h"
+#include "ros/msg.h"
+
+namespace andbot1dot2
 {
 
-  class JointOffset : public ros::Msg
+  class JointFb : public ros::Msg
   {
     public:
-      andbot::Offset joint0;
-      andbot::Offset joint1;
-      andbot::Offset joint2;
-      andbot::Offset joint3;
+      andbot::Fb joint0;
+      andbot::Fb joint1;
+      andbot::Fb joint2;
+      andbot::Fb joint3;
 
-    JointOffset():
+    JointFb():
       joint0(),
       joint1(),
       joint2(),
@@ -46,8 +47,8 @@ namespace andbot
      return offset;
     }
 
-    const char * getType(){ return "andbot/JointOffset"; };
-    const char * getMD5(){ return "ce981bbff8f82311c298b84fabb89ca4"; };
+    const char * getType(){ return "andbot1dot2/JointFb"; };
+    const char * getMD5(){ return "ced444daa570aeb4fd281959abac65d8"; };
 
   };
 
