@@ -22,7 +22,7 @@
 		<actuator name="rightwheelmotor">
 			<mechanicalReduction>1</mechanicalReduction></actuator></transmission>
 
-	<link name="${robotname}_base">
+	<link name="${robotname}_housing">
 		<collision>
 			<geometry>
 				<mesh filename="package://angelbot/modeldescription/mesh/angel_housing.STL"></mesh></geometry></collision>
@@ -38,7 +38,7 @@
 			<inertia ixx="0.0119" ixy="0.0" ixz="0.0" iyy="0.0118" iyz="0.0" izz="0.0063"/>
 		</inertial>
 	</link>
-	<link name="${robotname}_shaft">
+	<link name="${robotname}_base">
 		<collision>
 			<geometry>
 				<mesh filename="package://angelbot/modeldescription/mesh/angel_shaftholder.STL"></mesh></geometry></collision>
@@ -87,19 +87,19 @@
 		</inertial>
 	</link>
 	
-	<joint name="base2shaft" type="fixed">
+	<joint name="base2housing" type="fixed">
 		<parent link="${robotname}_base"/>
-		<child link="${robotname}_shaft"/>
-		<origin xyz="0.07 0 0.0255"/>
+		<child link="${robotname}_housing"/>
+		<origin xyz="-0.07 0 -0.0255"/>
 	</joint>
-	<joint name="shaft2leftwheel" type="continuous">
-		<parent link="${robotname}_shaft"/>
+	<joint name="base2leftwheel" type="continuous">
+		<parent link="${robotname}_base"/>
 		<child link="${robotname}_leftwheel"/>
 		<origin xyz="0 0.1235 0"/>
 		<axis xyz="0 -1 0"/>
 	</joint>
-	<joint name="shaft2rightwheel" type="continuous">
-		<parent link="${robotname}_shaft"/>
+	<joint name="base2rightwheel" type="continuous">
+		<parent link="${robotname}_base"/>
 		<child link="${robotname}_rightwheel"/>
 		<origin xyz="0 -0.1235 0"/>
 		<axis xyz="0 1 0"/>
