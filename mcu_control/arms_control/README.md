@@ -62,10 +62,21 @@ Sending Angle and duration through rosserial.
 ## Step
 * cd ~/catkin_ws/src/metal1
 * git pull
+* git checkout andbot2
 * rospack profile
-* roslaunch andbot arm_test.launch 
-* rostopic list
-  * check topic alive
+* roslaunch andbot andbot_arm_test.launch 
+* rostopic list (following should be listed)
+  * /andbot/joint/L/cmd/offset_v
+  * /andbot/joint/L/cmd/position
+  * /andbot/joint/R/cmd/offset_v
+  * /andbot/joint/R/cmd/position
+  * /andbot/left_arm/goal
+  * /andbot/predefinedPoses
+  * /andbot/right_arm/goal
+  * /diagnostics
+  * /rosout
+  * /rosout_agg
+
 
 * rosrun andbot_test_joint teleop_home 0 0.1
   * left arm 0 Axis & 1 Axis (speed = 0.1rad/s)
@@ -93,6 +104,7 @@ Sending Angle and duration through rosserial.
 
 * Finally press 'Ctrl+C' to kill this node
 
-# andbot predefined pose
+# andbot predefined pose (arm movement test)
+* rostopic pub /andbot/predefinedPoses std_msgs/UInt8 "data: 0" (home)
 * rostopic pub /andbot/predefinedPoses std_msgs/UInt8 "data: 3" (strong)
 * rostopic pub /andbot/predefinedPoses std_msgs/UInt8 "data: 2" (holdtray)
