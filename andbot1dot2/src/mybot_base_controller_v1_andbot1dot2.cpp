@@ -2,6 +2,7 @@
 #include <tf/transform_broadcaster.h>
 #include <iostream>
 #include <andbot1dot2/WheelCmd.h>
+#include <andbot1dot2/DriverState.h>
 
 using namespace std;
 double wheelRadius, wheelSeparation;
@@ -26,9 +27,8 @@ void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
   // publish to /cmd_wheel_angularVel
   wheel.speed1 = left_vel;
   wheel.speed2 = right_vel;
-  wheel.driverstate = true;
+
   cmd_wheel_angularVel_pub.publish(wheel);
-  
 }
 
 int main(int argc, char** argv){
@@ -50,6 +50,7 @@ int main(int argc, char** argv){
 
   cmd_vel_sub = n1.subscribe("/andbot1dot2/cmd_vel", 10, cmd_velCallback);
   cmd_wheel_angularVel_pub = n2.advertise<andbot1dot2::WheelCmd>("cmd_wheel_angularVel", 50);
+  
   ros::Rate loop_rate(rate);
 
   while(ros::ok())

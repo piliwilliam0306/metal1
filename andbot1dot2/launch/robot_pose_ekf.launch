@@ -4,7 +4,7 @@
 
 	<node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf">
 	  <param name="output_frame" value="odom_combined"/>
-	  <param name="base_footprint_frame" value="angelbot_base"/>
+	  <param name="base_footprint_frame" value="andbot1dot2_base"/>
 	  <param name="freq" value="10.0"/>
 	  <param name="sensor_timeout" value="1.0"/>  
 	  <param name="odom_used" value="true"/>
@@ -14,8 +14,8 @@
 	<!--
 	 <remap from="odom" to="pr2_base_odometry/odom" />
 	 -->
-	  <remap from="odom" to="angelbot/odom" />
-	  <remap from="robot_pose_ekf/odom_combined" to="angelbot/odom_combined"/>
+	  <remap from="odom" to="andbot1dot2/odom" />
+	  <remap from="robot_pose_ekf/odom_combined" to="andbot1dot2/odom_combined"/>
 	
 	</node>
 	<!-- node pkg="robot_pose_ekf" type="gyro_node.py" name="gyro_node"/-->

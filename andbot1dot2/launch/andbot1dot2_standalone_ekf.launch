@@ -7,11 +7,11 @@
 	    <param name="baud" value="57600"/></node>
 
   <!-- urdf xml robot description loaded on the Parameter Server-->
-	<param name="robot_description" command="$(find xacro)/xacro '$(find angelbot)/modeldescription/urdf/angelbot.xacro'" />
+	<param name="robot_description" command="$(find xacro)/xacro '$(find andbot1dot2)/modeldescription/urdf/angelbot.xacro'" />
 	
 	<!-- Robot parameters -->
-	<param name="wheelSeparation" value="0.247"></param>
-	<param name="wheelRadius" value="0.0375"></param>
+	<param name="wheelSeparation" value="0.41367"></param>
+	<param name="wheelRadius" value="0.085"></param>
 	<param name="rate" value="10"></param>  
 	
 	<!-- Starting Joint state publisher node which will publish the joint values -->
@@ -21,10 +21,10 @@
 		<param name="publish_frequency" type="double" value="50.0"></param></node>
 		
 	<!-- Starting twist to motor and diff_tf nodes -->
-	<node pkg="angelbot" type="mybot_base_controller_v1_angelbot" name="mybot_base_controller_v1_angelbot" output="screen"/>
- 	<node pkg="angelbot" type="mybot_odom_ekf_angelbot" name="mybot_odom_ekf_angelbot" output="screen"/>
+	<node pkg="andbot1dot2" type="mybot_base_controller_v1_andbot1dot2" name="mybot_base_controller_v1_andbot1dot2" output="screen"/>
+ 	<node pkg="andbot1dot2" type="mybot_odom_ekf_andbot1dot2" name="mybot_odom_ekf_andbot1dot2" output="screen"/>
  	 
  	 <!-- Starting robot_pose_ekf nodes -->
-	<include file="$(find angelbot)/launch/robot_pose_ekf.launch" />
+	<include file="$(find andbot1dot2)/launch/robot_pose_ekf.launch" />
 
 </launch>

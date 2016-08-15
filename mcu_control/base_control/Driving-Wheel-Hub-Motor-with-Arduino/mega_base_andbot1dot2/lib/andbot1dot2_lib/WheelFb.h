@@ -92,7 +92,7 @@ namespace andbot1dot2
     }
 
     const char * getType(){ return "andbot1dot2/WheelFb"; };
-    const char * getMD5(){ return " cb918176b5631dae1371ac2bcdcb4261"; };
+    const char * getMD5(){ return "cb918176b5631dae1371ac2bcdcb4261"; };
 
   };
 

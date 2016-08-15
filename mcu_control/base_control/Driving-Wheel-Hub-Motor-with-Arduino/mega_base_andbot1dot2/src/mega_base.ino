@@ -1,6 +1,6 @@
 /*************************************************************
 [Version]
-20160711
+20160815
 [HW Arduino Mega 2560]
 Serial port (Default serial for Connect ROSSerial )
 Serial1 port (connect to Motor control board Right wheel)
@@ -12,9 +12,9 @@ Serial3 port (connect to BT (Test only))
 #include <ros.h>
 #include <geometry_msgs/Vector3.h>
 #include <sensor_msgs/Range.h>
-#include <std_msgs/Char.h>
 #include <WheelCmd.h>
 #include <WheelFb.h>
+#include <DriverState.h>
 
 char val;
 char commandArray_L[3];
@@ -45,19 +45,19 @@ double omega_left_target = 0.0;
 double omega_right_target = 0.0;
 double omega_left_actual = 0;
 double omega_right_actual = 0;
+bool driverEn;
+
 unsigned long lastMilli = 0;
 long dT = 0;
 int left_actual_receive = 0;
 int left_target_send = 0;
 int right_actual_receive = 0;
 int right_target_send = 0;
-char DriverEn;
 
 ros::NodeHandle nh;
 
 andbot1dot2::WheelFb vel_msg;
 ros::Publisher p("feedback_wheel_angularVel", &vel_msg);
-bool driver_mode;
 
 void sendCmd_wheel_angularVel_L(){
 //����̧֬�2 rev/sec
@@ -102,37 +102,45 @@ void sendCmd_wheel_angularVel_R(){
   Serial1.write(sT_R); Serial1.write(sH_R); Serial1.write(sL_R); Serial1.write(sP_R);
 }
 
-void messageCb(const andbot1dot2::WheelCmd& msg){
-  omega_left_target = msg.speed1;
-  omega_right_target = msg.speed2;
-  driver_mode = msg.driverstate;
-  sendCmd_wheel_angularVel_L();
-  sendCmd_wheel_angularVel_R();
-}
-void DriverEnCb(const std_msgs::Char& msg){
-	DriverEn = msg.data;
-	if (DriverEn == 'm')
+void DriverState_service_callback(const andbot1dot2::DriverStateRequest& req, andbot1dot2::DriverStateResponse& res)
+{
+//	std::stringstream ss;
+//	ss << "Received Here";
+	driverEn = req.driverstate;
+	if (driverEn == true)
 	{
+		res.driverstate = true;
 		Serial1.write("m", 1);
 		Serial2.write("m", 1);
 	}
-	else if (DriverEn == 'k')
+	else
 	{
+		res.driverstate = false;
 		Serial1.write("k", 1);
 		Serial2.write("k", 1);
 	}
+	Serial.print("From Client");
+	Serial.println(req.driverstate,DEC);
+	Serial.print("Server says");
+	Serial.print(res.driverstate,DEC);
+}
 
+void messageCb(const andbot1dot2::WheelCmd& msg){
+	omega_left_target = msg.speed1;
+	omega_right_target = msg.speed2;
+	sendCmd_wheel_angularVel_L();
+	sendCmd_wheel_angularVel_R();
 }
 
 ros::Subscriber<andbot1dot2::WheelCmd> s("cmd_wheel_angularVel", messageCb);
-ros::Subscriber<std_msgs::Char> e("DDEn", DriverEnCb);
+ros::ServiceServer<andbot1dot2::DriverStateRequest, andbot1dot2::DriverStateResponse> service("DriverState_service", &DriverState_service_callback);
 
 void setup(){
   nh.getHardware()->setBaud(115200);
   nh.initNode();
   nh.subscribe(s);
-  nh.subscribe(e);
   nh.advertise(p);
+  nh.advertiseService(service);
 
 
   Serial1.begin(115200);
