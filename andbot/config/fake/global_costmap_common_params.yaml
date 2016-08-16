@@ -21,3 +21,5 @@ cost_scaling_factor: 10.0
 #scan: {data_type: LaserScan, topic: /xv11_scan, marking: true, clearing: true, expected_update_rate: 0}
 observation_sources: laser_scan_sensor
 laser_scan_sensor: {sensor_frame: xv11, data_type: LaserScan, topic: /xv11_scan, marking: true, clearing: true, expected_update_rate: 0.4, inf_is_valid: true}
+
+point_cloud_sensor: {sensor_frame: camera_depth_optical_frame, data_type: PointCloud2, topic: /camera/depth/points, marking: true, clearing: true}

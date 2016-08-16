@@ -3,12 +3,15 @@
 	<arg name="gui" default="false" />
 	<param name="robot_description"
 	 command="$(find xacro)/xacro.py '$(find andbot)/robot_description/urdf/andbot.xacro'" />	
+
 	<param name="use_gui" value="$(arg gui)"/>
 	
-	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" ></node>
+	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
+          <param name="publish_frequency" value="20"/>
+        </node>
 	
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher">
-          <param name="publish_frequency" value="10"/>
+          <param name="publish_frequency" value="20"/>
 	  <param name="robot_description" command="$(find xacro)/xacro.py '$(find andbot)/robot_description/urdf/andbot.xacro'" />
         </node>
 	
