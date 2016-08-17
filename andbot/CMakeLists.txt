@@ -57,6 +57,8 @@ find_package(catkin REQUIRED COMPONENTS
    JointFb.msg
    JointOffset.msg
    Cmd.msg
+   HeadCmd.msg
+   HeadOffset.msg
    Fb.msg
    Offset.msg
    Battery.msg
@@ -195,6 +197,8 @@ target_link_libraries(left_arm_moveR ${catkin_LIBRARIES})
 add_executable(right_arm_moveR src/right_arm_moveR.cpp)
 target_link_libraries(right_arm_moveR ${catkin_LIBRARIES})
 
+add_executable(teleop_rugby src/teleop_rugby.cpp)
+target_link_libraries(teleop_rugby ${catkin_LIBRARIES})
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(Andbot_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
