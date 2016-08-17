@@ -13,6 +13,12 @@
   * /rugby/Head/cmd/position
   
 ## Joint Calibration
+* cd ~/catkin_ws/src/metal1
+* git pull
+* git checkout andbot2
+* cd ~/catkin_ws/
+* catkin_make
+* rospack profile
 * rosrun andbot teleop_rugby 0.1
   * Rugby Head 0 Axis & 1 Axis (speed = 0.1rad/s)
   * Press '↑' and '↓'to rotate up and down.
