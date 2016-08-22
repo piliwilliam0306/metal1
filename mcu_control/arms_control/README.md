@@ -63,6 +63,8 @@ Sending Angle and duration through rosserial.
 * cd ~/catkin_ws/src/metal1
 * git pull
 * git checkout andbot2
+* cd ~/catkin_ws/
+* catkin_make
 * rospack profile
 * roslaunch andbot andbot_arm_test.launch 
 * rostopic list (following should be listed)

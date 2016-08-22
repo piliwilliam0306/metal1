@@ -55,7 +55,7 @@ bool cliff2_reading;
 bool cliff3_reading;
 bool cliff4_reading;
 //Max.Distance(cm) = 200cm
-#define TimeOut 5000//TimeOut = Max.Distance(cm) * 58
+#define TimeOut 15000//TimeOut = Max.Distance(cm) * 58
 
 unsigned int current_left = 0;
 unsigned int current_right = 0;
@@ -88,7 +88,6 @@ ros::Subscriber<andbot::WheelCmd> s("cmd_wheel_angularVel",messageCb);
 
 void setup() 
 {
-  TCCR0B = TCCR0B & B11111000 | B00000010; 
   //set baud rate for rosserial
   nh.getHardware()->setBaud(57600); 
   nh.initNode();
