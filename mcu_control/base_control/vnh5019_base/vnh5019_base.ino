@@ -21,21 +21,21 @@
 #define MaxPWM 255
 
 #if defined (ANDBOT)
-  #define CPR 28
-  #define MaxSumError 2500
-  #define gear_ratio 65.5
-  #define MaxSpeed 10.96
-  #define Kp 0.9
-  #define Ki 0.005
-  #define Kd 0
+  double CPR = 28;
+  double MaxSumError = 2500;
+  double gear_ratio = 65.5;
+  double MaxSpeed = 10.96;
+  double Kp = 0.9;
+  double Ki = 0.005;
+  double Kd = 0;
 #else
-  #define CPR 64
-  #define MaxSumError 6000
-  #define gear_ratio 18.8
-  #define MaxSpeed 31
-  #define Kp 0.9
-  #define Ki 0.005
-  #define Kd 0
+  double CPR = 64;
+  double MaxSumError = 6000;
+  double gear_ratio = 18.8;
+  double MaxSpeed = 31;
+  double Kp = 0.9;
+  double Ki = 0.005;
+  double Kd = 0;
 #endif
 
 volatile long Encoderpos = 0;
