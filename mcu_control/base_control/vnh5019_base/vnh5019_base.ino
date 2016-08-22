@@ -78,7 +78,7 @@ void setup()
  pinMode(InA, OUTPUT);  pinMode(InB, OUTPUT); pinMode(EN, OUTPUT);
  //digitalWrite(EN, LOW);
  digitalWrite(EN, HIGH);
- Serial.begin (57600);
+ Serial.begin (1000000);
 } 
 
 void loop() 
