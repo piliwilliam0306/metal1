@@ -55,7 +55,7 @@ bool cliff2_reading;
 bool cliff3_reading;
 bool cliff4_reading;
 //Max.Distance(cm) = 200cm
-#define TimeOut 5000//TimeOut = Max.Distance(cm) * 58
+#define TimeOut 15000//TimeOut = Max.Distance(cm) * 58
 
 unsigned int current_left = 0;
 unsigned int current_right = 0;
