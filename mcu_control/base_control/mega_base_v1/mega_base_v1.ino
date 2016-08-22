@@ -13,9 +13,9 @@
 #include <std_msgs/UInt8.h>
 
 #if defined (ANDBOT)
-  #define MaxSpeed 10.96
+  double MaxSpeed = 10.96;
 #else
-  #define MaxSpeed 31
+  double MaxSpeed = 31;
 #endif
 
 const int TrigPin1 = 30;  //PC7
@@ -37,6 +37,7 @@ const int EchoPin7 = 48;  //PL1
 const int EchoPin8 = 49;  //PL0
 
 #define LOOPTIME        100
+#define SONARTIME       200
 #define BOOLTIME        1000 //1 Hz publish rate for cliff and bump sensor
 
 double omega_left_target = 0.0;
@@ -45,6 +46,7 @@ double omega_left_actual = 0;
 double omega_right_actual = 0;
 unsigned long lastMilli = 0;
 unsigned long lastBool = 0;
+unsigned long lastSonar = 0;
 
 long dT = 0;
 
@@ -57,7 +59,7 @@ bool cliff2_reading;
 bool cliff3_reading;
 bool cliff4_reading;
 //Max.Distance(cm) = 200cm
-#define TimeOut 5000//TimeOut = Max.Distance(cm) * 58
+#define TimeOut 15000//TimeOut = Max.Distance(cm) * 58
 
 unsigned int current_left = 0;
 unsigned int current_right = 0;
@@ -115,7 +117,7 @@ void setup()
 {
   //TCCR0B = TCCR0B & B11111000 | B00000010; 
   //set baud rate for rosserial
-  nh.getHardware()->setBaud(57600); 
+  nh.getHardware()->setBaud(1000000); 
   nh.initNode();
   nh.subscribe(s);
   nh.advertise(p);
@@ -124,8 +126,8 @@ void setup()
   nh.advertise(pub_battery);
   //nh.advertiseService(server);
 
-  Serial2.begin (57600);  //left
-  Serial1.begin (57600);  //right
+  Serial2.begin (1000000);  //left
+  Serial1.begin (1000000);  //right
   DDRA &= ~0b11111111;  //set DDRA register as input for bump and cliff sensors
   DDRL &= ~0b11111111;  //set DDRL register as input for Echo pins
   DDRC |= 0b11111111;  //set DDRC register as output for Trig pins
@@ -173,7 +175,17 @@ void loop()
           bump_msg.cliff4 = !cliff4_reading;
           pub_bump.publish(&bump_msg);
           
-          //sonar
+          batteryStatus();
+          /*battery_msg.capacity = capacity;
+          battery_msg.current = current;*/
+          battery_msg.data = capacity;
+          pub_battery.publish(&battery_msg);
+        }  
+        
+  if((millis()-lastSonar) >= SONARTIME)   
+       {                                    // enter tmed loop
+          lastSonar = millis();
+
           sonar_msg.sonar1 = ping(TrigPin1,EchoPin1);
           sonar_msg.sonar2 = ping(TrigPin2,EchoPin2);
           sonar_msg.sonar3 = ping(TrigPin3,EchoPin3);
@@ -183,13 +195,7 @@ void loop()
           sonar_msg.sonar7 = ping(TrigPin7,EchoPin7);
           sonar_msg.sonar8 = ping(TrigPin8,EchoPin8);
           pub_sonar.publish(&sonar_msg);
-
-          batteryStatus();
-          /*battery_msg.capacity = capacity;
-          battery_msg.current = current;*/
-          battery_msg.data = capacity;
-          pub_battery.publish(&battery_msg);
-        }  
+       }
   nh.spinOnce();
 }
 
