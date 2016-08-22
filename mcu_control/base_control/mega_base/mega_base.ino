@@ -132,7 +132,6 @@ ros::Subscriber<geometry_msgs::Vector3> s("cmd_wheel_angularVel",messageCb);
 
 void setup() 
 {
-  TCCR0B = TCCR0B & B11111000 | B00000010;
   nh.getHardware()->setBaud(57600);
   nh.initNode();
   nh.subscribe(s);
