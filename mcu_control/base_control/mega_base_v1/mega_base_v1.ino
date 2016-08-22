@@ -115,7 +115,7 @@ void setup()
 {
   //TCCR0B = TCCR0B & B11111000 | B00000010; 
   //set baud rate for rosserial
-  nh.getHardware()->setBaud(57600); 
+  nh.getHardware()->setBaud(1000000); 
   nh.initNode();
   nh.subscribe(s);
   nh.advertise(p);
@@ -124,8 +124,8 @@ void setup()
   nh.advertise(pub_battery);
   //nh.advertiseService(server);
 
-  Serial2.begin (57600);  //left
-  Serial1.begin (57600);  //right
+  Serial2.begin (1000000);  //left
+  Serial1.begin (1000000);  //right
   DDRA &= ~0b11111111;  //set DDRA register as input for bump and cliff sensors
   DDRL &= ~0b11111111;  //set DDRL register as input for Echo pins
   DDRC |= 0b11111111;  //set DDRC register as output for Trig pins
