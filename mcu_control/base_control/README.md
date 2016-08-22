@@ -56,7 +56,7 @@
      
 ## Test Rosserial (in ssh terminal)
      $ roscore
-     $ rosrun rosserial_python serial_node.py _port:=/dev/ttyACM0 _baud:=57600
+     $ rosrun rosserial_python serial_node.py _port:=/dev/ttyACM0 _baud:=1000000
      $ rostopic pub /cmd_wheel_angularVel andbot/WheelCmd 
      "speed1: 2.0
      mode1: true
