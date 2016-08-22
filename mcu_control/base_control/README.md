@@ -57,11 +57,7 @@
 ## Test Rosserial (in ssh terminal)
      $ roscore
      $ rosrun rosserial_python serial_node.py _port:=/dev/ttyACM0 _baud:=1000000
-     $ rostopic pub /cmd_wheel_angularVel andbot/WheelCmd 
-     "speed1: 2.0
-     mode1: true
-     speed2: 2.0
-     mode2: true" 
+     $ rostopic pub /cmd_wheel_angularVel andbot/WheelCmd "speed1: 2.0 speed2: 2.0 driverstate: true" 
      $ rostopic echo feedback_wheel_angularVel
      * if "feedback_wheel_angularVel" topic output is close to "cmd_wheel_angularVel," rosserial and motor control board is working.
      $ Ctrl + C
