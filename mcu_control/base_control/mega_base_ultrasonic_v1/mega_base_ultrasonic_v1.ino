@@ -88,7 +88,6 @@ ros::Subscriber<andbot::WheelCmd> s("cmd_wheel_angularVel",messageCb);
 
 void setup() 
 {
-  TCCR0B = TCCR0B & B11111000 | B00000010; 
   //set baud rate for rosserial
   nh.getHardware()->setBaud(57600); 
   nh.initNode();
