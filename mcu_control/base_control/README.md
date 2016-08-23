@@ -31,7 +31,7 @@
   * Enter 4 charactors target speed in Arduino Serial Console/Window. 
      Any value from -10.9 to +10.9 for Andbot, Any value from -31 to +31 for Rugby or Angel
   * If "actual speed" is close to "target speed," wiring and control board are working; if not, check wiring or swap encoder pins.
-  * "vnh5019.ino" is for the motor controller board for base. (Upload this if vnh5019 control board pass speed test.)
+  * "vnh5019_base.ino" is for the motor controller board for base. (Upload this if vnh5019 control board pass speed test.)
   * Select Arduino Pro Mini when uploading.
 
 
