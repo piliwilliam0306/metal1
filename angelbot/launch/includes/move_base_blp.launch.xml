@@ -15,15 +15,15 @@
   <!-- Starting move_base node -->
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" clear_params="true">
   	<!-- common parameters of global costmap -->
-    <rosparam file="$(find angelbot)/param/global_costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find angelbot)/config/global_costmap_common_params.yaml" command="load" ns="global_costmap" />
     <!-- common parameters of local costmap -->
-    <rosparam file="$(find angelbot)/param/local_costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find angelbot)/config/local_costmap_common_params.yaml" command="load" ns="local_costmap" />
     <!-- local cost map parameters -->
-    <rosparam file="$(find angelbot)/param/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find angelbot)/config/local_costmap_params.yaml" command="load" />
     <!-- global cost map parameters -->
-    <rosparam file="$(find angelbot)/param/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find angelbot)/config/global_costmap_params.yaml" command="load" />
     <!-- base local planner parameters -->
-    <rosparam file="$(find angelbot)/param/base_local_planner_params.yaml" command="load" />
+    <rosparam file="$(find angelbot)/config/base_local_planner_params.yaml" command="load" />
     <!-- dwa local planner parameters -->
     <!-- rosparam file="$(find angelbot)/param/dwa_base_local_planner_params.yaml" command="load" /-->
 
