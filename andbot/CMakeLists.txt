@@ -11,6 +11,8 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
   tf
   message_generation
+  pcl_ros
+  sensor_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -199,6 +201,10 @@ target_link_libraries(right_arm_moveR ${catkin_LIBRARIES})
 
 add_executable(teleop_rugby src/teleop_rugby.cpp)
 target_link_libraries(teleop_rugby ${catkin_LIBRARIES})
+
+#add_executable(voxel_grid_test src/voxel_grid_test.cpp)
+#target_link_libraries(voxel_grid_test ${catkin_LIBRARIES})
+
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(Andbot_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
