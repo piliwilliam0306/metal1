@@ -80,25 +80,25 @@ Sending Angle and duration through rosserial.
   * /rosout_agg
 
 
-* rosrun andbot_test_joint teleop_home 0 0.1
+* rosrun andbot teleop_home 0 0.1
   * left arm 0 Axis & 1 Axis (speed = 0.1rad/s)
   * Press '↑' and '↓'to control the 0 Axix forward and backward, and move this Axis to 'mechanical origin point'
   * Press '←' and '→'to control the 1 Axix left and right, and move this Axis to 'mechanical origin point'
   * press 'p' to pause the mvoement
   
-* rosrun andbot_test_joint teleop_home 1 0.1
+* rosrun andbot teleop_home 1 0.1
   * left arm 2 Axis & 3 Axis (speed = 0.1rad/s)
   * Press '↑' and '↓'to control the 3 Axix forward and backward, and move this Axis to 'mechanical origin point'
   * Press '←' and '→'to control the 2 Axix left and right, and move this Axis to 'mechanical origin point'
   * press 'p' to pause the mvoement
   
-* rosrun andbot_test_joint teleop_home 2 0.1
+* rosrun andbot teleop_home 2 0.1
   * right arm 0 Axis & 1 Axis (speed = 0.1rad/s)
   * Press '↑' and '↓'to control the 0 Axix forward and backward, and move this Axis to 'mechanical origin point'
   * Press '←' and '→'to control the 1 Axix left and right, and move this Axis to 'mechanical origin point'
   * press 'p' to pause the mvoement
   
-* rosrun andbot_test_joint teleop_home 3 0.1
+* rosrun andbot teleop_home 3 0.1
   * right arm 2 Axis & 3 Axis (speed = 0.1rad/s)
   * Press '↑' and '↓'to control the 3 Axix forward and backward, and move this Axis to 'mechanical origin point'
   * Press '←' and '→'to control the 2 Axix left and right, and move this Axis to 'mechanical origin point'
