@@ -10,27 +10,27 @@
 
 	<!-- Defining parameters for move_base node -->
 
-  <arg name="odom_topic" default="angelbot/odom_ekf" />
+  <arg name="odom_topic" default="andbot1dot2/odom_ekf" />
   
   <!-- Starting move_base node -->
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" clear_params="true">
   	<param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
   	<!-- common parameters of global costmap -->
-    <rosparam file="$(find angelbot)/param/global_costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find andbot1dot2)/config/global_costmap_common_params.yaml" command="load" ns="global_costmap" />
     <!-- common parameters of local costmap -->
-    <rosparam file="$(find angelbot)/param/local_costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find andbot1dot2)/config/local_costmap_common_params.yaml" command="load" ns="local_costmap" />
     <!-- local cost map parameters -->
-    <rosparam file="$(find angelbot)/param/local_costmap_params_ekf.yaml" command="load" />
+    <rosparam file="$(find andbot1dot2)/config/local_costmap_params_ekf.yaml" command="load" />
     <!-- global cost map parameters -->
-    <rosparam file="$(find angelbot)/param/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find andbot1dot2)/config/global_costmap_params.yaml" command="load" />
     <!-- base local planner parameters -->
     <!-- rosparam file="$(find angelbot)/param/base_local_planner_params.yaml" command="load" /-->
     <!-- dwa local planner parameters -->
-    <rosparam file="$(find angelbot)/param/dwa_base_local_planner_params.yaml" command="load" />
+    <rosparam file="$(find andbot1dot2)/config/dwa_base_local_planner_params.yaml" command="load" />
 
     <!--remap from="cmd_vel" to="navigation_velocity_smoother/raw_cmd_vel"/-->
     <remap from="odom" to="$(arg odom_topic)"/>
-    <remap from="cmd_vel" to="/angelbot/cmd_vel" />
+    <remap from="cmd_vel" to="/andbot1dot2/cmd_vel" />
 
   </node>
 </launch>

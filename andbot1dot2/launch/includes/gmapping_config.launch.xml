@@ -6,7 +6,7 @@
 	<node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
 	
 	<!-- Frame of mobile base -->
-	<param name="base_frame" value="angelbot_base"></param>
+	<param name="base_frame" value="andbot1dot2_base"></param>
 	<param name="odom_frame" value="odom"></param>
 	
 	<!-- The interval of map updation, reducing this value will speed of map generation but increase computation load -->

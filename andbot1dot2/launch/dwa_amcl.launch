@@ -5,7 +5,7 @@
 	<include file="$(find andbot1dot2)/launch/rplidar.launch" />
 	
 	<!-- Launches map server node -->
-	<node name="map_server" pkg="map_server" type="map_server" args="$(find andbot1dot2)/map/AROffice_angel.yaml"/>
+	<node name="map_server" pkg="map_server" type="map_server" args="$(find andbot1dot2)/map/AROffice_andbot1dot2.yaml"/>
 	
 	<arg name="use_map_topic"   default="false"/>
 	<arg name="scan_topic"      default="scan"/> 

@@ -5,7 +5,7 @@
 			<parent link="${parent}"></parent>
 			<child link="${name}_rplidar"></child>
 			<!--  rotate z axis 180 degree according to the placement on andbot -->
-			<origin xyz="-0.02426 0.0 0.17395" rpy="0 0 0"></origin> 
+			<origin xyz="-0.02426 0.0 0.17395" rpy="0 0 3.14159"></origin> 
 		</joint>
 	  	<link name="${name}_rplidar">
 			<collision>

@@ -22,7 +22,7 @@
 		
 	<!-- Starting twist to motor and diff_tf nodes -->
 	<node pkg="andbot1dot2" type="mybot_base_controller_v1_andbot1dot2" name="mybot_base_controller_v1_andbot1dot2" output="screen"/>
- 	<!-- node pkg="andbot1dot2" type="mybot_odom_v1_andbot1dot2" name="mybot_odom_v1_andbot1dot2" output="screen"/-->
+ 	<node pkg="andbot1dot2" type="mybot_odom_v1_andbot1dot2" name="mybot_odom_v1_andbot1dot2" output="screen"/>
  	 
 
 
