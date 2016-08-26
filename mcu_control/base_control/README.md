@@ -62,6 +62,7 @@
       * if "feedback_wheel_angularVel" topic output is close to "cmd_wheel_angularVel," rosserial and motor control board is working.
      $ rostopic pub /cmd_wheel_angularVel andbot/WheelCmd "speed1: 0.0 speed2: 0.0 driverstate: true"
      $ Ctrl + C to stop
+     $ rostopic echo /sonar (check if sonars work)
 
 ## Make robot move via Teleop app
   * Now, put the robot on the ground
