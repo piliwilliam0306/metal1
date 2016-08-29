@@ -21,8 +21,8 @@
 		<param name="publish_frequency" type="double" value="50.0"></param></node>
 		
 	<!-- Starting twist to motor and diff_tf nodes -->
-	<node pkg="angelbot" type="mybot_base_controller_v1_angelbot" name="mybot_base_controller_v1_angelbot" output="screen"/>
- 	<node pkg="angelbot" type="mybot_odom_ekf_angelbot" name="mybot_odom_ekf_angelbot" output="screen"/>
+	<node pkg="rugby" type="mybot_base_controller_v1_angelbot" name="mybot_base_controller_v1_angelbot" output="screen"/>
+ 	<node pkg="rugby" type="mybot_odom_ekf_angelbot" name="mybot_odom_ekf_angelbot" output="screen"/>
  	 
  	 <!-- Starting robot_pose_ekf nodes -->
 	<include file="$(find rugby)/launch/robot_pose_ekf.launch" />
