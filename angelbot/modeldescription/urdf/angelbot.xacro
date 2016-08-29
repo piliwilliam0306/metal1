@@ -41,10 +41,10 @@
 	<link name="${robotname}_base">
 		<collision>
 			<geometry>
-				<mesh filename="package://angelbot/modeldescription/mesh/angel_shaftholder.STL"></mesh></geometry></collision>
+				<mesh filename="package://angelbot/modeldescription/mesh/rugby_base.STL"></mesh></geometry></collision>
 		<visual>
 			<geometry>
-				<mesh filename="package://angelbot/modeldescription/mesh/angel_shaftholder.STL"/>
+				<mesh filename="package://angelbot/modeldescription/mesh/rugby_base.STL"/>
 			</geometry>
 			<material name="white">
 			</material>
