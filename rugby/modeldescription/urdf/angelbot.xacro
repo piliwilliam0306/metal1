@@ -2,12 +2,12 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="angelbot">
 	<xacro:property name="robotname" value="angelbot"/>
 	<!-- Import all Gazebo-customization elements, including Gazebo colors--> 
- 	<xacro:include filename="$(find angelbot)/modeldescription/urdf/angelbot.gazebo" />
+ 	<xacro:include filename="$(find rugby)/modeldescription/urdf/angelbot.gazebo" />
  	<!-- Import Rviz colors -->
-	<xacro:include filename="$(find angelbot)/modeldescription/urdf/angelbotmaterial4rviz.xacro"/>
+	<xacro:include filename="$(find rugby)/modeldescription/urdf/angelbotmaterial4rviz.xacro"/>
 	
-	<xacro:include filename="$(find angelbot)/modeldescription/urdf/sensors/rplidar_laser.urdf.xacro" />
-	<xacro:include filename="$(find angelbot)/modeldescription/urdf/sensors/mpu6050_imu.urdf.xacro" />
+	<xacro:include filename="$(find rugby)/modeldescription/urdf/sensors/rplidar_laser.urdf.xacro" />
+	<xacro:include filename="$(find rugby)/modeldescription/urdf/sensors/mpu6050_imu.urdf.xacro" />
 	
 	<transmission name="trans_mobile_left">
 		<type>transmission_interface/SimpleTransmission</type>
