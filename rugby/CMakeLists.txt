@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(angelbot)
+project(rugby)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -129,7 +129,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS src
-  LIBRARIES angelbot
+  LIBRARIES rugby
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
 )
