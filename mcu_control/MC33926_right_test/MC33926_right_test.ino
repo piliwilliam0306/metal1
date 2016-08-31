@@ -27,7 +27,7 @@ int PWM_val = 0;
 int CPR = 64;                                   // encoder count per revolution
 int gear_ratio = 18.8; 
 
-float Kp = 0.9;
+float Kp = 1.3;
 float Ki = 0.005;
 float Kd = 0;
 
