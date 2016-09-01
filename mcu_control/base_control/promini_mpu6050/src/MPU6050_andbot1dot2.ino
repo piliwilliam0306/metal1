@@ -207,12 +207,12 @@ void setup() {
 //    mpu.setZAccelOffset(877); // 1688 factory default for my test chip
 
     // supply your own gyro offsets here, scaled for min sensitivity, the following is for angelbot 20160726
-        mpu.setXGyroOffset(-563);
-        mpu.setYGyroOffset(240);
-        mpu.setZGyroOffset(1997);
-        mpu.setXAccelOffset(122);
+        mpu.setXGyroOffset(-579);
+        mpu.setYGyroOffset(376);
+        mpu.setZGyroOffset(1987);
+        mpu.setXAccelOffset(120);
         mpu.setYAccelOffset(-82);
-        mpu.setZAccelOffset(18); // 1688 factory default for my test chip
+        mpu.setZAccelOffset(20); // 1688 factory default for my test chip
 
 
     // make sure it worked (returns 0 if so)
@@ -264,19 +264,19 @@ void loop() {
        {                                    // enter tmed loop
           lastMilli = millis();
           x = x + 0.1; //in seconds
-          //Serial.print(x);
-          //Serial.println(yaw);
+          Serial.print(x);
+          Serial.println(yaw);
           yaw = ypr[0] * 180/M_PI;
-          if (x > 30) // 60; 20160826 by SW
-            {
-              Serial.print("yaw");  Serial.print("\t");
-              Serial.print(yaw+slope*x);
-              Serial.print("\t");
-              /*Serial.print("  x = ");  //Serial.print("\t");
-              Serial.print(x,1);
-              */
-              Serial.println();
-            }
+//          if (x > 30) // 60; 20160826 by SW
+//            {
+//              Serial.print("yaw");  Serial.print("\t");
+//              Serial.print(yaw+slope*x);//Serial.print(yaw);///;
+//              Serial.print("\t");
+//              /*Serial.print("  x = ");  //Serial.print("\t");
+//              Serial.print(x,1);
+//              */
+//              Serial.println();
+//            }
        }
     if (!dmpReady) return;
 

@@ -62,7 +62,7 @@ int right_target_send = 0;
 ros::NodeHandle nh;
 
 andbot1dot2::WheelFb vel_msg;
-ros::Publisher p("feedback_wheel_angularVel", &vel_msg);
+ros::Publisher p("feedback_wheel_volt", &vel_msg);
 
 void sendCmd_wheel_angularVel_L(){
 //����̧֬�2 rev/sec
@@ -137,7 +137,7 @@ void messageCb(const andbot1dot2::WheelCmd& msg){
 	sendCmd_wheel_angularVel_R();
 }
 
-ros::Subscriber<andbot1dot2::WheelCmd> s("cmd_wheel_angularVel", messageCb);
+ros::Subscriber<andbot1dot2::WheelCmd> s("cmd_wheel_volt", messageCb);
 ros::ServiceServer<andbot1dot2::DriverStateRequest, andbot1dot2::DriverStateResponse> service("DriverState_service", &DriverState_service_callback);
 
 void setup(){
