@@ -219,6 +219,9 @@ install(PROGRAMS
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
+add_executable(mybot_base_controller_MIMO_andbot1dot2 src/mybot_base_controller_MIMO_andbot1dot2.cpp)
+target_link_libraries(mybot_base_controller_MIMO_andbot1dot2 ${catkin_LIBRARIES})
+
 add_executable(mybot_odom_v1_andbot1dot2 src/mybot_odom_v1_andbot1dot2.cpp)
 target_link_libraries(mybot_odom_v1_andbot1dot2 ${catkin_LIBRARIES})
 
@@ -227,3 +230,4 @@ target_link_libraries(mybot_odom_ekf_andbot1dot2 ${catkin_LIBRARIES})
 
 add_executable(mybot_base_controller_v1_andbot1dot2 src/mybot_base_controller_v1_andbot1dot2.cpp)
 target_link_libraries(mybot_base_controller_v1_andbot1dot2 ${catkin_LIBRARIES})
+

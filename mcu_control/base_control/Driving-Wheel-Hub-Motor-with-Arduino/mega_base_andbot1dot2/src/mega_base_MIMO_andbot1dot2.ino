@@ -17,8 +17,9 @@ Serial3 port (connect to BT (Test only))
 #include <DriverState.h>
 #include <Metro.h>
 
-#define Relay_pin 52    //  digital output
-Metro systemwarmup = Metro(5000000) ; //(msec)
+#define Relay_pin_left 52    //  digital output
+#define Relay_pin_right 53    //  digital output
+Metro systemwarmup = Metro(5000) ; //(msec)
 bool systemReadyFlag = false;
 
 char val;
@@ -62,7 +63,7 @@ int right_target_send = 0;
 ros::NodeHandle nh;
 
 andbot1dot2::WheelFb vel_msg;
-ros::Publisher p("feedback_wheel_volt", &vel_msg);
+ros::Publisher p("feedback_wheel_angularVel", &vel_msg);
 
 void sendCmd_wheel_angularVel_L(){
 //����̧֬�2 rev/sec
@@ -142,7 +143,8 @@ ros::ServiceServer<andbot1dot2::DriverStateRequest, andbot1dot2::DriverStateResp
 
 void setup(){
 
-	pinMode(Relay_pin, OUTPUT);
+	pinMode(Relay_pin_left, OUTPUT);
+	pinMode(Relay_pin_right, OUTPUT);
 
 	nh.getHardware()->setBaud(115200);
 	nh.initNode();
@@ -153,8 +155,10 @@ void setup(){
 	Serial.println("Please wait for system warming up ...");
 	while(systemwarmup.check() == false);
 	//SensorReadyFlag = true;
-	digitalWrite(Relay_pin, HIGH);  // power on the LED
+	digitalWrite(Relay_pin_left, HIGH);  // power on the LED
+	digitalWrite(Relay_pin_right, HIGH);
 	Serial.println("Warmup finish");
+
 
 	Serial1.begin(115200);
 	Serial2.begin(115200);
