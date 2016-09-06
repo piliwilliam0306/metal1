@@ -38,6 +38,7 @@
 # Base Test Proceduce with ROS
 ## Hardware
   * Connect Vnh5019 board to mega board
+  * make sure to wire "Serial2" to LEFT Vnh5019 driver board and "Serial1" to RIGHT.
   * Connect mega board to Odroid board via USB
   * Connect HDMI monitor, mouse and keyboard to Odroid board
   * Power on Odroid board, mega board and Vnh5019 board
@@ -59,7 +60,7 @@
      $ rosrun rosserial_python serial_node.py _port:=/dev/ttyACM0 _baud:=1000000
      $ rostopic pub /cmd_wheel_angularVel andbot/WheelCmd "speed1: 2.0 speed2: 2.0 driverstate: true" 
      $ rostopic echo feedback_wheel_angularVel
-      * if "feedback_wheel_angularVel" topic output is close to "cmd_wheel_angularVel," rosserial and motor control board is working.
+      * if "feedback_wheel_angularVel" topic output is close to "cmd_wheel_angularVel," rosserial and motor control board is working. (speed1 is for "left wheel," speed2 is "right wheel.")
      $ rostopic pub /cmd_wheel_angularVel andbot/WheelCmd "speed1: 0.0 speed2: 0.0 driverstate: true"
      $ Ctrl + C to stop
      $ rostopic echo /sonar (check if sonars work)
