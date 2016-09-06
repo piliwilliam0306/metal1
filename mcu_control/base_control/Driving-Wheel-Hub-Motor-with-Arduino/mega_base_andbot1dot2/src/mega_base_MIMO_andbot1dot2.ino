@@ -47,8 +47,8 @@ byte rP_R = 0;  //receive stop byte
 
 #define LOOPTIME 100
 
-double omega_left_target = 0.0;
-double omega_right_target = 0.0;
+double volt_left_target = 0.0;
+double volt_right_target = 0.0;
 double omega_left_actual = 0;
 double omega_right_actual = 0;
 bool driverEn;
@@ -65,7 +65,7 @@ ros::NodeHandle nh;
 andbot1dot2::WheelFb vel_msg;
 ros::Publisher p("feedback_wheel_angularVel", &vel_msg);
 
-void sendCmd_wheel_angularVel_L(){
+void sendCmd_wheel_volt_L(){
 //����̧֬�2 rev/sec
 //  if(omega_left_target>12.566) omega_left_target=12.566;
 //  else if(omega_left_target<-12.566) omega_left_target=-12.566;
@@ -75,9 +75,9 @@ void sendCmd_wheel_angularVel_L(){
 //  else if(omega_left_target<-6.283) omega_left_target=-6.283;
 //  left_target_send = int(omega_left_target / 0.00019174779503769);   //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
 
-  if(omega_left_target>6.283) omega_left_target=6.283;
-  else if(omega_left_target<-6.283) omega_left_target=-6.283;
-  left_target_send = int(omega_left_target / 0.00019174779503769);   //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
+  if(volt_left_target>260) volt_left_target=260;
+  else if(volt_left_target<-260) volt_left_target=-260;
+  left_target_send = int(volt_left_target / 0.00019174779503769);   //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
 
 
   char sT_L = '{'; //send start byte
@@ -88,7 +88,7 @@ void sendCmd_wheel_angularVel_L(){
 }
 
 
-void sendCmd_wheel_angularVel_R(){
+void sendCmd_wheel_volt_R(){
 //����̧֬�2 rev/sec
 //  if(omega_right_target>12.566) omega_right_target=12.566;
 //  else if(omega_right_target<-12.566) omega_right_target=-12.566;
@@ -97,9 +97,9 @@ void sendCmd_wheel_angularVel_R(){
 //  if(omega_right_target>6.283) omega_right_target=6.283;
 //  else if(omega_right_target<-6.283) omega_right_target=-6.283;
 //  right_target_send = int(omega_right_target / 0.00019174779503769);   //convert received 16 bit integer to actual speed 12.566/32767=3.834955900753807e-4=0.00038349559007538
-  if(omega_right_target>6.283) omega_right_target=6.283;
-  else if(omega_right_target<-6.283) omega_right_target=-6.283;
-  right_target_send = int(omega_right_target / 0.00019174779503769);   //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
+  if(volt_right_target>260) volt_right_target=260;
+  else if(volt_right_target<-260) volt_right_target=-260;
+  right_target_send = int(volt_right_target / 0.00019174779503769);   //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
 
   char sT_R = '{';
   byte sH_R = highByte(right_target_send);
@@ -132,10 +132,10 @@ void DriverState_service_callback(const andbot1dot2::DriverStateRequest& req, an
 }
 
 void messageCb(const andbot1dot2::WheelCmd& msg){
-	omega_left_target = msg.speed1;
-	omega_right_target = msg.speed2;
-	sendCmd_wheel_angularVel_L();
-	sendCmd_wheel_angularVel_R();
+	volt_left_target = msg.speed1;
+	volt_right_target = msg.speed2;
+	sendCmd_wheel_volt_L();
+	sendCmd_wheel_volt_R();
 }
 
 ros::Subscriber<andbot1dot2::WheelCmd> s("cmd_wheel_volt", messageCb);
