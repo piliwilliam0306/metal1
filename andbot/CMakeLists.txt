@@ -145,11 +145,9 @@ include_directories(
 add_executable(mybot_odometry src/mybot_odometry.cpp)
 target_link_libraries(mybot_odometry ${catkin_LIBRARIES})
 
-add_executable(mybot_odometry_v1 src/mybot_odometry_v1.cpp)
-target_link_libraries(mybot_odometry_v1 ${catkin_LIBRARIES})
+add_executable(mimo_base_controller src/mimo_base_controller.cpp)
+target_link_libraries(mimo_base_controller ${catkin_LIBRARIES})
 
-add_executable(mybot_base_controller_v1 src/mybot_base_controller_v1.cpp)
-target_link_libraries(mybot_base_controller_v1 ${catkin_LIBRARIES})
 
 add_executable(acc_lim_test src/acc_lim_test.cpp)
 target_link_libraries(acc_lim_test ${catkin_LIBRARIES})

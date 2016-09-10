@@ -189,13 +189,15 @@ void loop()
           dT = millis()-lastMilli;
           lastMilli = millis();
 
-          //readFeadback_angularVel_L();
+          readFeadback_angularVel_L();
           //delay(50);
           //readFeadback_angularVel_R();  
           sendCmd_wheel_angularVel_L();
           sendCmd_wheel_angularVel_R();
 
           vel_msg.x=omega_left_actual;
+          vel_msg.x=omega_left_actual;
+
           vel_msg.y=omega_right_actual;
           p.publish(&vel_msg);
           /*
@@ -259,7 +261,7 @@ void readFeadback_angularVel_L()
         if(rP_L == '}')         
           {
             left_actual_receive = (rH_L << 8) + rL_L; 
-            omega_left_actual = double (left_actual_receive * 0.00031434064); //convert received 16 bit integer to actual speed
+            omega_left_actual = double (left_actual_receive * double(10.96/32767)); //convert received 16 bit integer to actual speed
           }
       }   
   }
@@ -283,7 +285,7 @@ void readFeadback_angularVel_R()
        if(rP_R == '}')         
        {
         right_actual_receive = (rH_R << 8) + rL_R; 
-        omega_right_actual = double (right_actual_receive * 0.00031434064); //convert received 16 bit integer to actual speed
+        omega_right_actual = double (right_actual_receive * double(10.96/32767)); //convert received 16 bit integer to actual speed
        }  
      }
   }   

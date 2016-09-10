@@ -20,23 +20,13 @@
 #define CurrentLimit 9000 //for metal0
 #define MaxPWM 255
 
-#if defined (ANDBOT)
-  #define CPR 28
-  #define MaxSumError 2500
-  #define gear_ratio 65.5
-  #define MaxSpeed 10.96
-  #define Kp 0.9
-  #define Ki 0.005
-  #define Kd 0
-#else
-  #define CPR 64
-  #define MaxSumError 6000
-  #define gear_ratio 18.8
-  #define MaxSpeed 31
-  #define Kp 0.9
-  #define Ki 0.005
-  #define Kd 0
-#endif
+#define CPR 28
+#define MaxSumError 2500
+#define gear_ratio 65.5
+#define MaxSpeed 10.96
+#define Kp 0.9
+#define Ki 0.005
+#define Kd 0
 
 volatile long Encoderpos = 0;
 volatile long unknownvalue = 0;
@@ -128,7 +118,7 @@ void readCmd_wheel_angularVel()
               if(rP=='|') //B01111100 motor driver off         
                 {
                   target_receive = (rH<<8)+rL; 
-                  PWM_val = double (target_receive*(255/32767));  //convert received 16 bit integer to actual speed
+                  PWM_val = double (target_receive*0.0077822);  //convert received 16 bit integer to actual speed
                   driver_mode = false;
                 }  
             }
@@ -137,9 +127,10 @@ void readCmd_wheel_angularVel()
 
 void sendFeedback_wheel_angularVel()
 {
-  //getMotorData();
+  getMotorData();
   byte current_send;
-  int actual_send = int(omega_actual/(MaxSpeed/32767)); //convert rad/s to 16 bit integer to send
+  int actual_send = int(omega_actual/0.0003345); //convert rad/s to 16 bit integer to send
+  //actual_send = 32767;
   //max current is 10200mA 10200/255 = 40
   current_send = current/40; 
   byte buf[5];
