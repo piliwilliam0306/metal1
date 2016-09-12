@@ -1,3 +1,6 @@
+# Changelog
+* 2016/09/12 , add brake condition in vnh5019_base.ino
+
 # Overview
 * Base Test Procedure without ROS
 * Base Test Procedure with ROS
