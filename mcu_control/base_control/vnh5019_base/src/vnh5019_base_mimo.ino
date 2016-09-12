@@ -4,8 +4,8 @@
 #define RIGHT_WHEEL 1
 #define LEFT_WHEEL 2
 
-#define WHEEL_TYPE LEFT_WHEEL
-//#define WHEEL_TYPE RIGHT_WHEEL
+//#define WHEEL_TYPE LEFT_WHEEL
+#define WHEEL_TYPE RIGHT_WHEEL
 
 #define encoder0PinA  2
 #define encoder0PinB  3
@@ -24,6 +24,7 @@
 #define MaxSumError 2500
 #define gear_ratio 65.5
 #define MaxSpeed 10.96
+#define MaxPWM 255
 #define Kp 0.9
 #define Ki 0.005
 #define Kd 0
@@ -79,7 +80,8 @@ void loop()
      {                                    // enter tmed loop
         dT = millis()-lastMilli;
         lastMilli = millis();
-		//PWM_val=60;
+		getMotorData();
+		//PWM_val=100;
         if (WHEEL_TYPE == RIGHT_WHEEL){
           if (PWM_val <= 0)   { analogWrite(motorIn1,abs(PWM_val));  digitalWrite(InA, LOW);  digitalWrite(InB, HIGH); }
           if (PWM_val > 0)    { analogWrite(motorIn1,abs(PWM_val));  digitalWrite(InA, HIGH);   digitalWrite(InB, LOW);}
@@ -95,6 +97,7 @@ void loop()
      {                                    // enter tmed loop
         lastSend = millis();
         sendFeedback_wheel_angularVel(); //send actually speed to mega
+        printMotorInfo();
      }
 }
 
@@ -112,13 +115,13 @@ void readCmd_wheel_angularVel()
               if(rP=='}') //B01111101 motor driver on         
                 {
                   target_receive = (rH<<8)+rL; 
-                  PWM_val = double (target_receive*0.0077822);  //convert received 16 bit integer to actual speed
+                  PWM_val = double (target_receive*double(MaxPWM)/32767);  //convert received 16 bit integer to actual speed
                   driver_mode = true;
                 }
               if(rP=='|') //B01111100 motor driver off         
                 {
                   target_receive = (rH<<8)+rL; 
-                  PWM_val = double (target_receive*0.0077822);  //convert received 16 bit integer to actual speed
+                  PWM_val = double (target_receive*double(MaxPWM)/32767);  //convert received 16 bit integer to actual speed
                   driver_mode = false;
                 }  
             }
@@ -127,9 +130,8 @@ void readCmd_wheel_angularVel()
 
 void sendFeedback_wheel_angularVel()
 {
-  getMotorData();
   byte current_send;
-  int actual_send = int(omega_actual/0.0003345); //convert rad/s to 16 bit integer to send
+  int actual_send = int(omega_actual/double(MaxSpeed)/32767); //convert rad/s to 16 bit integer to send
   //actual_send = 32767;
   //max current is 10200mA 10200/255 = 40
   current_send = current/40; 

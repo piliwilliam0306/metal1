@@ -3,7 +3,8 @@
 #include <geometry_msgs/Vector3.h>
 #include <sensor_msgs/Range.h>
 //#include "SoftwareSerial.h";
-
+#define MaxSpeed 10.96
+#define MaxPWM 255
 
 //only the following can be used for RX: 10, 11, 12, 13, 50, 51, 52, 53, 62, 63, 64, 65, 66, 67, 68, 69
 /*const int Tx_R = 13;
@@ -176,8 +177,8 @@ void setup()
     //Serial2 on pins 17 (RX) and 16 (TX), 
     //Serial on pins 15 (RX) and 14 (TX). 
   //Serial.begin (19200);
-  Serial2.begin (57600);  //left
-  Serial1.begin (57600);  //right
+  Serial2.begin (57600);  //right
+  Serial1.begin (57600);  //left
 }
 
 void loop() 
@@ -189,14 +190,14 @@ void loop()
           dT = millis()-lastMilli;
           lastMilli = millis();
 
-          readFeadback_angularVel_L();
+          //readFeadback_angularVel_L();
           //delay(50);
           //readFeadback_angularVel_R();  
           sendCmd_wheel_angularVel_L();
           sendCmd_wheel_angularVel_R();
 
           vel_msg.x=omega_left_actual;
-          vel_msg.x=omega_left_actual;
+
 
           vel_msg.y=omega_right_actual;
           p.publish(&vel_msg);
@@ -246,22 +247,22 @@ void loop()
 void readFeadback_angularVel_L()
 {
   //if (mySerial_L.available() > 4) 
-  if (Serial2.available() >= 4) 
+  if (Serial1.available() >= 4) 
   {
     //char rT_L = (char)mySerial_L.read(); //read actual speed from Uno
-    char rT_L = (char)Serial2.read(); //read actual speed from Uno
+    char rT_L = (char)Serial1.read(); //read actual speed from Uno
     if(rT_L == '{')
       {
         char commandArray_L[3];
         //mySerial_L.readBytes(commandArray_L,3);
-        Serial2.readBytes(commandArray_L,3);
+        Serial1.readBytes(commandArray_L,3);
         byte rH_L = commandArray_L[0];
         byte rL_L = commandArray_L[1];
         char rP_L = commandArray_L[2];
         if(rP_L == '}')         
           {
             left_actual_receive = (rH_L << 8) + rL_L; 
-            omega_left_actual = double (left_actual_receive * double(10.96/32767)); //convert received 16 bit integer to actual speed
+            omega_left_actual = double (left_actual_receive * double(MaxSpeed/32767)); //convert received 16 bit integer to actual speed
           }
       }   
   }
@@ -270,22 +271,22 @@ void readFeadback_angularVel_L()
 void readFeadback_angularVel_R()
 {
   //if (mySerial_R.available() > 4) 
-  if (Serial1.available() >= 4) 
+  if (Serial2.available() >= 4) 
   {  
     //char rT_R = (char)mySerial_R.read(); //read actual speed from Uno
-    char rT_R = (char)Serial1.read(); //read actual speed from Uno
+    char rT_R = (char)Serial2.read(); //read actual speed from Uno
     if(rT_R == '{')
      {
        char commandArray_R[3];
        //mySerial_R.readBytes(commandArray_R,3);
-       Serial1.readBytes(commandArray_R,3);
+       Serial2.readBytes(commandArray_R,3);
        byte rH_R = commandArray_R[0];
        byte rL_R = commandArray_R[1];
        char rP_R = commandArray_R[2];
        if(rP_R == '}')         
        {
         right_actual_receive = (rH_R << 8) + rL_R; 
-        omega_right_actual = double (right_actual_receive * double(10.96/32767)); //convert received 16 bit integer to actual speed
+        omega_right_actual = double (right_actual_receive * double(MaxSpeed)/32767); //convert received 16 bit integer to actual speed
        }  
      }
   }   
@@ -293,25 +294,25 @@ void readFeadback_angularVel_R()
 
 void sendCmd_wheel_angularVel_L()
 {
-  left_target_send = int(pwm_left_target/0.0077822); //convert rad/s to 16 bit integer to send
+  left_target_send = int(pwm_left_target/(double(MaxPWM)/32767)); //convert rad/s to 16 bit integer to send
   char sT_L = '{'; //send start byte
   byte sH_L = highByte(left_target_send); //send high byte
   byte sL_L = lowByte(left_target_send);  //send low byte
   char sP_L = '}'; //send stop byte
   //mySerial_L.write(sT_L); mySerial_L.write(sH_L); mySerial_L.write(sL_L); mySerial_L.write(sP_L);
-  Serial2.write(sT_L); Serial2.write(sH_L); Serial2.write(sL_L); Serial2.write(sP_L);
+  Serial1.write(sT_L); Serial1.write(sH_L); Serial1.write(sL_L); Serial1.write(sP_L);
 }
 
 
 void sendCmd_wheel_angularVel_R()
 {
-  right_target_send = int(pwm_right_target/0.0077822); //convert rad/s to 16 bit integer to send
+  right_target_send = int(pwm_right_target/(double(MaxPWM)/32767)); //convert rad/s to 16 bit integer to send
   char sT_R = '{'; //send start byte
   byte sH_R = highByte(right_target_send); //send high byte
   byte sL_R = lowByte(right_target_send);  //send low byte
   char sP_R = '}'; //send stop byte
   //mySerial_R.write(sT_R); mySerial_R.write(sH_R); mySerial_R.write(sL_R); mySerial_R.write(sP_R);
-  Serial1.write(sT_R); Serial1.write(sH_R); Serial1.write(sL_R); Serial1.write(sP_R);
+  Serial2.write(sT_R); Serial2.write(sH_R); Serial2.write(sL_R); Serial2.write(sP_R);
 }
 
 
