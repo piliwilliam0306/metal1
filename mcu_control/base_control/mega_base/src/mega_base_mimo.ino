@@ -139,39 +139,6 @@ void setup()
   nh.initNode();
   nh.subscribe(s);
   nh.advertise(p);
-  /*
-  nh.advertise(pub_range1);
-  nh.advertise(pub_range2);
-  nh.advertise(pub_range3);
-  nh.advertise(pub_range4);
-  nh.advertise(pub_range5);
-  nh.advertise(pub_range6);
-  nh.advertise(pub_range7);
-  nh.advertise(pub_range8);
-  nh.advertise(pub_range9);
-  nh.advertise(pub_range10);
-  nh.advertise(pub_range11);
-  nh.advertise(pub_range12);
-
-  range_msg1.header.frame_id =  "/ultrasound1";
-  range_msg2.header.frame_id =  "/ultrasound2";
-  range_msg3.header.frame_id =  "/ultrasound3";
-  range_msg4.header.frame_id =  "/ultrasound4";
-  range_msg5.header.frame_id =  "/ultrasound5";
-  range_msg6.header.frame_id =  "/ultrasound6";
-  range_msg7.header.frame_id =  "/ultrasound7";
-  range_msg8.header.frame_id =  "/ultrasound8";
-  range_msg9.header.frame_id =  "/ultrasound9";
-  range_msg10.header.frame_id =  "/ultrasound10";
-  range_msg11.header.frame_id =  "/ultrasound11";
-  range_msg12.header.frame_id =  "/ultrasound12";
-  */
-  /*
-  pinMode(Rx_L, INPUT); pinMode(Tx_L, OUTPUT);
-  pinMode(Rx_R, INPUT); pinMode(Tx_R, OUTPUT);
-  mySerial_L.begin (19200);
-  mySerial_R.begin (19200);
-  */
   //The Arduino Mega has three additional serial ports: 
     //Serial1 on pins 19 (RX) and 18 (TX), 
     //Serial2 on pins 17 (RX) and 16 (TX), 
@@ -184,7 +151,7 @@ void setup()
 void loop() 
 {
   readFeadback_angularVel_L();
-  readFeadback_angularVel_R();   
+  //readFeadback_angularVel_R();   
   if((millis()-lastMilli) >= LOOPTIME)   
        {                                    // enter tmed loop
           dT = millis()-lastMilli;
@@ -197,47 +164,8 @@ void loop()
           sendCmd_wheel_angularVel_R();
 
           vel_msg.x=omega_left_actual;
-
-
           vel_msg.y=omega_right_actual;
           p.publish(&vel_msg);
-          /*
-          range_msg1.range = 0;
-          pub_range1.publish(&range_msg1);
-          
-          range_msg2.range = 0;
-          pub_range2.publish(&range_msg2);
-
-          range_msg3.range = 0;
-          pub_range3.publish(&range_msg3);
-
-          range_msg4.range = 0;
-          pub_range4.publish(&range_msg4);
-          
-          range_msg5.range = 0;
-          pub_range5.publish(&range_msg5);
-
-          range_msg6.range = 0;
-          pub_range6.publish(&range_msg6);
-
-          range_msg7.range = 0;
-          pub_range7.publish(&range_msg7);
-          
-          range_msg8.range = 0;
-          pub_range8.publish(&range_msg8);
-
-          range_msg9.range = 0;
-          pub_range9.publish(&range_msg9);
-
-          range_msg10.range = 0;
-          pub_range10.publish(&range_msg10);
-
-          range_msg11.range = 0;
-          pub_range11.publish(&range_msg11);
-
-          range_msg12.range = 0;
-          pub_range12.publish(&range_msg12);
-          */
           
           //printMotorInfo();
        }     
@@ -246,15 +174,12 @@ void loop()
 
 void readFeadback_angularVel_L()
 {
-  //if (mySerial_L.available() > 4) 
   if (Serial1.available() >= 4) 
   {
-    //char rT_L = (char)mySerial_L.read(); //read actual speed from Uno
     char rT_L = (char)Serial1.read(); //read actual speed from Uno
     if(rT_L == '{')
       {
         char commandArray_L[3];
-        //mySerial_L.readBytes(commandArray_L,3);
         Serial1.readBytes(commandArray_L,3);
         byte rH_L = commandArray_L[0];
         byte rL_L = commandArray_L[1];
@@ -262,7 +187,8 @@ void readFeadback_angularVel_L()
         if(rP_L == '}')         
           {
             left_actual_receive = (rH_L << 8) + rL_L; 
-            omega_left_actual = double (left_actual_receive * double(MaxSpeed/32767)); //convert received 16 bit integer to actual speed
+            omega_left_actual = left_actual_receive;
+            //double (left_actual_receive * (double(MaxSpeed)/32767)); //convert received 16 bit integer to actual speed
           }
       }   
   }
@@ -270,15 +196,12 @@ void readFeadback_angularVel_L()
 
 void readFeadback_angularVel_R()
 {
-  //if (mySerial_R.available() > 4) 
   if (Serial2.available() >= 4) 
   {  
-    //char rT_R = (char)mySerial_R.read(); //read actual speed from Uno
     char rT_R = (char)Serial2.read(); //read actual speed from Uno
     if(rT_R == '{')
      {
        char commandArray_R[3];
-       //mySerial_R.readBytes(commandArray_R,3);
        Serial2.readBytes(commandArray_R,3);
        byte rH_R = commandArray_R[0];
        byte rL_R = commandArray_R[1];
@@ -286,7 +209,8 @@ void readFeadback_angularVel_R()
        if(rP_R == '}')         
        {
         right_actual_receive = (rH_R << 8) + rL_R; 
-        omega_right_actual = double (right_actual_receive * double(MaxSpeed)/32767); //convert received 16 bit integer to actual speed
+        omega_right_actual = right_actual_receive;
+        //double (right_actual_receive * double(MaxSpeed)/32767); //convert received 16 bit integer to actual speed
        }  
      }
   }   
@@ -294,24 +218,22 @@ void readFeadback_angularVel_R()
 
 void sendCmd_wheel_angularVel_L()
 {
-  left_target_send = int(pwm_left_target/(double(MaxPWM)/32767)); //convert rad/s to 16 bit integer to send
+  left_target_send = int(pwm_left_target/0.0077822); //convert rad/s to 16 bit integer to send
   char sT_L = '{'; //send start byte
   byte sH_L = highByte(left_target_send); //send high byte
   byte sL_L = lowByte(left_target_send);  //send low byte
   char sP_L = '}'; //send stop byte
-  //mySerial_L.write(sT_L); mySerial_L.write(sH_L); mySerial_L.write(sL_L); mySerial_L.write(sP_L);
   Serial1.write(sT_L); Serial1.write(sH_L); Serial1.write(sL_L); Serial1.write(sP_L);
 }
 
 
 void sendCmd_wheel_angularVel_R()
 {
-  right_target_send = int(pwm_right_target/(double(MaxPWM)/32767)); //convert rad/s to 16 bit integer to send
+  right_target_send = int(pwm_right_target/0.0077822); //convert rad/s to 16 bit integer to send
   char sT_R = '{'; //send start byte
   byte sH_R = highByte(right_target_send); //send high byte
   byte sL_R = lowByte(right_target_send);  //send low byte
   char sP_R = '}'; //send stop byte
-  //mySerial_R.write(sT_R); mySerial_R.write(sH_R); mySerial_R.write(sL_R); mySerial_R.write(sP_R);
   Serial2.write(sT_R); Serial2.write(sH_R); Serial2.write(sL_R); Serial2.write(sP_R);
 }
 
