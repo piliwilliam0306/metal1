@@ -151,7 +151,7 @@ void setup()
 void loop() 
 {
   readFeadback_angularVel_L();
-  //readFeadback_angularVel_R();   
+  readFeadback_angularVel_R();   
   if((millis()-lastMilli) >= LOOPTIME)   
        {                                    // enter tmed loop
           dT = millis()-lastMilli;
@@ -180,15 +180,14 @@ void readFeadback_angularVel_L()
     if(rT_L == '{')
       {
         char commandArray_L[3];
-        Serial1.readBytes(commandArray_L,3);
+        Serial1.readBytes(commandArray_L,4);
         byte rH_L = commandArray_L[0];
         byte rL_L = commandArray_L[1];
-        char rP_L = commandArray_L[2];
+        char rP_L = commandArray_L[3];
         if(rP_L == '}')         
           {
             left_actual_receive = (rH_L << 8) + rL_L; 
-            omega_left_actual = left_actual_receive;
-            //double (left_actual_receive * (double(MaxSpeed)/32767)); //convert received 16 bit integer to actual speed
+            omega_left_actual = double (left_actual_receive * (double(MaxSpeed)/32767)); //convert received 16 bit integer to actual speed
           }
       }   
   }
@@ -202,15 +201,14 @@ void readFeadback_angularVel_R()
     if(rT_R == '{')
      {
        char commandArray_R[3];
-       Serial2.readBytes(commandArray_R,3);
+       Serial2.readBytes(commandArray_R,4);
        byte rH_R = commandArray_R[0];
        byte rL_R = commandArray_R[1];
-       char rP_R = commandArray_R[2];
+       char rP_R = commandArray_R[3];
        if(rP_R == '}')         
        {
         right_actual_receive = (rH_R << 8) + rL_R; 
-        omega_right_actual = right_actual_receive;
-        //double (right_actual_receive * double(MaxSpeed)/32767); //convert received 16 bit integer to actual speed
+        omega_right_actual = double (right_actual_receive * (double(MaxSpeed)/32767)); //convert received 16 bit integer to actual speed
        }  
      }
   }   

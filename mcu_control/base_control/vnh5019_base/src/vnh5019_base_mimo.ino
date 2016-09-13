@@ -4,8 +4,8 @@
 #define RIGHT_WHEEL 1
 #define LEFT_WHEEL 2
 
-#define WHEEL_TYPE LEFT_WHEEL
-//#define WHEEL_TYPE RIGHT_WHEEL
+//#define WHEEL_TYPE LEFT_WHEEL
+#define WHEEL_TYPE RIGHT_WHEEL
 
 #define encoder0PinA  2
 #define encoder0PinB  3
