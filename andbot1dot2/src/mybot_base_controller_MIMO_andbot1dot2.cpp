@@ -38,14 +38,15 @@ double calculated_pidTerm;
 double constrained_pidterm;
 
 //close loop
-double updatePid(double targetValue, double currentValue) {
+double updatePid(double targetValue, double currentValue) 
+{
   static double last_error = 0;
 
 //   if(WHEEL_SELECT==0) //left wheel      
 //     targetValue = -targetValue;                             // 6.283 / 260 =0.0241653846153846
   
   error = targetValue - currentValue;
-
+  
   Kp = 1;//0.15;
   //Ki = 0.005;
   sum_error = sum_error + error * dT;
@@ -87,14 +88,13 @@ void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
   geometry_msgs::Twist twist = twist_aux;
   double u_left = 0.0;
   double u_right = 0.0;
-  
-  double Kp = 1.0;
+  double vol_coefficient = 1040;
   
   vel_ref = twist_aux.linear.x;
   omega_ref = twist_aux.angular.z;
 
-  u_sum = updatePid(vel_ref, vel_fb);//Kp * (vel_ref - vel_fb);
-  u_diff = updatePid(omega_ref, omega_fb);// Kp * (omega_ref - omega_fb);
+  u_sum = vol_coefficient * updatePid(vel_ref, 0);//Kp * (vel_ref - vel_fb);
+  u_diff = vol_coefficient * updatePid(omega_ref, 0);// Kp * (omega_ref - omega_fb);
   
   u_right = (u_sum + u_diff) / 2 ;
   u_left = (u_sum - u_diff) / 2 ; 

@@ -32,8 +32,8 @@ Serial port (Default serial for debug )
 Serial1 port (connect to Motor control board wheel)
 Serial3 port (connect to the upper drive Serial1 port)
 *************************************************************/
-#define WHEEL_SELECT 0 //for left wheel
-//#define WHEEL_SELECT 1 //for right wheel
+//#define WHEEL_SELECT 0 //for left wheel
+#define WHEEL_SELECT 1 //for right wheel
 
 
 /*
@@ -77,8 +77,8 @@ KalmanFilter kalman(0.1, 1.0);
 */
 
 //limit 1 rev/sec
-#define VQ_MAX 260
-#define VQ_MIN -260
+#define VQ_MAX 520
+#define VQ_MIN -520
 
 union Data_Setting {
   struct _ByteSet {
@@ -197,9 +197,9 @@ void readCmd_wheel_volt() {
 void sendFeedback_wheel_angularVel() {
   //limit 1 rev/sec
   if(WHEEL_SELECT==0) //left wheel
-    actual_send = int(-1 * omega_actual / 0.0001917477950376904);           //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
+    actual_send = int(-1 * omega_actual /(double(12.566)/double(32767)));           //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
   else if(WHEEL_SELECT==1) //right wheel
-    actual_send = int(omega_actual / 0.0001917477950376904);           //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
+    actual_send = int(omega_actual / (double(12.566)/double(32767)));           //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
 
   char sT = '{';                                                                  //send start byte
   byte sH = highByte(actual_send);                                                //send high byte
@@ -212,11 +212,11 @@ void sendFeedback_wheel_angularVel() {
 void getMotorData() {
   EncodeDiff = Encoderpos - EncoderposPre;
 
-  //for 100ms limitatiopn in 6.28 rads/sec
-  if (EncodeDiff >= 9)
-    EncodeDiff = 9;
-  if (EncodeDiff <= -9)
-    EncodeDiff = -9;
+//  //for 100ms limitatiopn in 6.28 rads/sec
+//  if (EncodeDiff >= 9)
+//    EncodeDiff = 9;
+//  if (EncodeDiff <= -9)
+//    EncodeDiff = -9;
 /*
   //Kalman
   Kalman = ((EncodeDiff) * (1000 / dT)) * 2 * PI / (CPR);

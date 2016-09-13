@@ -47,6 +47,9 @@ byte rP_R = 0;  //receive stop byte
 
 #define LOOPTIME 100
 
+#define VQ_MAX 520
+#define VQ_MIN -520
+
 double volt_left_target = 0.0;
 double volt_right_target = 0.0;
 double omega_left_actual = 0;
@@ -75,9 +78,9 @@ void sendCmd_wheel_volt_L(){
 //  else if(omega_left_target<-6.283) omega_left_target=-6.283;
 //  left_target_send = int(omega_left_target / 0.00019174779503769);   //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
 
-  if(volt_left_target>260) volt_left_target=260;
-  else if(volt_left_target<-260) volt_left_target=-260;
-  left_target_send = int(volt_left_target / 0.00019174779503769);   //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
+  if(volt_left_target>VQ_MAX) volt_left_target=VQ_MAX;
+  else if(volt_left_target<VQ_MIN) volt_left_target=VQ_MIN;
+  left_target_send = int(volt_left_target / (double(VQ_MAX)/double(32767)));   //convert received 16 bit integer to actual voltage => VQ_MAX/32767
 
 
   char sT_L = '{'; //send start byte
@@ -97,9 +100,9 @@ void sendCmd_wheel_volt_R(){
 //  if(omega_right_target>6.283) omega_right_target=6.283;
 //  else if(omega_right_target<-6.283) omega_right_target=-6.283;
 //  right_target_send = int(omega_right_target / 0.00019174779503769);   //convert received 16 bit integer to actual speed 12.566/32767=3.834955900753807e-4=0.00038349559007538
-  if(volt_right_target>260) volt_right_target=260;
-  else if(volt_right_target<-260) volt_right_target=-260;
-  right_target_send = int(volt_right_target / 0.00019174779503769);   //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
+  if(volt_right_target>VQ_MAX) volt_right_target=VQ_MAX;
+  else if(volt_right_target<VQ_MIN) volt_right_target=VQ_MIN;
+  right_target_send = int(volt_right_target / (double(VQ_MAX)/double(32767)));   //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
 
   char sT_R = '{';
   byte sH_R = highByte(right_target_send);
@@ -215,7 +218,7 @@ void readFeadback_angularVel_L(){
 //����̧֬�2 rev/sec
 //        omega_left_actual = double (left_actual_receive * 0.00038349559007538);   //convert received 16 bit integer to actual speed 12.566/32767=3.834955900753807e-4=0.00038349559007538
 //����̧֬�1 rev/sec        
-        omega_left_actual = double (left_actual_receive * 0.00019174779503769);   //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
+        omega_left_actual = double (left_actual_receive * (double(12.566)/double(32767)));   //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
 
       }
     }
@@ -237,7 +240,7 @@ void readFeadback_angularVel_R(){
 //����̧֬�2 rev/sec        
 //        omega_right_actual = double (right_actual_receive * 0.00038349559007538);   //convert received 16 bit integer to actual speed 12.566/32767=3.834955900753807e-4=0.00038349559007538
 //����̧֬�1 rev/sec 
-        omega_right_actual = double (right_actual_receive * 0.00019174779503769);   //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
+        omega_right_actual = double (right_actual_receive * (double(12.566)/double(32767)));   //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
         
       }
     }
