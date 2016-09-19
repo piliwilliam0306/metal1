@@ -69,7 +69,7 @@ void setup()
  pinMode(InA, OUTPUT);  pinMode(InB, OUTPUT); pinMode(EN, OUTPUT);
  //digitalWrite(EN, LOW);
  digitalWrite(EN, HIGH);
- Serial.begin (57600);
+ Serial.begin (1000000);
 } 
 
 void loop() 
@@ -91,12 +91,14 @@ void loop()
           if (PWM_val > 0)    { analogWrite(motorIn1,abs(PWM_val));  digitalWrite(InA, LOW);   digitalWrite(InB, HIGH);}
 		}
 
+        sendFeedback_wheel_angularVel(); //send actually speed to mega
+ 
      }
      
   if((millis()-lastSend) >= FeedbackTime)    
      {                                    // enter tmed loop
         lastSend = millis();
-        sendFeedback_wheel_angularVel(); //send actually speed to mega
+        //sendFeedback_wheel_angularVel(); //send actually speed to mega
         //printMotorInfo();
      }
 }

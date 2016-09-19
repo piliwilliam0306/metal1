@@ -60,7 +60,7 @@ byte rP_R = 0;  //receive stop byte
 #define trig12 44
 #define echo12 45
 */
-#define LOOPTIME        100
+#define LOOPTIME        40
 /*
 SoftwareSerial mySerial_L(Rx_L, Tx_L);
 SoftwareSerial mySerial_R(Rx_R, Tx_R);
@@ -135,7 +135,7 @@ ros::Subscriber<geometry_msgs::Vector3> s("cmd_wheel_pwm",messageCb);
 void setup() 
 {
   TCCR0B = TCCR0B & B11111000 | B00000010;
-  nh.getHardware()->setBaud(115200);
+  nh.getHardware()->setBaud(1000000);
   nh.initNode();
   nh.subscribe(s);
   nh.advertise(p);
@@ -144,8 +144,8 @@ void setup()
     //Serial2 on pins 17 (RX) and 16 (TX), 
     //Serial on pins 15 (RX) and 14 (TX). 
   //Serial.begin (19200);
-  Serial2.begin (57600);  //right
-  Serial1.begin (57600);  //left
+  Serial2.begin (1000000);  //right
+  Serial1.begin (1000000);  //left
 }
 
 void loop() 
