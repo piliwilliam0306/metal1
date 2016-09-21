@@ -23,7 +23,7 @@ class GYRO_Class(object):
 
 		self._ax = 0
 		
-		port = rospy.get_param("~port", "/dev/ttyUSB1")
+		port = rospy.get_param("~port", "/dev/imu")
 		baudRate = int(rospy.get_param("~baudRate", 115200))
 
 		rospy.loginfo("Starting with serial port: " + port + ", baud rate: " + str(baudRate))
