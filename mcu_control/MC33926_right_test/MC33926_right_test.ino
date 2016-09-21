@@ -8,6 +8,9 @@
 
 #define LOOPTIME 40 
 
+#define MaxPWM 255
+#define MaxSpeed 8.687
+
 int pinAState = 0;
 int pinAStateOld = 0;
 int pinBState = 0;
@@ -25,9 +28,9 @@ double omega_actual = 0;
 
 int PWM_val = 0;                                
 int CPR = 64;                                   // encoder count per revolution
-int gear_ratio = 18.8; 
+int gear_ratio = 30; 
 
-float Kp = 1.3;
+float Kp = 0.9;
 float Ki = 0.005;
 float Kd = 0;
 
@@ -81,9 +84,11 @@ void loop()
         //if (current > 3500)  digitalWrite(EN, LOW); 
         
         //if (omega_target == 0 ) {PWM_val = 0; digitalWrite(MC33926Enable, HIGH);}
+        
         if (omega_target == 0 ) { PWM_val = 0; sum_error =0;  }
-        if (PWM_val <= 0)   { analogWrite(In1,abs(PWM_val));    analogWrite(In2,0);     }
-        if (PWM_val > 0)    { analogWrite(In2,abs(PWM_val));    analogWrite(In1,0);     }
+        if (PWM_val == 0)  { analogWrite(In1,0); analogWrite(In2,0);  }
+        if (PWM_val > 0)   { analogWrite(In1,abs(PWM_val));    analogWrite(In2,0);     }
+        if (PWM_val < 0)    { analogWrite(In2,abs(PWM_val));    analogWrite(In1,0);     }
         printMotorInfo();
      }
 }
@@ -111,7 +116,7 @@ double updatePid(double targetValue,double currentValue)
                        
   last_error = error;  
 
-  calculated_pidTerm = pidTerm/0.12156862745; //31/255
+  calculated_pidTerm = pidTerm/(MaxSpeed/MaxPWM); 
   constrained_pidterm = constrain(calculated_pidTerm, -255, 255);
   
   return constrained_pidterm;
