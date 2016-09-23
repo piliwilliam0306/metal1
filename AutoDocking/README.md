@@ -8,7 +8,7 @@
 - *Multiple IR emitters*
 ```
 IRsend irsend; //Declaration
-irsend.send[protocol](byte Data ,int dataLength , int Pin); //Pin can only be 3 or 9
+irsend.send[protocol](byte Data ,int dataLength , int Pin); //Pin can only be 9 or 10
 delay([depend on the protocol]); //Make sure receiver gets clear header sginal everytime 
 ```
 
