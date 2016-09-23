@@ -16,8 +16,8 @@
 //#define RUGBY 4
 #define ANGELBOT 5
 
-#define RIGHT_WHEEL 1
-#define LEFT_WHEEL 2
+#define RIGHT_WHEEL 2
+#define LEFT_WHEEL 1
 
 /**
  * Be very much aware!!  
@@ -25,8 +25,8 @@
  * And vice versa.
  * This is an issue to be solved either configing software or hardware.
  **/
-#define WHEEL_TYPE LEFT_WHEEL
-//#define WHEEL_TYPE RIGHT_WHEEL
+//#define WHEEL_TYPE LEFT_WHEEL
+#define WHEEL_TYPE RIGHT_WHEEL
 
 #define encoder0PinA  2 /*! encoder A phrase */
 #define encoder0PinB  3 /*! encoder B phrase */
@@ -209,7 +209,7 @@ void sendFeedback_wheel_angularVel()
 void getMotorData()  
 {                               
   static long EncoderposPre = 0;   
-  if (WHEEL_TYPE == RIGHT_WHEEL)  omega_actual = ((Encoderpos - EncoderposPre)*(1000/dT))*2*PI/(CPR*gear_ratio);  //ticks/s to rad/s
+  if (WHEEL_TYPE == LEFT_WHEEL)  omega_actual = ((Encoderpos - EncoderposPre)*(1000/dT))*2*PI/(CPR*gear_ratio);  //ticks/s to rad/s
   else                            omega_actual = -(((Encoderpos - EncoderposPre)*(1000/dT))*2*PI/(CPR*gear_ratio));  //ticks/s to rad/s
   EncoderposPre = Encoderpos;                 
 }
@@ -244,7 +244,7 @@ double updatePid(double targetValue,double currentValue)
   pidTerm = Kp * error + Ki * sum_error + Kd * d_error;   
                        
   last_error = error;  
-  if (WHEEL_TYPE == RIGHT_WHEEL)  calculated_pidTerm = pidTerm/(double(MaxSpeed)/double(MaxPWM));
+  if (WHEEL_TYPE == LEFT_WHEEL)  calculated_pidTerm = pidTerm/(double(MaxSpeed)/double(MaxPWM));
   else                            calculated_pidTerm = -pidTerm/(double(MaxSpeed)/double(MaxPWM));
   constrained_pidterm = constrain(calculated_pidTerm, -MaxPWM, MaxPWM);
   
