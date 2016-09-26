@@ -30,7 +30,7 @@ int PWM_val = 0;
 int CPR = 64;                                   // encoder count per revolution
 int gear_ratio = 30; 
 
-float Kp = 0.9;
+float Kp = 0.85;
 float Ki = 0.005;
 float Kd = 0;
 
@@ -109,7 +109,7 @@ double updatePid(double targetValue,double currentValue)
 
   sum_error = sum_error + error * dT;
 
-  sum_error = constrain(sum_error, -6000, 6000);  //good constrain
+  sum_error = constrain(sum_error, -1500, 1500);  //good constrain
   
   d_error = (error - last_error) / dT;
   pidTerm = Kp * error + Ki * sum_error + Kd * d_error;   
