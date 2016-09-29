@@ -7,7 +7,7 @@ int main(int argc, char** argv){
 
   ros::NodeHandle node;
 
-  ros::Publisher robot_position_pub =  node.advertise<geometry_msgs::PoseStamped>("/andbot/current_position", 10);
+  ros::Publisher robot_position_pub =  node.advertise<geometry_msgs::PoseStamped>("/angelbot/current_position", 10);
 
   tf::TransformListener listener;
 
@@ -16,9 +16,9 @@ int main(int argc, char** argv){
     tf::StampedTransform transform;
     try{
       ros::Time now = ros::Time::now();
-      listener.waitForTransform("/map", "/base_footprint",
+      listener.waitForTransform("/map", "/angelbot_base",
                               now, ros::Duration(3.0));
-      listener.lookupTransform("/map", "/base_footprint",
+      listener.lookupTransform("/map", "/angelbot_base",
                              now, transform);
 
      // listener.lookupTransform("/map", "/base_footprint",  
@@ -29,18 +29,18 @@ int main(int argc, char** argv){
       ros::Duration(1.0).sleep();
     }
 
-    geometry_msgs::PoseStamped andbot_pose;
-    andbot_pose.header.frame_id = "map";
-    andbot_pose.header.stamp = ros::Time::now();
-    andbot_pose.pose.position.x = transform.getOrigin().x();
-    andbot_pose.pose.position.y = transform.getOrigin().y();
-    andbot_pose.pose.position.z = transform.getOrigin().z();
-    andbot_pose.pose.orientation.x = transform.getRotation().x();
-    andbot_pose.pose.orientation.y = transform.getRotation().y();
-    andbot_pose.pose.orientation.z = transform.getRotation().z();
-    andbot_pose.pose.orientation.w = transform.getRotation().w();
+    geometry_msgs::PoseStamped angelbot_pose;
+    angelbot_pose.header.frame_id = "map";
+    angelbot_pose.header.stamp = ros::Time::now();
+    angelbot_pose.pose.position.x = transform.getOrigin().x();
+    angelbot_pose.pose.position.y = transform.getOrigin().y();
+    angelbot_pose.pose.position.z = transform.getOrigin().z();
+    angelbot_pose.pose.orientation.x = transform.getRotation().x();
+    angelbot_pose.pose.orientation.y = transform.getRotation().y();
+    angelbot_pose.pose.orientation.z = transform.getRotation().z();
+    angelbot_pose.pose.orientation.w = transform.getRotation().w();
 
-    robot_position_pub.publish(andbot_pose);
+    robot_position_pub.publish(angelbot_pose);
 
     rate.sleep();
   }
