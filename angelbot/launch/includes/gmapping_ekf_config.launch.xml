@@ -13,7 +13,7 @@
 	<param name="map_update_interval" value="30.0"></param>
 	
 	<!-- Maximum usable range of laser/kinect -->
-	<param name="maxUrange" value="4.5"></param>
+	<param name="maxUrange" value="4"></param>
 	
 	<!-- Maximum range of sensor, max range should be > maxUrange -->
 	<!-- param name="maxRange" value="8.0"></param-->
