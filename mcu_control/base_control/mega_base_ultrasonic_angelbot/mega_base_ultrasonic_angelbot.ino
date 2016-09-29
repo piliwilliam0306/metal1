@@ -140,7 +140,7 @@ uint8_t ping(int TrigPin, int EchoPin)
 void readFeadback_angularVel_L()
 {
   int actual_receive;
-  if (Serial1.available() >= 5) 
+  if (Serial2.available() >= 5) 
   {
     char rT_L = (char)Serial2.read(); //read actual speed from Uno
     if(rT_L == '{')
@@ -165,7 +165,7 @@ void readFeadback_angularVel_L()
 void readFeadback_angularVel_R()
 {
   int actual_receive;
-  if (Serial1.available() >= 5) 
+  if (Serial3.available() >= 5) 
   {  
     char rT_R = (char)Serial3.read(); //read actual speed from Uno
     if(rT_R == '{')

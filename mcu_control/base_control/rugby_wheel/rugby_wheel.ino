@@ -1,7 +1,7 @@
 #define RIGHT_WHEEL 1
 #define LEFT_WHEEL 2
 
-#define WHEEL_TYPE RIGHT_WHEEL
+#define WHEEL_TYPE LEFT_WHEEL
 
 #define encoder0PinA  2
 #define encoder0PinB  3
@@ -134,7 +134,7 @@ void readCmd_wheel_angularVel()
       if (rP == '}')
       {
         target_receive = (rH << 8) + rL;
-        omega_target = double (-target_receive * 0.00031434064); //convert received 16 bit integer to actual speed
+        omega_target = double (target_receive *(double(MaxSpeed)/32767)); //convert received 16 bit integer to actual speed
       }
     }
   }
@@ -144,7 +144,7 @@ void sendFeedback_wheel_angularVel()
 {
   //getMotorData();
   byte current_send;
-  int actual_send = int(-omega_actual / (double(MaxSpeed) / 32767)); //convert rad/s to 16 bit integer to send
+  int actual_send = int(omega_actual / (double(MaxSpeed) / 32767)); //convert rad/s to 16 bit integer to send
   //max current is 20400mA 20400/255 = 80
   current_send = current / 80;
   byte buf[5];
@@ -161,9 +161,9 @@ void getMotorData()
   //converting ticks/s to rad/s
   //omega_actual = 4.5;
   if (WHEEL_TYPE == LEFT_WHEEL)
-    omega_actual = -((Encoderpos - EncoderposPre) * (1000 / dT)) * 2 * PI / (CPR * gear_ratio) ; //ticks/s to rad/s
-  else
     omega_actual = ((Encoderpos - EncoderposPre) * (1000 / dT)) * 2 * PI / (CPR * gear_ratio) ; //ticks/s to rad/s
+  else
+    omega_actual = -((Encoderpos - EncoderposPre) * (1000 / dT)) * 2 * PI / (CPR * gear_ratio) ; //ticks/s to rad/s
 
   EncoderposPre = Encoderpos;
 }
@@ -173,11 +173,9 @@ double updatePid(double targetValue, double currentValue)
 
   static double last_error = 0;
   error = targetValue - currentValue;
-  // Added by KKuei to remove the noises
-  //if (error <= 0.1 && error >= -0.1) error = 0.0;
 
   sum_error = sum_error + error * dT;
-  // Added by KKuei to bound sum_error range
+
   sum_error = constrain(sum_error, -1500, 1500);
 
   d_error = (error - last_error) / dT;
