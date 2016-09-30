@@ -17,5 +17,5 @@ if [ "$1" = "-h" ]; then
 else 
     echo "now relay topic"
     echo "topic angelbot/cmd_vel relayed to andbot/cmd_vel for telep app"
-    rosrun topic_tools relay andbot/cmd_vel angelbot/cmd_vel
+    rosrun topic_tools relay andbot/cmd_vel angelbot/cmd_vel 
 fi

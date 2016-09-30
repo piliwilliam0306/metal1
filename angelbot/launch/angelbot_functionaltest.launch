@@ -36,6 +36,7 @@
 	<!-- Start move_base node and its configuration -->
 	<include file="$(find angelbot)/launch/includes/move_base_dwa_ekf.launch.xml"/>
 
-	<node name="topic_relay4teleop" pkg="angelbot" type="topic_relay4teleop.sh" output="screen"/>
+	<!-- Start nodes for topic relay -->
+	<include file="$(find angelbot)/launch/topic_relay.launch"/>
 
 </launch>

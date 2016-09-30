@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<launch>
+
+	<node pkg="topic_tools" type="relay" name="relay_cmd_vel" args="andbot/cmd_vel angelbot/cmd_vel"/>
+	<node pkg="topic_tools" type="relay" name="relay_current_position" args="angelbot/current_position andbot/current_position"/>		
+
+</launch>
+
