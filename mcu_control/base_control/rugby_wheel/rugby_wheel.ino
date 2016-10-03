@@ -12,8 +12,8 @@
 #define MC33926Enable 7
 
 #define LOOPTIME 40
-#define MaxSpeed 8.687
 #define MaxPWM 255
+static double MaxSpeed = 19;
 
 int pinAState = 0;
 int pinAStateOld = 0;

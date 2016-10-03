@@ -11,7 +11,7 @@
 	
 	<!-- Robot parameters -->
 	<param name="wheelSeparation" value="0.245"></param>
-	<param name="wheelRadius" value="0.095"></param>
+	<param name="wheelRadius" value="0.0475"></param>
 	<param name="rate" value="10"></param>  
 	
 	<!-- Starting Joint state publisher node which will publish the joint values -->

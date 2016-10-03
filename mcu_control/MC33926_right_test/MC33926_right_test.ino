@@ -9,7 +9,8 @@
 #define LOOPTIME 40 
 
 #define MaxPWM 255
-#define MaxSpeed 8.687
+
+static double MaxSpeed = 19;
 
 int pinAState = 0;
 int pinAStateOld = 0;
@@ -30,7 +31,7 @@ int PWM_val = 0;
 int CPR = 64;                                   // encoder count per revolution
 int gear_ratio = 30; 
 
-float Kp = 0.85;
+float Kp = 2.5;
 float Ki = 0.005;
 float Kd = 0;
 
@@ -109,7 +110,7 @@ double updatePid(double targetValue,double currentValue)
 
   sum_error = sum_error + error * dT;
 
-  sum_error = constrain(sum_error, -1500, 1500);  //good constrain
+  sum_error = constrain(sum_error, -2500, 2500);  //good constrain
   
   d_error = (error - last_error) / dT;
   pidTerm = Kp * error + Ki * sum_error + Kd * d_error;   
@@ -164,6 +165,7 @@ void printMotorInfo()
    Serial.print("  sum_err:");                  Serial.print(sum_error);
    Serial.print("  Count:");                  Serial.print(banana);
    Serial.print("  PWM_val:");                  Serial.print(PWM_val);
+   Serial.print("  Encoder: ");             Serial.print(Encoderpos);
 
    Serial.println();
 }

@@ -11,7 +11,7 @@
 #include <avr/io.h>
 #include <DriverState.h>
 
-#define MaxSpeed 8.68
+#define MaxSpeed 19
 
 
 #define LOOPTIME        100
