@@ -81,7 +81,7 @@ void input_scan_sub_callback(const sensor_msgs::LaserScan& input_scan)
 
 }
 int main(int argc, char** argv){
-  ros::init(argc, argv, "mybot_laser_angular_bound_filter_andbot1dot2");
+  ros::init(argc, argv, "mybot_rplidar_laser_angular_bound_filter");
   ros::NodeHandle n1, n2;
   input_scan_sub = n1.subscribe("/scan", 10, input_scan_sub_callback);
   filtered_scan_pub = n2.advertise<sensor_msgs::LaserScan>("/rplidar_scan", 50);
