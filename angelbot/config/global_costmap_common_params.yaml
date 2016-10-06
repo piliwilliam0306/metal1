@@ -25,7 +25,7 @@ cost_scaling_factor: 8.0 #10.0# exponential rate at which the obstacle cost drop
 
 #The list of scan, which mention, data type of scan as LaserScan, marking and clearing indicate whether the laser data is used for marking and clearing costmap.
 observation_sources: rplidar_scan
-rplidar_scan: {sensor_frame: angelbot_rplidar, data_type: LaserScan, topic: /scan, marking: true, clearing: true, expected_update_rate: 0.4, inf_is_valid: true}
+rplidar_scan: {sensor_frame: angelbot_rplidar, data_type: LaserScan, topic: /rplidar_scan, marking: true, clearing: true, expected_update_rate: 0.4, inf_is_valid: true}
 #scan: {data_type: LaserScan, topic: scan, marking: true, clearing: true, min_obstacle_height: 0.0, max_obstacle_height: 3}
 #bump: {data_type: PointCloud2, topic: mobile_base/sensors/bumper_pointcloud, marking: true, clearing: false, min_obstacle_height: 0.0, max_obstacle_height: 0.15}
 

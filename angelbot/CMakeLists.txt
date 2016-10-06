@@ -230,4 +230,6 @@ target_link_libraries(mybot_base_controller_v1_angelbot ${catkin_LIBRARIES})
 add_executable(send_angelbot_goal src/send_angelbot_goal.cpp)
 target_link_libraries(send_angelbot_goal ${catkin_LIBRARIES})
 
+add_executable(mybot_laser_angular_bound_filter_angelbot src/mybot_laser_angular_bound_filter_angelbot.cpp)
+target_link_libraries(mybot_laser_angular_bound_filter_angelbot ${catkin_LIBRARIES})
 

@@ -3,6 +3,7 @@
 <launch>
 	<!-- Launches sensor nodes -->
 	<include file="$(find angelbot)/launch/rplidar.launch" />
+	<node pkg="angelbot" name="mybot_laser_angular_bound_filter_angelbot" type="mybot_laser_angular_bound_filter_angelbot"/>
 	
 	<!-- Launches map server node -->
 	<node name="map_server" pkg="map_server" type="map_server" args="$(find angelbot)/map/AROffice_angel.yaml"/>
