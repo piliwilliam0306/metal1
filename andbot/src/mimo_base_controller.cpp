@@ -64,15 +64,15 @@ void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
   
   //left_pwm = left_vel*float(255/8.9);
   //right_pwm = right_vel*float(255/8.9);
-  double us = (vel_x - vel_real)*30;
-  double ud = (vel_th - omega_real)*5;
-  left_pwm = 0.5*(us-ud)*double(255/12);
+  double us = (vel_x - vel_real)*20;
+  double ud = 0;//(vel_th - omega_real)*5;
+  left_pwm = 0.5*(us-ud)*double(255/6)+left_vel*double(4.7/3.6);
   if (left_pwm>=255)
 	left_pwm=255;
   else if (left_pwm<=-255)
 	left_pwm=-255;
 
-  right_pwm = 0.5*(us+ud)*double(255/12);
+  right_pwm = 0.5*(us+ud)*double(255/6)+right_vel*double(4.7/3.6);
   if (right_pwm>=255)
 	right_pwm=255;
   else if (right_pwm<=-255)
