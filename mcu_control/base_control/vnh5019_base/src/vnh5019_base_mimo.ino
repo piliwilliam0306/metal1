@@ -28,6 +28,8 @@
 #define Kp 0.9
 #define Ki 0.005
 #define Kd 0
+//ZACH DEBUG
+int target_receive=0;
 
 volatile long Encoderpos = 0;
 volatile long unknownvalue = 0;
@@ -105,7 +107,7 @@ void loop()
 
 void readCmd_wheel_angularVel()
 {
-  int target_receive;
+  //ZACH DEBUG int target_receive;
   if (Serial.available() >= 4) 
   {
     char rT = (char)Serial.read(); //read target speed from mega
@@ -134,7 +136,10 @@ void sendFeedback_wheel_angularVel()
 {
   byte current_send;
   int actual_send = int(omega_actual/(double(MaxSpeed)/32767)); //convert rad/s to 16 bit integer to send
-  //actual_send = 32767;
+
+//ZACH DEBUG
+  actual_send = target_receive;
+
   //max current is 10200mA 10200/255 = 40
   current_send = current/40; 
   byte buf[5];
