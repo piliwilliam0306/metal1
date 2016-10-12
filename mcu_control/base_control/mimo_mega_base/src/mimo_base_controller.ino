@@ -193,6 +193,7 @@ void loop()
 {
   readFeadback_angularVel_L();
   readFeadback_angularVel_R();   
+  forward_diff_model();
   if((millis()-lastMilli) >= LOOPTIME)   
        {                                    // enter tmed loop
           dT = millis()-lastMilli;
@@ -216,14 +217,11 @@ void loop()
 	      cmd_wheel_PWM_pub.publish( &cmd_wheel_PWM_msg );    
 
 
-
-    	  readFeadback_angularVel_L();  
-	      readFeadback_angularVel_R();    
           feedback_wheel_angularVel_msg.x = feedback_wheel_omega_left;  
     	  feedback_wheel_angularVel_msg.y = feedback_wheel_omega_right;    
 	      feedback_wheel_angularVel_pub.publish( &feedback_wheel_angularVel_msg );   
  
-          forward_diff_model();
+
        	  feedback_vel_msg.linear.x = feedback_model_vel_x;  
     	  feedback_vel_msg.angular.z = feedback_model_omega_z;    
 	      feedback_vel_pub.publish( &feedback_vel_msg );        
