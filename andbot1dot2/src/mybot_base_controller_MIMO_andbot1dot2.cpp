@@ -26,28 +26,81 @@ double omega_fb_right = 0.0;
 double omega_fb_left = 0.0;
 
 //variables for updatePid function
-long dT = 0;
-float Kp;
-float Ki;
-double error;
-double pidTerm = 0;
-double sum_error = 0;
+
 double Kalman = 0;
 
-double calculated_pidTerm;
-double constrained_pidterm;
-
 //close loop
-double updatePid(double targetValue, double currentValue) 
+double vel_controller(double targetValue, double currentValue) 
 {
   static double last_error = 0;
+  long dT = 0;
+	float Kp;
+	float Ki;
+	double error;
+	double pidTerm ;
+	double sum_error ;
+	double calculated_pidTerm;
+	double constrained_pidterm;
 
 //   if(WHEEL_SELECT==0) //left wheel      
 //     targetValue = -targetValue;                             // 6.283 / 260 =0.0241653846153846
   
   error = targetValue - currentValue;
+  ROS_INFO_STREAM("vel_error=" << error);
   
-  Kp = 1;//0.15;
+  Kp = 1500;//0.15;
+  //Ki = 0.005;
+  sum_error = sum_error + error * dT;
+  //sum_error = constrain(sum_error, -2000, 2000);
+  if (sum_error >= 2000)
+  {
+  	sum_error = 2000;
+  }
+  else if (sum_error<= -2000)
+  {
+  	sum_error = 2000;
+  }
+  
+  //  Serial.println(String("sum_error is =")+" "+String(sum_error));
+  pidTerm = Kp * error + Ki * sum_error;
+
+  calculated_pidTerm = pidTerm;//;pidTerm / 0.024165;                             // 6.283 / 260 =0.0241653846153846
+	ROS_INFO_STREAM("vel_pidTerm=" << pidTerm);  
+  //constrained_pidterm = constrain(calculated_pidTerm, -260, 260);
+  if (calculated_pidTerm >= 260)
+  {
+  	constrained_pidterm = 260;
+  }
+  else if (calculated_pidTerm <= -260)
+  {
+  	constrained_pidterm = -260;
+  }
+  else
+  {
+  	constrained_pidterm = calculated_pidTerm ;
+  }
+  
+  return constrained_pidterm;
+}
+
+double omega_controller(double targetValue, double currentValue) 
+{
+  static double last_error = 0;
+    long dT = 0;
+	float Kp;
+	float Ki;
+	double error;
+	double pidTerm;
+	double sum_error;
+	double calculated_pidTerm;
+	double constrained_pidterm;
+
+//   if(WHEEL_SELECT==0) //left wheel      
+//     targetValue = -targetValue;                             // 6.283 / 260 =0.0241653846153846
+  
+  error = targetValue - currentValue;
+  ROS_INFO_STREAM("omega_error=" << error);
+  Kp = 1500;//0.15;
   //Ki = 0.005;
   sum_error = sum_error + error * dT;
   //sum_error = constrain(sum_error, -2000, 2000);
@@ -65,6 +118,7 @@ double updatePid(double targetValue, double currentValue)
 
   calculated_pidTerm = pidTerm;//;pidTerm / 0.024165;                             // 6.283 / 260 =0.0241653846153846
   
+  ROS_INFO_STREAM("omega_pidTerm=" << pidTerm);
   //constrained_pidterm = constrain(calculated_pidTerm, -260, 260);
   if (calculated_pidTerm >= 260)
   {
@@ -88,13 +142,12 @@ void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
   geometry_msgs::Twist twist = twist_aux;
   double u_left = 0.0;
   double u_right = 0.0;
-  double vol_coefficient = 1040;
   
   vel_ref = twist_aux.linear.x;
   omega_ref = twist_aux.angular.z;
 
-  u_sum = vol_coefficient * updatePid(vel_ref, 0);//Kp * (vel_ref - vel_fb);
-  u_diff = vol_coefficient * updatePid(omega_ref, 0);// Kp * (omega_ref - omega_fb);
+  u_sum = vel_controller(vel_ref, vel_fb);//Kp * (vel_ref - vel_fb);
+  u_diff = omega_controller(omega_ref, omega_fb);// Kp * (omega_ref - omega_fb);
   
   u_right = (u_sum + u_diff) / 2 ;
   u_left = (u_sum - u_diff) / 2 ; 
