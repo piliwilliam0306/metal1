@@ -48,8 +48,8 @@ double vel_controller(double targetValue, double currentValue)
   error = targetValue - currentValue;
   ROS_INFO_STREAM("vel_error=" << error);
   
-  Kp = 1500;//0.15;
-  //Ki = 0.005;
+  Kp = 1.0;//0.15;
+  Ki = 0.0;
   sum_error = sum_error + error * dT;
   //sum_error = constrain(sum_error, -2000, 2000);
   if (sum_error >= 2000)
@@ -67,13 +67,13 @@ double vel_controller(double targetValue, double currentValue)
   calculated_pidTerm = pidTerm;//;pidTerm / 0.024165;                             // 6.283 / 260 =0.0241653846153846
 	ROS_INFO_STREAM("vel_pidTerm=" << pidTerm);  
   //constrained_pidterm = constrain(calculated_pidTerm, -260, 260);
-  if (calculated_pidTerm >= 260)
+  if (calculated_pidTerm >= 520)
   {
-  	constrained_pidterm = 260;
+  	constrained_pidterm = 520;
   }
-  else if (calculated_pidTerm <= -260)
+  else if (calculated_pidTerm <= -520)
   {
-  	constrained_pidterm = -260;
+  	constrained_pidterm = -520;
   }
   else
   {
@@ -100,8 +100,8 @@ double omega_controller(double targetValue, double currentValue)
   
   error = targetValue - currentValue;
   ROS_INFO_STREAM("omega_error=" << error);
-  Kp = 1500;//0.15;
-  //Ki = 0.005;
+  Kp = 0.0;//0.15;
+  Ki = 0.0;
   sum_error = sum_error + error * dT;
   //sum_error = constrain(sum_error, -2000, 2000);
   if (sum_error >= 2000)
@@ -120,13 +120,13 @@ double omega_controller(double targetValue, double currentValue)
   
   ROS_INFO_STREAM("omega_pidTerm=" << pidTerm);
   //constrained_pidterm = constrain(calculated_pidTerm, -260, 260);
-  if (calculated_pidTerm >= 260)
+  if (calculated_pidTerm >= 520)
   {
-  	constrained_pidterm = 260;
+  	constrained_pidterm = 520;
   }
-  else if (calculated_pidTerm <= -260)
+  else if (calculated_pidTerm <= -520)
   {
-  	constrained_pidterm = -260;
+  	constrained_pidterm = -520;
   }
   else
   {
