@@ -48,7 +48,7 @@ double vel_controller(double targetValue, double currentValue)
   error = targetValue - currentValue;
   ROS_INFO_STREAM("vel_error=" << error);
   
-  Kp = 1.0;//0.15;
+  Kp = 1040.0;//0.15;
   Ki = 0.0;
   sum_error = sum_error + error * dT;
   //sum_error = constrain(sum_error, -2000, 2000);
@@ -147,7 +147,7 @@ void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
   omega_ref = twist_aux.angular.z;
 
   u_sum = vel_controller(vel_ref, vel_fb);//Kp * (vel_ref - vel_fb);
-  u_diff = omega_controller(omega_ref, omega_fb);// Kp * (omega_ref - omega_fb);
+  u_diff = omega_controller(omega_ref, 0);// Kp * (omega_ref - omega_fb);
   
   u_right = (u_sum + u_diff) / 2 ;
   u_left = (u_sum - u_diff) / 2 ; 

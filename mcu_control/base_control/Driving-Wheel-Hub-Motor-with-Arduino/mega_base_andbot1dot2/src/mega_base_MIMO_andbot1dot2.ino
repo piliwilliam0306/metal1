@@ -69,19 +69,10 @@ andbot1dot2::WheelFb vel_msg;
 ros::Publisher p("feedback_wheel_angularVel", &vel_msg);
 
 void sendCmd_wheel_volt_L(){
-//����̧֬�2 rev/sec
-//  if(omega_left_target>12.566) omega_left_target=12.566;
-//  else if(omega_left_target<-12.566) omega_left_target=-12.566;
-//  left_target_send = int(omega_left_target / 0.00038349559007538);   //convert received 16 bit integer to actual speed 12.566/32767=3.834955900753807e-4=0.00038349559007538
-//����̧֬�1 rev/sec
-//  if(omega_left_target>6.283) omega_left_target=6.283;
-//  else if(omega_left_target<-6.283) omega_left_target=-6.283;
-//  left_target_send = int(omega_left_target / 0.00019174779503769);   //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
-
   if(volt_left_target>VQ_MAX) volt_left_target=VQ_MAX;
   else if(volt_left_target<VQ_MIN) volt_left_target=VQ_MIN;
-  left_target_send = int(volt_left_target / (double(VQ_MAX)/double(32767)));   //convert received 16 bit integer to actual voltage => VQ_MAX/32767
 
+  left_target_send = int(volt_left_target / (double(VQ_MAX)/double(32767)));   //convert received 16 bit integer to actual voltage => VQ_MAX/32767
 
   char sT_L = '{'; //send start byte
   byte sH_L = highByte(left_target_send);
@@ -92,16 +83,9 @@ void sendCmd_wheel_volt_L(){
 
 
 void sendCmd_wheel_volt_R(){
-//����̧֬�2 rev/sec
-//  if(omega_right_target>12.566) omega_right_target=12.566;
-//  else if(omega_right_target<-12.566) omega_right_target=-12.566;
-//  right_target_send = int(omega_right_target / 0.00038349559007538);   //convert received 16 bit integer to actual speed 12.566/32767=3.834955900753807e-4=0.00038349559007538
-//����̧֬�1 rev/sec
-//  if(omega_right_target>6.283) omega_right_target=6.283;
-//  else if(omega_right_target<-6.283) omega_right_target=-6.283;
-//  right_target_send = int(omega_right_target / 0.00019174779503769);   //convert received 16 bit integer to actual speed 12.566/32767=3.834955900753807e-4=0.00038349559007538
   if(volt_right_target>VQ_MAX) volt_right_target=VQ_MAX;
   else if(volt_right_target<VQ_MIN) volt_right_target=VQ_MIN;
+
   right_target_send = int(volt_right_target / (double(VQ_MAX)/double(32767)));   //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
 
   char sT_R = '{';
@@ -113,8 +97,6 @@ void sendCmd_wheel_volt_R(){
 
 void DriverState_service_callback(const andbot1dot2::DriverStateRequest& req, andbot1dot2::DriverStateResponse& res)
 {
-//	std::stringstream ss;
-//	ss << "Received Here";
 	driverEn = req.driverstate;
 	if (driverEn == true)
 	{
@@ -157,7 +139,6 @@ void setup(){
 
 	Serial.println("Please wait for system warming up ...");
 	while(systemwarmup.check() == false);
-	//SensorReadyFlag = true;
 	digitalWrite(Relay_pin_left, HIGH);  // power on the LED
 	digitalWrite(Relay_pin_right, HIGH);
 	Serial.println("Warmup finish");
@@ -170,30 +151,12 @@ void setup(){
 
 void loop()
 {
-//  if (Serial3.available()){
-//    val = Serial3.read();
-//
-//    if (val == 'm'){
-//      Serial1.write("m", 1);
-//      Serial2.write("m", 1);
-//      Serial3.write("m", 1);
-//    }
-//    else if (val == 'k'){
-//      Serial1.write("k", 1);
-//      Serial2.write("k", 1);
-//      Serial3.write("k", 1);
-//    }
-//  }
-
   readFeadback_angularVel_L();
   readFeadback_angularVel_R();
 
   if ((millis() - lastMilli) >= LOOPTIME){
     dT = millis() - lastMilli;
     lastMilli = millis();
-
-//    sendCmd_wheel_angularVel_L();
-//    sendCmd_wheel_angularVel_R();
 
     vel_msg.speed1 = omega_left_actual;
     vel_msg.speed2 = omega_right_actual;
@@ -215,10 +178,7 @@ void readFeadback_angularVel_L(){
       char rP_L = commandArray_L[2];
       if (rP_L == '}'){
         left_actual_receive =(rH_L << 8) + rL_L;
-//����̧֬�2 rev/sec
-//        omega_left_actual = double (left_actual_receive * 0.00038349559007538);   //convert received 16 bit integer to actual speed 12.566/32767=3.834955900753807e-4=0.00038349559007538
-//����̧֬�1 rev/sec        
-        omega_left_actual = double (left_actual_receive * (double(12.566)/double(32767)));   //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
+	omega_left_actual = double (left_actual_receive * (double(12.566)/double(32767)));   //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
 
       }
     }
@@ -237,9 +197,6 @@ void readFeadback_angularVel_R(){
       char rP_R = commandArray_R[2];
       if (rP_R == '}'){
         right_actual_receive = (rH_R << 8) + rL_R;
-//����̧֬�2 rev/sec        
-//        omega_right_actual = double (right_actual_receive * 0.00038349559007538);   //convert received 16 bit integer to actual speed 12.566/32767=3.834955900753807e-4=0.00038349559007538
-//����̧֬�1 rev/sec 
         omega_right_actual = double (right_actual_receive * (double(12.566)/double(32767)));   //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
         
       }
