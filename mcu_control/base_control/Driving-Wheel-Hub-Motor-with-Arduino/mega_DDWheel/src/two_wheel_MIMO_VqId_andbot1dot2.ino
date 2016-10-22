@@ -77,8 +77,8 @@ KalmanFilter kalman(0.1, 1.0);
 */
 
 //limit 1 rev/sec
-#define VQ_MAX 520
-#define VQ_MIN -520
+#define VQ_MAX 1000 //520
+#define VQ_MIN -1000 //-520
 
 union Data_Setting {
   struct _ByteSet {
@@ -94,7 +94,8 @@ byte sendData[7] = {123, 0, 0, 0, 0, 0, 125};
 byte sendDataStop[7] = {123, 0, 0, 0, 0, 85, 125};
 
 unsigned long PastTime = 0;
-int vq = 0, vd = 0, checksum = 0;
+//int vq = 0, vd = 0, checksum = 0;
+int Vq = 0, Id = 0, checksum = 0;
 
 int encodePinA = 2;
 int encodePinB = 3;
@@ -132,8 +133,8 @@ byte receiveMode = 0;
 byte actualMode = 0;
 
 //Add Vd control
-int VD_ENABLE_LIMITE = 160;
-int VD_ENABLE_VALUE = 50;
+//int VD_ENABLE_LIMITE = 160;
+//int VD_ENABLE_VALUE = 50;
 
 void readCmd_wheel_volt() {
   if (Serial3.available()) {
@@ -145,16 +146,16 @@ void readCmd_wheel_volt() {
       EncoderposPre = 0;
       vol_target = 0;
       //sum_error = 0;
-      vq = 0;
-      vd = 0xFFFF;
+      Vq = 0;
+      Id = 0xbbbb; //vd = 0xFFFF;
       Serial.println("BLDC Enable");
-      sendData[1] = highByte(vq);
-      sendData[2] = lowByte(vq);
-      sendData[3] = highByte(vd);
-      sendData[4] = lowByte(vd);
+      sendData[1] = highByte(Vq);
+      sendData[2] = lowByte(Vq);
+      sendData[3] = highByte(Id);
+      sendData[4] = lowByte(Id);
       sendData[5] = (0x55 ^ sendData[1] ^ sendData[2] ^ sendData[3] ^ sendData[4]);
       Serial1.write(sendData, 7);
-      vd = 0x0;
+      Id = 0x0;
     }
 
     else if (rT == 'k') {                                                              //test by BT
@@ -163,16 +164,16 @@ void readCmd_wheel_volt() {
       EncoderposPre = 0;
       vol_target = 0;
       //sum_error = 0;
-      vq = 0;
-      vd = 0xAAAA;
+      Vq = 0;
+      Id = 0xaaaa;//vd = 0xAAAA;
       Serial.println("BLDC Disable");
-      sendData[1] = highByte(vq);
-      sendData[2] = lowByte(vq);
-      sendData[3] = highByte(vd);
-      sendData[4] = lowByte(vd);
+      sendData[1] = highByte(Vq);
+      sendData[2] = lowByte(Vq);
+      sendData[3] = highByte(Id);
+      sendData[4] = lowByte(Id);
       sendData[5] = (0x55 ^ sendData[1] ^ sendData[2] ^ sendData[3] ^ sendData[4]);
       Serial1.write(sendData, 7);
-      vd = 0x0;
+      Id = 0x0;
     }
 
     else if (rT == '{') {
@@ -248,25 +249,26 @@ double updatePid(double targetValue, double currentValue) {
 */
 
 void sendCmd() {
-  if (vq >= VQ_MAX)
-    vq = VQ_MAX;
-  else if (vq <= VQ_MIN)
-    vq = VQ_MIN;
+  if (Vq >= VQ_MAX)
+    Vq = VQ_MAX;
+  else if (Vq <= VQ_MIN)
+    Vq = VQ_MIN;
 
-  if ((abs(vq) <= VD_ENABLE_LIMITE) && (vq != 0))
-  {
-    vd = VD_ENABLE_VALUE;                                                         // The Vd always be postive value, even vq is a negative value
-    digitalWrite(51, HIGH);                                                       // turn the LED on (HIGH is the voltage level)
-  }
-  else
-  {
-    vd = 0;
-    digitalWrite(51, LOW);                                                        // turn the LED off by making the voltage LOW
-  }
-  sendData[1] = highByte(vq);
-  sendData[2] = lowByte(vq);
-  sendData[3] = highByte(vd);
-  sendData[4] = lowByte(vd);
+  Id = 0.1;
+ // if ((abs(vq) <= VD_ENABLE_LIMITE) && (vq != 0))
+ // {
+   // vd = VD_ENABLE_VALUE;                                                         // The Vd always be postive value, even vq is a negative value
+  //  digitalWrite(51, HIGH);                                                       // turn the LED on (HIGH is the voltage level)
+  //}
+  //else
+  //{
+   // vd = 0;
+    //digitalWrite(51, LOW);                                                        // turn the LED off by making the voltage LOW
+ // }
+  sendData[1] = highByte(Vq);
+  sendData[2] = lowByte(Vq);
+  sendData[3] = highByte(Id);
+  sendData[4] = lowByte(Id);
   sendData[5] = (0x55 ^ sendData[1] ^ sendData[2] ^ sendData[3] ^ sendData[4]);
 
   Serial1.write(sendData, 7);
@@ -286,7 +288,7 @@ void revFromMCU() {
           }
           Serial.println(String("MCU Vq=") + " " + \
                          String(MotorData[0].Data) + " " + \
-                         String("MCU Vd=") + " " + \
+                         String("MCU Id=") + " " + \
                          String(MotorData[1].Data) + " " + \
                          String("MCU rds=") + " " + \
                          String(MotorData[2].Data));
@@ -382,15 +384,15 @@ void loop() {
 
     getMotorData();
     sendFeedback_wheel_angularVel();    //send actually speed to mega
-    vq = vol_target ;
+    Vq = vol_target ;
 
     if (vol_target == 0) {
-      vq = 0;
+      Vq = 0;
       //sum_error = 0;
     }
 
-    if (vq == 0)
-      Serial.println("Warrning!!!Vq is 0");
+    if (Vq == 0)
+      Serial.println("Warning!!!Vq is 0");
 
     sendCmd();
   }
