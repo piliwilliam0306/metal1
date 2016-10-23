@@ -25,78 +25,56 @@ double u_diff = 0.0;
 double omega_fb_right = 0.0;
 double omega_fb_left = 0.0;
 
-//variables for updatePid function
-
 double Kalman = 0;
+
+const double Vq_formatRatio=1499/12; //convert voltage to Vq voltage format ( 12 (max voltage) : 1499 (Vq format max) )
 
 //close loop
 double vel_controller(double targetValue, double currentValue) 
 {
   static double last_error = 0;
   long dT = 0;
-	float Kp;
-	float Ki;
-	double error;
-	double pidTerm ;
-	double sum_error ;
-	double calculated_pidTerm;
-	double constrained_pidterm;
-
-//   if(WHEEL_SELECT==0) //left wheel      
-//     targetValue = -targetValue;                             // 6.283 / 260 =0.0241653846153846
+  float Kp;
+  float Ki;
+  double error;
+  double pidTerm ;
+  double sum_error ;
+  double calculated_pidTerm;
+  double constrained_pidterm;
   
   error = targetValue - currentValue;
   ROS_INFO_STREAM("vel_error=" << error);
   
-  Kp = 1040.0;//0.15;
+  Kp = 1.0;//0.15;
   Ki = 0.0;
   sum_error = sum_error + error * dT;
   //sum_error = constrain(sum_error, -2000, 2000);
-  if (sum_error >= 2000)
-  {
-  	sum_error = 2000;
-  }
-  else if (sum_error<= -2000)
-  {
-  	sum_error = 2000;
-  }
+  if (sum_error >= 2000)        sum_error = 2000;
+  else if (sum_error<= -2000)   sum_error = -2000;
   
   //  Serial.println(String("sum_error is =")+" "+String(sum_error));
   pidTerm = Kp * error + Ki * sum_error;
 
   calculated_pidTerm = pidTerm;//;pidTerm / 0.024165;                             // 6.283 / 260 =0.0241653846153846
-	ROS_INFO_STREAM("vel_pidTerm=" << pidTerm);  
+  ROS_INFO_STREAM("vel_pidTerm=" << pidTerm);
   //constrained_pidterm = constrain(calculated_pidTerm, -260, 260);
-  if (calculated_pidTerm >= 520)
-  {
-  	constrained_pidterm = 520;
-  }
-  else if (calculated_pidTerm <= -520)
-  {
-  	constrained_pidterm = -520;
-  }
-  else
-  {
-  	constrained_pidterm = calculated_pidTerm ;
-  }
+  if (calculated_pidTerm >= 520)        constrained_pidterm = 520;
+  else if (calculated_pidTerm <= -520)  constrained_pidterm = -520;
+  else 	                                constrained_pidterm = calculated_pidTerm ;
   
   return constrained_pidterm;
 }
-
 double omega_controller(double targetValue, double currentValue) 
 {
   static double last_error = 0;
-    long dT = 0;
-	float Kp;
-	float Ki;
-	double error;
-	double pidTerm;
-	double sum_error;
-	double calculated_pidTerm;
-	double constrained_pidterm;
-
-//   if(WHEEL_SELECT==0) //left wheel      
-//     targetValue = -targetValue;                             // 6.283 / 260 =0.0241653846153846
+  long dT = 0;
+  float Kp;
+  float Ki;
+  double error;
+  double pidTerm;
+  double sum_error;
+  double calculated_pidTerm;
+  double constrained_pidterm;
   
   error = targetValue - currentValue;
   ROS_INFO_STREAM("omega_error=" << error);
@@ -104,14 +82,8 @@ double omega_controller(double targetValue, double currentValue)
   Ki = 0.0;
   sum_error = sum_error + error * dT;
   //sum_error = constrain(sum_error, -2000, 2000);
-  if (sum_error >= 2000)
-  {
-  	sum_error = 2000;
-  }
-  else if (sum_error<= -2000)
-  {
-  	sum_error = 2000;
-  }
+  if (sum_error >= 2000)  	sum_error = 2000;
+  else if (sum_error<= -2000)  	sum_error = -2000;
   
   //  Serial.println(String("sum_error is =")+" "+String(sum_error));
   pidTerm = Kp * error + Ki * sum_error;
@@ -120,18 +92,9 @@ double omega_controller(double targetValue, double currentValue)
   
   ROS_INFO_STREAM("omega_pidTerm=" << pidTerm);
   //constrained_pidterm = constrain(calculated_pidTerm, -260, 260);
-  if (calculated_pidTerm >= 520)
-  {
-  	constrained_pidterm = 520;
-  }
-  else if (calculated_pidTerm <= -520)
-  {
-  	constrained_pidterm = -520;
-  }
-  else
-  {
-  	constrained_pidterm = calculated_pidTerm ;
-  }
+  if (calculated_pidTerm >= 520)  	constrained_pidterm = 520;
+  else if (calculated_pidTerm <= -520) 	constrained_pidterm = -520;
+  else  	                        constrained_pidterm = calculated_pidTerm ;
   
   return constrained_pidterm;
 }
@@ -146,8 +109,8 @@ void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
   vel_ref = twist_aux.linear.x;
   omega_ref = twist_aux.angular.z;
 
-  u_sum = vel_controller(vel_ref, vel_fb);//Kp * (vel_ref - vel_fb);
-  u_diff = omega_controller(omega_ref, 0);// Kp * (omega_ref - omega_fb);
+  u_sum = vel_controller(vel_ref, vel_fb) * Vq_formatRatio;
+  u_diff = omega_controller(omega_ref, 0) * Vq_formatRatio;
   
   u_right = (u_sum + u_diff) / 2 ;
   u_left = (u_sum - u_diff) / 2 ; 
@@ -157,18 +120,19 @@ void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
 
   cmd_wheel_volt_pub.publish(wheel);
 }
+
 void feedback_wheel_angularVelCallback(const andbot1dot2::WheelFb &wheel)
 {
-	geometry_msgs::Twist twist_aux;
-	omega_fb_left = wheel.speed1;
-  	omega_fb_right  = wheel.speed2;
-  	
-  	vel_fb = wheelRadius / 2 * (omega_fb_right + omega_fb_left);
-  	omega_fb = wheelRadius / wheelSeparation * (omega_fb_right - omega_fb_left);
+  geometry_msgs::Twist twist_aux;
+  omega_fb_left = wheel.speed1;
+  omega_fb_right  = wheel.speed2;
 
-  	twist_aux.linear.x = vel_fb;
-  	twist_aux.angular.z = omega_fb;
-  	feedback_Vel_pub.publish(twist_aux);
+  vel_fb = wheelRadius / 2 * (omega_fb_right + omega_fb_left);
+  omega_fb = wheelRadius / wheelSeparation * (omega_fb_right - omega_fb_left);
+
+  twist_aux.linear.x = vel_fb;
+  twist_aux.angular.z = omega_fb;
+  feedback_Vel_pub.publish(twist_aux);
 }
 
 int main(int argc, char** argv){
