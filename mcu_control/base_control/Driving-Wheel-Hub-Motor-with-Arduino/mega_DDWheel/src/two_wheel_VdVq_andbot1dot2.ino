@@ -50,13 +50,14 @@
 //#define WHEEL_SELECT 0 //for left wheel
 #define WHEEL_SELECT 1 //for right wheel
 
-#define LOOPTIME        100 //500 for test & draw
+#define LOOPTIME        40 //100 //500 for test & draw
 unsigned long lastMilli = 0;
 long dT = 0;
 
-//limit 1 rev/sec
-#define Vq_MAX 520
-#define Vq_MIN -520
+#define Vq_MAX 1000
+#define Vq_MIN -1000
+#define Volt_MAX 12
+const double Vq_formatRatio=1499/12; //convert voltage to Vq voltage format ( 12 (max voltage) : 1499 (Vq format max) )
 
 union Data_Setting {
   struct _ByteSet {
@@ -81,8 +82,6 @@ volatile long Encoderpos = 0;
 long EncoderposPre = 0;
 volatile int lastEncoded = 0;
 
-
-
 int pinAState = 0;
 int pinAStateOld = 0;
 int pinBState = 0;
@@ -97,7 +96,7 @@ double omega_actual = 0;
 int CPR = 90;                                                                     //encoder count per revolution
 int gear_ratio = 1;
 int actual_send = 0;
-const double MAX_AngularSpeed = 450 / 60 * 2 * PI; // DD motor nominal rotation speed: 450 rpm
+const double MAX_AngularSpeed = 47.1238898 ;//  450 / 60 * 2 * PI => DD motor nominal rotation speed: 450 rpm
 
 int target_receive = 0;
 
@@ -168,7 +167,7 @@ void readCmd_wheel_volt()
 			  if (rP == '}')
 			  {
 					target_receive = (rH << 8) + rL;
-					vol_target = double (target_receive * double(Vq_MAX)/double(32767));          //convert received 16 bit integer to actual voltage => Vq_MAX/32767
+					vol_target = double (target_receive * double(Volt_MAX)/double(32767));          //convert received 16 bit integer to actual voltage => Vq_MAX/32767
 					if(WHEEL_SELECT==0) //left wheel
 					vol_target = -vol_target;
 			  }
@@ -181,9 +180,9 @@ void sendFeedback_wheel_angularVel()
 {
   //limit 1 rev/sec
   if(WHEEL_SELECT==0) //left wheel
-    actual_send = int(-1 * omega_actual / MAX_AngularSpeed /double(32767));           //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
+    actual_send = int(-1 * omega_actual / (MAX_AngularSpeed /double(32767)));           //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
   else if(WHEEL_SELECT==1) //right wheel
-    actual_send = int(omega_actual / MAX_AngularSpeed /double(32767));           //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
+    actual_send = int(omega_actual / (MAX_AngularSpeed /double(32767)));           //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
 
   char sT = '{';                                                                  //send start byte
   byte sH = highByte(actual_send);                                                //send high byte
@@ -208,16 +207,18 @@ void sendCmd()
 	  if (Vq >= Vq_MAX) 	    Vq = Vq_MAX;
 	  else if (Vq <= Vq_MIN)    Vq = Vq_MIN;
 
-	  if ((abs(Vq) <= VD_ENABLE_LIMITE) && (Vq != 0))
-	  {
-		Vd = VD_ENABLE_VALUE;                                                         // The Vd always be postive value, even Vq is a negative value
-		digitalWrite(51, HIGH);                                                       // turn the LED on (HIGH is the voltage level)
-	  }
-	  else
-	  {
-		Vd = 0;
-		digitalWrite(51, LOW);                                                        // turn the LED off by making the voltage LOW
-	  }
+//	  if ((abs(Vq) <= VD_ENABLE_LIMITE) && (Vq != 0))
+//	  {
+//		Vd = VD_ENABLE_VALUE;                                                         // The Vd always be postive value, even Vq is a negative value
+//		digitalWrite(51, HIGH);                                                       // turn the LED on (HIGH is the voltage level)
+//	  }
+//	  else
+//	  {
+//		Vd = 0;
+//		digitalWrite(51, LOW);                                                        // turn the LED off by making the voltage LOW
+//	  }
+
+	  Vd = 0;
 	  sendData[1] = highByte(Vq);
 	  sendData[2] = lowByte(Vq);
 	  sendData[3] = highByte(Vd);
@@ -339,7 +340,8 @@ void loop()
 
 		getMotorData();
 		sendFeedback_wheel_angularVel();    //send actually speed to mega
-
+		Serial.print("Volt is ");
+		Serial.println(vol_target);
 		if (vol_target == 0)
 		{
 			Vq = 0;
@@ -347,12 +349,15 @@ void loop()
 		}
 		else
 		{
-			Vq = vol_target;
+			Vq = vol_target * Vq_formatRatio;
 		}
+
 
 		if (Vq == 0)
 		  Serial.println("Warrning!!!Vq is 0");
 
+		Serial.print("Vq is ");
+		Serial.println(Vq);
 		sendCmd();
 	}
 }

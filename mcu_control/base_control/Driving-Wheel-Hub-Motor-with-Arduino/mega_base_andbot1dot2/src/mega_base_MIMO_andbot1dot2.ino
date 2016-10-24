@@ -61,11 +61,11 @@ byte rH_R = 0;  //receive high byte
 byte rL_R = 0;  //receive low byte
 byte rP_R = 0;  //receive stop byte
 
-#define LOOPTIME 100
+#define LOOPTIME 40//100
 
-#define Vq_MAX 1000//520
-#define Vq_MIN -1000//-520
-const double MAX_AngularSpeed = 450 / 60 * 2 * 3.1415926; // nominal rotation speed: 450 rpm
+const double MAX_AngularSpeed = 47.1238898 ;// 450 / 60 * 2 * PI => nominal rotation speed: 450 rpm
+#define Volt_MAX 12
+#define Volt_MIN -12
 
 double volt_left_target = 0.0;
 double volt_right_target = 0.0;
@@ -82,10 +82,10 @@ int right_target_send = 0;
 
 void sendCmd_wheel_volt_L()
 {
-    if(volt_left_target>Vq_MAX)           volt_left_target=Vq_MAX;
-    else if(volt_left_target<Vq_MIN)      volt_left_target=Vq_MIN;
+    if(volt_left_target>Volt_MAX)           volt_left_target=Volt_MAX;
+    else if(volt_left_target<Volt_MIN)      volt_left_target=Volt_MIN;
 
-    left_target_send = int(volt_left_target / (double(Vq_MAX)/double(32767)));   //convert received 16 bit integer to actual voltage => Vq_MAX/32767
+    left_target_send = int(volt_left_target / (double(Volt_MAX)/double(32767)));   //convert received 16 bit integer to actual voltage => Vq_MAX/32767
 
     //transmit command to the lower level mega board.
     char sT_L = '{'; //send start byte
@@ -98,10 +98,10 @@ void sendCmd_wheel_volt_L()
 
 void sendCmd_wheel_volt_R()
 {
-    if(volt_right_target>Vq_MAX)          volt_right_target=Vq_MAX;
-    else if(volt_right_target<Vq_MIN)     volt_right_target=Vq_MIN;
+    if(volt_right_target>Volt_MAX)          volt_right_target=Volt_MAX;
+    else if(volt_right_target<Volt_MIN)     volt_right_target=Volt_MIN;
 
-    right_target_send = int(volt_right_target / (double(Vq_MAX)/double(32767)));   //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
+    right_target_send = int(volt_right_target / (double(Volt_MAX)/double(32767)));   //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
 
     //transmit command to the lower level mega board.
     char sT_R = '{';

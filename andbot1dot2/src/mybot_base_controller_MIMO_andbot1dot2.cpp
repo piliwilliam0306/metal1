@@ -25,10 +25,6 @@ double u_diff = 0.0;
 double omega_fb_right = 0.0;
 double omega_fb_left = 0.0;
 
-double Kalman = 0;
-
-const double Vq_formatRatio=1499/12; //convert voltage to Vq voltage format ( 12 (max voltage) : 1499 (Vq format max) )
-
 //close loop
 double vel_controller(double targetValue, double currentValue) 
 {
@@ -55,11 +51,11 @@ double vel_controller(double targetValue, double currentValue)
   //  Serial.println(String("sum_error is =")+" "+String(sum_error));
   pidTerm = Kp * error + Ki * sum_error;
 
-  calculated_pidTerm = pidTerm;//;pidTerm / 0.024165;                             // 6.283 / 260 =0.0241653846153846
+  calculated_pidTerm = pidTerm;
   ROS_INFO_STREAM("vel_pidTerm=" << pidTerm);
   //constrained_pidterm = constrain(calculated_pidTerm, -260, 260);
-  if (calculated_pidTerm >= 520)        constrained_pidterm = 520;
-  else if (calculated_pidTerm <= -520)  constrained_pidterm = -520;
+  if (calculated_pidTerm >= 10)        constrained_pidterm = 10;
+  else if (calculated_pidTerm <= -10)  constrained_pidterm = -10;
   else 	                                constrained_pidterm = calculated_pidTerm ;
   
   return constrained_pidterm;
@@ -88,12 +84,12 @@ double omega_controller(double targetValue, double currentValue)
   //  Serial.println(String("sum_error is =")+" "+String(sum_error));
   pidTerm = Kp * error + Ki * sum_error;
 
-  calculated_pidTerm = pidTerm;//;pidTerm / 0.024165;                             // 6.283 / 260 =0.0241653846153846
+  calculated_pidTerm = pidTerm;
   
   ROS_INFO_STREAM("omega_pidTerm=" << pidTerm);
   //constrained_pidterm = constrain(calculated_pidTerm, -260, 260);
-  if (calculated_pidTerm >= 520)  	constrained_pidterm = 520;
-  else if (calculated_pidTerm <= -520) 	constrained_pidterm = -520;
+  if (calculated_pidTerm >= 10)  	constrained_pidterm = 10;
+  else if (calculated_pidTerm <= -10) 	constrained_pidterm = -10;
   else  	                        constrained_pidterm = calculated_pidTerm ;
   
   return constrained_pidterm;
@@ -105,13 +101,22 @@ void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
   geometry_msgs::Twist twist = twist_aux;
   double u_left = 0.0;
   double u_right = 0.0;
+  double FeedForward = 0.0;
+  double FinalValueRatio = 0.555 / 5;
   
   vel_ref = twist_aux.linear.x;
   omega_ref = twist_aux.angular.z;
 
-  u_sum = vel_controller(vel_ref, vel_fb) * Vq_formatRatio;
-  u_diff = omega_controller(omega_ref, 0) * Vq_formatRatio;
+  u_sum = vel_controller(vel_ref, 0) ;
+  u_diff = omega_controller(omega_ref, 0) ;
   
+  if (u_sum <= 1)
+  {
+	  FeedForward = u_sum * FinalValueRatio ;
+	  u_sum  = u_sum + FeedForward;
+  }
+  else;
+
   u_right = (u_sum + u_diff) / 2 ;
   u_left = (u_sum - u_diff) / 2 ; 
   

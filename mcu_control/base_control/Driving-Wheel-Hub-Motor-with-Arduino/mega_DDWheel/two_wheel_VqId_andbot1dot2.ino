@@ -181,9 +181,9 @@ void readCmd_wheel_volt()
 void sendFeedback_wheel_angularVel() {
   //limit 1 rev/sec
   if(WHEEL_SELECT==0) //left wheel
-    actual_send = int(-1 * omega_actual / MAX_AngularSpeed / double(32767));           //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
+    actual_send = int(-1 * omega_actual / (MAX_AngularSpeed / double(32767)));           //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
   else if(WHEEL_SELECT==1) //right wheel
-    actual_send = int(omega_actual / MAX_AngularSpeed / double(32767));           //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
+    actual_send = int(omega_actual / (MAX_AngularSpeed / double(32767)));           //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
 
   char sT = '{';                                                                  //send start byte
   byte sH = highByte(actual_send);                                                //send high byte
