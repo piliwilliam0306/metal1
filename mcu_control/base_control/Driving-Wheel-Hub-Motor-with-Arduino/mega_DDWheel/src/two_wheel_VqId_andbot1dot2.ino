@@ -354,8 +354,10 @@ void loop()
         Id = 0.0 * Id_formatRatio;
 
         if (Vq == 0)
-            Serial.println("Warning!!!Vq is 0");
+            Serial.println("Current Vq is 0");
 
+        if (Id == 0)
+            Serial.println("Current Id is 0");
         sendCmd();
     }
 }

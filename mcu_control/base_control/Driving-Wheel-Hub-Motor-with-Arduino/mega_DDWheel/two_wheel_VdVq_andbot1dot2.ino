@@ -1,36 +1,52 @@
-on]
-20160711
-[Notation]
-* The program is for wheel hub motor control (both left & right)
-* The Vq/Vd max/min value is 700~ -700
-* MESSAGE_SHOW frequency is depence received HW device, in my case I use a dongle which can not received high frequency messages and send a command at same time. Please don't reference this value, because my device is a very slow device.
-/************************************************************
-[Control Board Communication Format]
-Send Command Format: 7 Byte
-    Bytes:  Start  Vq_Hbyte Vq_Lbyte Vd_Hbyte Vd_Lbyte Checkcode  End
-ex:(Vq=300, Vd=4)
-            0x7B    0x01    0x2C      0x00    0x04      0x7C      0x7D
-ex:(Vq=0, Vd=0)
-            0x7B    0x00    0x00      0x00    0x00      0x55      0x7D
-
-Receive Data Format: 9 Byte
-           [Byte:1] [Byte:2]  [Byte:3]  [Byte:4]  [Byte:5]  [Byte:6]    [Byte:7]    [Byte:8]  [Byte:9]
-    Bytes:  Start    Vq_Hbyte  Vq_Lbyte  Vd_Hbyte  Vd_Lbyte  pulse/ms_H  pulse/ms_L  Checkcode  End
-    ex:    0x7B                                                                                 0x7D
-/*************************************************************
-[ Encode value check ]
+/*
+ * =====================================================================================
+ *
+ *       Filename:  two_wheel_MIMO_VqId_andbot1dot2.ino
+ *
+ *    Description:  The program is for wheel hub motor control (both left & right).
+ *                  Vq/Vd max/min is 700/-700
+ *                  Id max/min is 20/-20 A
+ *
+ *                  [HW Arduino Mega 2560]
+ *                  Serial port (Default serial for debug )
+ *                  Serial1 port (connect to Motor control board wheel)
+ *                  Serial3 port (connect to the upper drive Serial1 port)
+ *
+ *                  [Control Board Communication Format]
+ *                  Send Command Format: 7 Byte
+ *                  Bytes:
+ *                  Start  Vq_Hbyte Vq_Lbyte Vd_Hbyte Vd_Lbyte Checkcode  End
+ *
+ *                  ex:(Vq=300, Vd=4)
+ *                  0x7B    0x01    0x2C      0x00    0x04      0x7C      0x7D
+ *
+ *                  ex:(Vq=0, Vd=0)
+ *                  0x7B    0x00    0x00      0x00    0x00      0x55      0x7D
+ *
+ *                  Receive Data Format: 9 Byte
+ *                  [Byte:1] [Byte:2]  [Byte:3]  [Byte:4]  [Byte:5]  [Byte:6]    [Byte:7]    [Byte:8]  [Byte:9]
+ *                  Bytes:  Start    Vq_Hbyte  Vq_Lbyte  Vd_Hbyte  Vd_Lbyte  pulse/ms_H  pulse/ms_L  Checkcode  End
+ *                  ex:    0x7B                                                                                 0x7D
+ *
+ *                  [ Encode value check ]
  *      Bit         LSB           MSB
  *                  A     B       C
  *      Pin         2     3       21 (Arduino Mega 2560 Board)
  *      WireColor   Blue  Green   Yellow
  *      ClockWise value:=1,3,2,6,4,5
  *      CountClockWise:=1,5,4,6,2,3
-/*************************************************************
-[HW Arduino Mega 2560]
-Serial port (Default serial for debug )
-Serial1 port (connect to Motor control board wheel)
-Serial3 port (connect to the upper drive Serial1 port)
-*************************************************************/
+ *
+ *        Version:  20160711
+ *        Created:
+ *       Revision:  none
+ *       Compiler:
+ *
+ *         Author:
+ *        Company:  AR
+ *
+ * =====================================================================================
+ */
+
 //#define WHEEL_SELECT 0 //for left wheel
 #define WHEEL_SELECT 1 //for right wheel
 
