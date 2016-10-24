@@ -50,50 +50,13 @@
 //#define WHEEL_SELECT 0 //for left wheel
 #define WHEEL_SELECT 1 //for right wheel
 
-
-/*
-//Kalman
-#include <math.h>
-
-class KalmanFilter
-{
-  public:
-
-    KalmanFilter(double q, double r);
-    double Update(double);
-    double GetK() {
-      return k;
-    }
-
-  private:
-
-    double k; //kalman gain
-    double p; //estimation error covariance
-    double q; //process noise covariance
-    double r; //measurement noise covariance
-    double x; //value
-};
-
-KalmanFilter::KalmanFilter(double q, double r): q(q), r(r), x(0.0)
-{
-  p = sqrt(q * q + r * r);
-}
-
-double KalmanFilter::Update(double value)
-{
-  p += q;
-  k = p / (p + r);
-  x += k * (value - x);
-  p *= (1 - k);
-
-  return x;
-}
-KalmanFilter kalman(0.1, 1.0);
-*/
+#define LOOPTIME        100 //500 for test & draw
+unsigned long lastMilli = 0;
+long dT = 0;
 
 //limit 1 rev/sec
-#define VQ_MAX 520
-#define VQ_MIN -520
+#define Vq_MAX 520
+#define Vq_MIN -520
 
 union Data_Setting {
   struct _ByteSet {
@@ -109,7 +72,7 @@ byte sendData[7] = {123, 0, 0, 0, 0, 0, 125};
 byte sendDataStop[7] = {123, 0, 0, 0, 0, 85, 125};
 
 unsigned long PastTime = 0;
-int vq = 0, vd = 0, checksum = 0;
+int Vq = 0, Vd = 0, checksum = 0;
 
 int encodePinA = 2;
 int encodePinB = 3;
@@ -118,9 +81,7 @@ volatile long Encoderpos = 0;
 long EncoderposPre = 0;
 volatile int lastEncoded = 0;
 
-#define LOOPTIME        100 //500 for test & draw
-unsigned long lastMilli = 0;
-long dT = 0;
+
 
 int pinAState = 0;
 int pinAStateOld = 0;
@@ -131,9 +92,13 @@ int pinCStateOld = 0;
 
 double vol_target = 0;
 double omega_actual = 0;
+
+//parameters
 int CPR = 90;                                                                     //encoder count per revolution
 int gear_ratio = 1;
 int actual_send = 0;
+const double MAX_AngularSpeed = 450 / 60 * 2 * PI; // DD motor nominal rotation speed: 450 rpm
+
 int target_receive = 0;
 
 //test for encoder error
@@ -150,71 +115,75 @@ byte actualMode = 0;
 int VD_ENABLE_LIMITE = 160;
 int VD_ENABLE_VALUE = 50;
 
-void readCmd_wheel_volt() {
-  if (Serial3.available()) {
-    char rT = (char)Serial3.read();                                               //read target speed from mega
+void readCmd_wheel_volt()
+{
+	if (Serial3.available())
+	{
+		char rT = (char)Serial3.read();                                               //read target speed from mega
 
-    if (rT == 'm') {                                                              //test by BT
-      StartFlag = 1;
-      Encoderpos = 0;
-      EncoderposPre = 0;
-      vol_target = 0;
-      //sum_error = 0;
-      vq = 0;
-      vd = 0xFFFF;
-      Serial.println("BLDC Enable");
-      sendData[1] = highByte(vq);
-      sendData[2] = lowByte(vq);
-      sendData[3] = highByte(vd);
-      sendData[4] = lowByte(vd);
-      sendData[5] = (0x55 ^ sendData[1] ^ sendData[2] ^ sendData[3] ^ sendData[4]);
-      Serial1.write(sendData, 7);
-      vd = 0x0;
-    }
+		if (rT == 'm')
+		{                                                              //test by BT
+			  StartFlag = 1;
+			  Encoderpos = 0;
+			  EncoderposPre = 0;
+			  vol_target = 0;
+			  //sum_error = 0;
+			  Vq = 0;
+			  Vd = 0xFFFF;
+			  Serial.println("BLDC Enable");
+			  sendData[1] = highByte(Vq);
+			  sendData[2] = lowByte(Vq);
+			  sendData[3] = highByte(Vd);
+			  sendData[4] = lowByte(Vd);
+			  sendData[5] = (0x55 ^ sendData[1] ^ sendData[2] ^ sendData[3] ^ sendData[4]);
+			  Serial1.write(sendData, 7);
+			  Vd = 0x0;
+		}
+		else if (rT == 'k')
+		{                                                              //test by BT
+			  StartFlag = 1;
+			  Encoderpos = 0;
+			  EncoderposPre = 0;
+			  vol_target = 0;
+			  //sum_error = 0;
+			  Vq = 0;
+			  Vd = 0xAAAA;
+			  Serial.println("BLDC Disable");
+			  sendData[1] = highByte(Vq);
+			  sendData[2] = lowByte(Vq);
+			  sendData[3] = highByte(Vd);
+			  sendData[4] = lowByte(Vd);
+			  sendData[5] = (0x55 ^ sendData[1] ^ sendData[2] ^ sendData[3] ^ sendData[4]);
+			  Serial1.write(sendData, 7);
+			  Vd = 0x0;
+		}
+		else if (rT == '{')
+		{
+			  byte commandArray[3];
+			  Serial3.readBytes(commandArray, 3);
+			  byte rH = commandArray[0];
+			  byte rL = commandArray[1];
+			  char rP = commandArray[2];
 
-    else if (rT == 'k') {                                                              //test by BT
-      StartFlag = 1;
-      Encoderpos = 0;
-      EncoderposPre = 0;
-      vol_target = 0;
-      //sum_error = 0;
-      vq = 0;
-      vd = 0xAAAA;
-      Serial.println("BLDC Disable");
-      sendData[1] = highByte(vq);
-      sendData[2] = lowByte(vq);
-      sendData[3] = highByte(vd);
-      sendData[4] = lowByte(vd);
-      sendData[5] = (0x55 ^ sendData[1] ^ sendData[2] ^ sendData[3] ^ sendData[4]);
-      Serial1.write(sendData, 7);
-      vd = 0x0;
-    }
+			  if (rP == '}')
+			  {
+					target_receive = (rH << 8) + rL;
+					vol_target = double (target_receive * double(Vq_MAX)/double(32767));          //convert received 16 bit integer to actual voltage => Vq_MAX/32767
+					if(WHEEL_SELECT==0) //left wheel
+					vol_target = -vol_target;
+			  }
+		}
 
-    else if (rT == '{') {
-      byte commandArray[3];
-      Serial3.readBytes(commandArray, 3);
-      byte rH = commandArray[0];
-      byte rL = commandArray[1];
-      char rP = commandArray[2];
-
-      if (rP == '}') {
-        target_receive = (rH << 8) + rL;
-        vol_target = double (target_receive * double(VQ_MAX)/double(32767));          //convert received 16 bit integer to actual voltage => VQ_MAX/32767
-        if(WHEEL_SELECT==0) //left wheel
-        	vol_target = -vol_target;
-      }
-    }
-
-  }    //end of if (Serial3.available())
+	}    //end of if (Serial3.available())
 }
 
-
-void sendFeedback_wheel_angularVel() {
+void sendFeedback_wheel_angularVel()
+{
   //limit 1 rev/sec
   if(WHEEL_SELECT==0) //left wheel
-    actual_send = int(-1 * omega_actual /(double(12.566)/double(32767)));           //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
+    actual_send = int(-1 * omega_actual / MAX_AngularSpeed /double(32767));           //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
   else if(WHEEL_SELECT==1) //right wheel
-    actual_send = int(omega_actual / (double(12.566)/double(32767)));           //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
+    actual_send = int(omega_actual / MAX_AngularSpeed /double(32767));           //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
 
   char sT = '{';                                                                  //send start byte
   byte sH = highByte(actual_send);                                                //send high byte
@@ -226,18 +195,6 @@ void sendFeedback_wheel_angularVel() {
 
 void getMotorData() {
   EncodeDiff = Encoderpos - EncoderposPre;
-
-//  //for 100ms limitatiopn in 6.28 rads/sec
-//  if (EncodeDiff >= 9)
-//    EncodeDiff = 9;
-//  if (EncodeDiff <= -9)
-//    EncodeDiff = -9;
-/*
-  //Kalman
-  Kalman = ((EncodeDiff) * (1000 / dT)) * 2 * PI / (CPR);
-  omega_actual = kalman.Update(Kalman);
-*/
-//no Kalman
   omega_actual = ((EncodeDiff) * (1000 / dT)) * 2 * PI / (CPR);
 
   //  Encoderpos=0;//recount
@@ -245,46 +202,29 @@ void getMotorData() {
   Serial.println(String("EncodeDiff=") + " " + String(EncodeDiff));
   Serial.println(String("dT=") + " " + String(dT));
 }
-/*
-//open loop
-double updatePid(double targetValue, double currentValue) {
-//limit 1 rev/sec
-  if(WHEEL_SELECT==0) //left wheel
-    calculated_pidTerm = -(targetValue / 0.024165);                              // 6.283 / 260 =0.0241653846153846
-  else if(WHEEL_SELECT==1) //right wheel
-    calculated_pidTerm = targetValue / 0.024165;                              // 6.283 / 260 =0.0241653846153846
 
-  constrained_pidterm = constrain(calculated_pidTerm, -260, 260);
+void sendCmd()
+{
+	  if (Vq >= Vq_MAX) 	    Vq = Vq_MAX;
+	  else if (Vq <= Vq_MIN)    Vq = Vq_MIN;
 
-  Serial.println(String("constrained_pidterm=") + " " + String(constrained_pidterm));
+	  if ((abs(Vq) <= VD_ENABLE_LIMITE) && (Vq != 0))
+	  {
+		Vd = VD_ENABLE_VALUE;                                                         // The Vd always be postive value, even Vq is a negative value
+		digitalWrite(51, HIGH);                                                       // turn the LED on (HIGH is the voltage level)
+	  }
+	  else
+	  {
+		Vd = 0;
+		digitalWrite(51, LOW);                                                        // turn the LED off by making the voltage LOW
+	  }
+	  sendData[1] = highByte(Vq);
+	  sendData[2] = lowByte(Vq);
+	  sendData[3] = highByte(Vd);
+	  sendData[4] = lowByte(Vd);
+	  sendData[5] = (0x55 ^ sendData[1] ^ sendData[2] ^ sendData[3] ^ sendData[4]);
 
-  return constrained_pidterm;
-}
-*/
-
-void sendCmd() {
-  if (vq >= VQ_MAX)
-    vq = VQ_MAX;
-  else if (vq <= VQ_MIN)
-    vq = VQ_MIN;
-
-  if ((abs(vq) <= VD_ENABLE_LIMITE) && (vq != 0))
-  {
-    vd = VD_ENABLE_VALUE;                                                         // The Vd always be postive value, even vq is a negative value
-    digitalWrite(51, HIGH);                                                       // turn the LED on (HIGH is the voltage level)
-  }
-  else
-  {
-    vd = 0;
-    digitalWrite(51, LOW);                                                        // turn the LED off by making the voltage LOW
-  }
-  sendData[1] = highByte(vq);
-  sendData[2] = lowByte(vq);
-  sendData[3] = highByte(vd);
-  sendData[4] = lowByte(vd);
-  sendData[5] = (0x55 ^ sendData[1] ^ sendData[2] ^ sendData[3] ^ sendData[4]);
-
-  Serial1.write(sendData, 7);
+	  Serial1.write(sendData, 7);
 }
 
 
@@ -388,25 +328,31 @@ void setup() {
 }
 
 
-void loop() {
-  readCmd_wheel_volt();                 //include the initial command
+void loop()
+{
+	readCmd_wheel_volt();                 //include the initial command
 
-  if ((millis() - lastMilli) >= LOOPTIME) {
-    dT = millis() - lastMilli;
-    lastMilli = millis();
+	if ((millis() - lastMilli) >= LOOPTIME)
+	{
+		dT = millis() - lastMilli;
+		lastMilli = millis();
 
-    getMotorData();
-    sendFeedback_wheel_angularVel();    //send actually speed to mega
-    vq = vol_target ;
+		getMotorData();
+		sendFeedback_wheel_angularVel();    //send actually speed to mega
 
-    if (vol_target == 0) {
-      vq = 0;
-      //sum_error = 0;
-    }
+		if (vol_target == 0)
+		{
+			Vq = 0;
+			//sum_error = 0;
+		}
+		else
+		{
+			Vq = vol_target;
+		}
 
-    if (vq == 0)
-      Serial.println("Warrning!!!Vq is 0");
+		if (Vq == 0)
+		  Serial.println("Warrning!!!Vq is 0");
 
-    sendCmd();
-  }
+		sendCmd();
+	}
 }
