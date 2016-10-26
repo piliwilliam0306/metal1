@@ -41,10 +41,10 @@ double vel_controller(double targetValue, double currentValue)
   error = targetValue - currentValue;
   ROS_INFO_STREAM("vel_error=" << error);
   
-  Kp = 1.0;//0.15;
+  Kp = 0.0;
   Ki = 0.0;
   sum_error = sum_error + error * dT;
-  //sum_error = constrain(sum_error, -2000, 2000);
+
   if (sum_error >= 2000)        sum_error = 2000;
   else if (sum_error<= -2000)   sum_error = -2000;
   
@@ -53,7 +53,7 @@ double vel_controller(double targetValue, double currentValue)
 
   calculated_pidTerm = pidTerm;
   ROS_INFO_STREAM("vel_pidTerm=" << pidTerm);
-  //constrained_pidterm = constrain(calculated_pidTerm, -260, 260);
+  
   if (calculated_pidTerm >= 10)        constrained_pidterm = 10;
   else if (calculated_pidTerm <= -10)  constrained_pidterm = -10;
   else 	                                constrained_pidterm = calculated_pidTerm ;
@@ -74,10 +74,11 @@ double omega_controller(double targetValue, double currentValue)
   
   error = targetValue - currentValue;
   ROS_INFO_STREAM("omega_error=" << error);
-  Kp = 0.0;//0.15;
+  
+  Kp = 1.0;
   Ki = 0.0;
   sum_error = sum_error + error * dT;
-  //sum_error = constrain(sum_error, -2000, 2000);
+  
   if (sum_error >= 2000)  	sum_error = 2000;
   else if (sum_error<= -2000)  	sum_error = -2000;
   
@@ -87,7 +88,7 @@ double omega_controller(double targetValue, double currentValue)
   calculated_pidTerm = pidTerm;
   
   ROS_INFO_STREAM("omega_pidTerm=" << pidTerm);
-  //constrained_pidterm = constrain(calculated_pidTerm, -260, 260);
+  
   if (calculated_pidTerm >= 10)  	constrained_pidterm = 10;
   else if (calculated_pidTerm <= -10) 	constrained_pidterm = -10;
   else  	                        constrained_pidterm = calculated_pidTerm ;
@@ -101,7 +102,8 @@ void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
   geometry_msgs::Twist twist = twist_aux;
   double u_left = 0.0;
   double u_right = 0.0;
-  double FeedForward = 0.0;
+  double volt_FeedForward = 0.7;
+  //double omega_FeedForward = 0.8;
   double FinalValueRatio = 0.555 / 5;
   
   vel_ref = twist_aux.linear.x;
@@ -109,18 +111,29 @@ void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
 
   u_sum = vel_controller(vel_ref, 0) ;
   u_diff = omega_controller(omega_ref, 0) ;
-  
-  if (u_sum <= 1)
-  {
-	  FeedForward = u_sum * FinalValueRatio ;
-	  u_sum  = u_sum + FeedForward;
-  }
-  else;
+
+	//FeedForwardGain = u_sum * FinalValueRatio ;
+// 	if (vel_ref != 0)	u_sum  = u_sum + vel_FeedForward;
+// 	else				u_sum = u_sum;
+// 	
+// 	if (omega_ref !=0)	u_diff = u_diff + omega_FeedForward;
+// 	else				u_diff = u_diff;
 
   u_right = (u_sum + u_diff) / 2 ;
   u_left = (u_sum - u_diff) / 2 ; 
   
-  wheel.speed1 = u_left;
+  if (omega_ref != 0.0)
+  {
+  	if (u_right < 0.0) 	u_right = u_right - volt_FeedForward;
+  	else 			u_right = u_right + volt_FeedForward;
+
+  	if (u_left < 0.0) 	u_left = u_left - volt_FeedForward;
+  	else			u_left = u_left + volt_FeedForward; 
+  }
+  else;				
+
+
+  wheel.speed1 = u_left ;
   wheel.speed2 = u_right;
 
   cmd_wheel_volt_pub.publish(wheel);
