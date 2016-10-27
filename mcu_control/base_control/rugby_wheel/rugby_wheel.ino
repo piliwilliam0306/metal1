@@ -1,7 +1,7 @@
 #define RIGHT_WHEEL 1
 #define LEFT_WHEEL 2
 
-#define WHEEL_TYPE LEFT_WHEEL
+#define WHEEL_TYPE RIGHT_WHEEL
 
 #define encoder0PinA  2
 #define encoder0PinB  3
@@ -53,8 +53,8 @@ int target_receive = 0;
 int analogPin = A0;
 unsigned int current = 0;
 
-float Kp = 0.85;
-float Ki = 0.005;
+float Kp = 1.0;
+float Ki = 0.007;
 float Kd = 0;
 
 double error;
@@ -176,7 +176,7 @@ double updatePid(double targetValue, double currentValue)
 
   sum_error = sum_error + error * dT;
 
-  sum_error = constrain(sum_error, -1500, 1500);
+  sum_error = constrain(sum_error, -2500, 2500);
 
   d_error = (error - last_error) / dT;
   pidTerm = Kp * error + Ki * sum_error + Kd * d_error;

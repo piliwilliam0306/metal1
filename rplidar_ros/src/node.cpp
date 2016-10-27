@@ -162,7 +162,7 @@ int main(int argc, char * argv[]) {
     ros::NodeHandle nh;
     ros::Publisher scan_pub = nh.advertise<sensor_msgs::LaserScan>("scan", 1000);
     ros::NodeHandle nh_private("~");
-    nh_private.param<std::string>("serial_port", serial_port, "/dev/ttyUSB0"); 
+    nh_private.param<std::string>("serial_port", serial_port, "/dev/rplidar"); 
     nh_private.param<int>("serial_baudrate", serial_baudrate, 115200); 
     nh_private.param<std::string>("frame_id", frame_id, "laser_frame");
     nh_private.param<bool>("inverted", inverted, "false");
