@@ -29,7 +29,7 @@ double omega_fb_left = 0.0;
 double vel_controller(double targetValue, double currentValue) 
 {
   static double last_error = 0;
-  long dT = 0;
+  long dT = 1/rate;
   float Kp;
   float Ki;
   double error;
@@ -41,29 +41,28 @@ double vel_controller(double targetValue, double currentValue)
   error = targetValue - currentValue;
   ROS_INFO_STREAM("vel_error=" << error);
   
-  Kp = 0.0;
-  Ki = 0.0;
+  Kp = 1.0;
+  Ki = 5.9965;
   sum_error = sum_error + error * dT;
 
-  if (sum_error >= 2000)        sum_error = 2000;
-  else if (sum_error<= -2000)   sum_error = -2000;
+  if (sum_error >= 24)        sum_error = 24;
+  else if (sum_error<= -2000)   sum_error = -20;
   
-  //  Serial.println(String("sum_error is =")+" "+String(sum_error));
   pidTerm = Kp * error + Ki * sum_error;
 
   calculated_pidTerm = pidTerm;
-  ROS_INFO_STREAM("vel_pidTerm=" << pidTerm);
+  ROS_INFO_STREAM("dT=" << (1/rate));
   
-  if (calculated_pidTerm >= 10)        constrained_pidterm = 10;
-  else if (calculated_pidTerm <= -10)  constrained_pidterm = -10;
-  else 	                                constrained_pidterm = calculated_pidTerm ;
+  if (calculated_pidTerm >= 24)        constrained_pidterm = 24;
+  else if (calculated_pidTerm <= -24)  constrained_pidterm = -24;
+  else 	                               constrained_pidterm = calculated_pidTerm ;
   
   return constrained_pidterm;
 }
 double omega_controller(double targetValue, double currentValue) 
 {
   static double last_error = 0;
-  long dT = 0;
+  long dT = 1/rate;
   float Kp;
   float Ki;
   double error;
@@ -75,23 +74,22 @@ double omega_controller(double targetValue, double currentValue)
   error = targetValue - currentValue;
   ROS_INFO_STREAM("omega_error=" << error);
   
-  Kp = 1.0;
+  Kp = 0.0;
   Ki = 0.0;
   sum_error = sum_error + error * dT;
   
   if (sum_error >= 2000)  	sum_error = 2000;
   else if (sum_error<= -2000)  	sum_error = -2000;
   
-  //  Serial.println(String("sum_error is =")+" "+String(sum_error));
   pidTerm = Kp * error + Ki * sum_error;
 
   calculated_pidTerm = pidTerm;
   
-  ROS_INFO_STREAM("omega_pidTerm=" << pidTerm);
+  ROS_INFO_STREAM("dT=" << dT);
   
-  if (calculated_pidTerm >= 10)  	constrained_pidterm = 10;
+  if (calculated_pidTerm >= 10)  		constrained_pidterm = 10;
   else if (calculated_pidTerm <= -10) 	constrained_pidterm = -10;
-  else  	                        constrained_pidterm = calculated_pidTerm ;
+  else  	                        	constrained_pidterm = calculated_pidTerm ;
   
   return constrained_pidterm;
 }
@@ -102,36 +100,31 @@ void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
   geometry_msgs::Twist twist = twist_aux;
   double u_left = 0.0;
   double u_right = 0.0;
-  double volt_FeedForward = 0.7;
+  double volt_friction_compensation = 0.7;
+  double vel_FeedForward = 0.8;
   //double omega_FeedForward = 0.8;
   double FinalValueRatio = 0.555 / 5;
   
   vel_ref = twist_aux.linear.x;
   omega_ref = twist_aux.angular.z;
 
-  u_sum = vel_controller(vel_ref, 0) ;
-  u_diff = omega_controller(omega_ref, 0) ;
-
-	//FeedForwardGain = u_sum * FinalValueRatio ;
-// 	if (vel_ref != 0)	u_sum  = u_sum + vel_FeedForward;
-// 	else				u_sum = u_sum;
-// 	
-// 	if (omega_ref !=0)	u_diff = u_diff + omega_FeedForward;
-// 	else				u_diff = u_diff;
+  u_sum = vel_controller(vel_ref, vel_fb) ;
+  u_diff = omega_controller(omega_ref, omega_fb) ;
 
   u_right = (u_sum + u_diff) / 2 ;
   u_left = (u_sum - u_diff) / 2 ; 
   
-  if (omega_ref != 0.0)
+  // friction compensation
+  
+  if (vel_ref != 0.0 || omega_ref != 0.0)
   {
-  	if (u_right < 0.0) 	u_right = u_right - volt_FeedForward;
-  	else 			u_right = u_right + volt_FeedForward;
+  	if (u_right < 0.0)	u_right = u_right - volt_friction_compensation;
+  	else 				u_right = u_right + volt_friction_compensation;
 
-  	if (u_left < 0.0) 	u_left = u_left - volt_FeedForward;
-  	else			u_left = u_left + volt_FeedForward; 
+  	if (u_left < 0.0) 	u_left = u_left - volt_friction_compensation;
+  	else				u_left = u_left + volt_friction_compensation; 
   }
   else;				
-
 
   wheel.speed1 = u_left ;
   wheel.speed2 = u_right;
