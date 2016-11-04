@@ -41,20 +41,21 @@ double vel_controller(double targetValue, double currentValue)
   error = targetValue - currentValue;
   ROS_INFO_STREAM("vel_error=" << error);
   
-  Kp = 1.0;
-  Ki = 5.9965;
-  sum_error = sum_error + error * dT;
+  Kp = 14.9624;
+  Ki = 21.3962;
+  sum_error = sum_error + error * (1/rate);
 
-  if (sum_error >= 24)        sum_error = 24;
-  else if (sum_error<= -2000)   sum_error = -20;
+  if (sum_error >= 18)        sum_error = 18;
+  else if (sum_error<= -18)   sum_error = -18;
   
   pidTerm = Kp * error + Ki * sum_error;
 
   calculated_pidTerm = pidTerm;
-  ROS_INFO_STREAM("dT=" << (1/rate));
+  ROS_INFO_STREAM("vel_pidTerm=" << pidTerm);
   
-  if (calculated_pidTerm >= 24)        constrained_pidterm = 24;
-  else if (calculated_pidTerm <= -24)  constrained_pidterm = -24;
+  //saturation protection
+  if (calculated_pidTerm >= 20)        constrained_pidterm = 20;
+  else if (calculated_pidTerm <= -20)  constrained_pidterm = -20;
   else 	                               constrained_pidterm = calculated_pidTerm ;
   
   return constrained_pidterm;
@@ -74,21 +75,21 @@ double omega_controller(double targetValue, double currentValue)
   error = targetValue - currentValue;
   ROS_INFO_STREAM("omega_error=" << error);
   
-  Kp = 0.0;
-  Ki = 0.0;
-  sum_error = sum_error + error * dT;
-  
-  if (sum_error >= 2000)  	sum_error = 2000;
-  else if (sum_error<= -2000)  	sum_error = -2000;
+  Kp = 4.4157;
+  Ki = 5.8287;
+  sum_error = sum_error + error * (1/rate);
+  ROS_INFO_STREAM("omega_sum_error=" << sum_error);
+  if (sum_error >= 200)  		sum_error = 200;
+  else if (sum_error<= -200)  	sum_error = -200;
   
   pidTerm = Kp * error + Ki * sum_error;
 
   calculated_pidTerm = pidTerm;
   
-  ROS_INFO_STREAM("dT=" << dT);
+  ROS_INFO_STREAM("omega_pidTerm=" << pidTerm);
   
-  if (calculated_pidTerm >= 10)  		constrained_pidterm = 10;
-  else if (calculated_pidTerm <= -10) 	constrained_pidterm = -10;
+  if (calculated_pidTerm >= 20)  		constrained_pidterm = 20;
+  else if (calculated_pidTerm <= -20) 	constrained_pidterm = -20;
   else  	                        	constrained_pidterm = calculated_pidTerm ;
   
   return constrained_pidterm;
@@ -102,20 +103,18 @@ void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
   double u_right = 0.0;
   double volt_friction_compensation = 0.7;
   double vel_FeedForward = 0.8;
-  //double omega_FeedForward = 0.8;
-  double FinalValueRatio = 0.555 / 5;
+  double omega_FeedForward = 4.9887/3.2393; //from model
   
   vel_ref = twist_aux.linear.x;
   omega_ref = twist_aux.angular.z;
 
-  u_sum = vel_controller(vel_ref, vel_fb) ;
-  u_diff = omega_controller(omega_ref, omega_fb) ;
+  u_sum = vel_controller(0, 0) ;
+  u_diff = omega_controller(omega_ref, omega_fb) + omega_ref * omega_FeedForward ;
 
   u_right = (u_sum + u_diff) / 2 ;
   u_left = (u_sum - u_diff) / 2 ; 
   
   // friction compensation
-  
   if (vel_ref != 0.0 || omega_ref != 0.0)
   {
   	if (u_right < 0.0)	u_right = u_right - volt_friction_compensation;
