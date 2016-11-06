@@ -25,74 +25,79 @@ double u_diff = 0.0;
 double omega_fb_right = 0.0;
 double omega_fb_left = 0.0;
 
-//close loop
+// varibles for controllers
+double vel_sum_error = 0.0;
+double omega_sum_error = 0.0;
+
+// saturation limit
+const double Umax_volt = 12;
+const double Umin_volt = -12;
+
+//close loop: velocity loop controller
 double vel_controller(double targetValue, double currentValue) 
 {
-  static double last_error = 0;
-  long dT = 1/rate;
+  //static double last_error = 0;
+  //long dT = 1/rate;
   float Kp;
   float Ki;
   double error;
   double pidTerm ;
-  double sum_error ;
-  double calculated_pidTerm;
-  double constrained_pidterm;
+  //double sum_error ;
+  double constrained_pidTerm;
   
   error = targetValue - currentValue;
-  ROS_INFO_STREAM("vel_error=" << error);
   
+  // PI control
   Kp = 14.9624;
   Ki = 21.3962;
-  sum_error = sum_error + error * (1/rate);
+  vel_sum_error = vel_sum_error + error * (1/rate);
 
-  if (sum_error >= 18)        sum_error = 18;
-  else if (sum_error<= -18)   sum_error = -18;
+  if (vel_sum_error >= 10)        vel_sum_error = 10;
+  else if (vel_sum_error<= -10)   vel_sum_error = -10;
   
-  pidTerm = Kp * error + Ki * sum_error;
+  pidTerm = Kp * error + Ki * vel_sum_error;
 
-  calculated_pidTerm = pidTerm;
-  ROS_INFO_STREAM("vel_pidTerm=" << pidTerm);
+  ROS_INFO("In vel_loop, we get error:[%], sum_error:[%] and pidTerm:[%]", error, sum_error,pidTerm);
   
   //saturation protection
-  if (calculated_pidTerm >= 20)        constrained_pidterm = 20;
-  else if (calculated_pidTerm <= -20)  constrained_pidterm = -20;
-  else 	                               constrained_pidterm = calculated_pidTerm ;
+  if (pidTerm >= 10)        constrained_pidTerm = 10;
+  else if (pidTerm <= -10)  constrained_pidTerm = -10;
+  else 	                               constrained_pidTerm = pidTerm ;
   
-  return constrained_pidterm;
+  return constrained_pidTerm;
 }
 double omega_controller(double targetValue, double currentValue) 
 {
-  static double last_error = 0;
-  long dT = 1/rate;
+  //static double last_error = 0;
+  //long dT = 1/rate;
   float Kp;
   float Ki;
   double error;
   double pidTerm;
-  double sum_error;
-  double calculated_pidTerm;
-  double constrained_pidterm;
+  //double sum_error;
+  double constrained_pidTerm;
   
   error = targetValue - currentValue;
   ROS_INFO_STREAM("omega_error=" << error);
   
+  // PI control
   Kp = 4.4157;
   Ki = 5.8287;
-  sum_error = sum_error + error * (1/rate);
-  ROS_INFO_STREAM("omega_sum_error=" << sum_error);
-  if (sum_error >= 200)  		sum_error = 200;
-  else if (sum_error<= -200)  	sum_error = -200;
-  
-  pidTerm = Kp * error + Ki * sum_error;
+  omega_sum_error = omega_sum_error + error * (1/rate);
 
-  calculated_pidTerm = pidTerm;
+  //pidTerm = Kp * error + Ki * omega_sum_error;
+
+  if (omega_sum_error >= 10)  		omega_sum_error = 10;
+  else if (omega_sum_error<= -10)  	omega_sum_error = -10;
   
-  ROS_INFO_STREAM("omega_pidTerm=" << pidTerm);
+  pidTerm = Kp * error + Ki * omega_sum_error;
   
-  if (calculated_pidTerm >= 20)  		constrained_pidterm = 20;
-  else if (calculated_pidTerm <= -20) 	constrained_pidterm = -20;
-  else  	                        	constrained_pidterm = calculated_pidTerm ;
+  ROS_INFO("In omega_loop, we get error:[%], sum_error:[%] and pidTerm:[%]", error, sum_error,pidTerm);
+  if (pidTerm >= 10)  		constrained_pidTerm = 10;
+  else if (pidTerm <= -10) 	constrained_pidTerm = -10;
+  else  	                        	constrained_pidTerm = pidTerm ;
   
-  return constrained_pidterm;
+  return constrained_pidTerm;
 }
 
 void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
@@ -108,8 +113,16 @@ void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
   vel_ref = twist_aux.linear.x;
   omega_ref = twist_aux.angular.z;
 
-  u_sum = vel_controller(0, 0) ;
+  u_sum = vel_controller(0, 0);//vel_ref,vel_fb) + vel_ref * vel_FeedForward;
   u_diff = omega_controller(omega_ref, omega_fb) + omega_ref * omega_FeedForward ;
+  
+  if(u_sum >= Umax_volt) 	u_sum = Umax_volt;
+  else if(u_sum <= Umin_volt)	u_sum = Umin_volt;
+  else;
+
+  if(u_diff >= Umax_volt)	u_diff = Umax_volt;
+  else if(u_diff <= Umin_volt)	u_diff = Umin_volt;
+  else;
 
   u_right = (u_sum + u_diff) / 2 ;
   u_left = (u_sum - u_diff) / 2 ; 
@@ -136,7 +149,8 @@ void feedback_wheel_angularVelCallback(const andbot1dot2::WheelFb &wheel)
   geometry_msgs::Twist twist_aux;
   omega_fb_left = wheel.speed1;
   omega_fb_right  = wheel.speed2;
-
+  
+  //mobile robot kinematics transformation: differential drive
   vel_fb = wheelRadius / 2 * (omega_fb_right + omega_fb_left);
   omega_fb = wheelRadius / wheelSeparation * (omega_fb_right - omega_fb_left);
 
