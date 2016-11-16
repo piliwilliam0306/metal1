@@ -207,12 +207,12 @@ void setup() {
 //    mpu.setZAccelOffset(877); // 1688 factory default for my test chip
 
     // supply your own gyro offsets here, scaled for min sensitivity, the following is for angelbot 20160726
-        mpu.setXGyroOffset(5);
-        mpu.setYGyroOffset(-35);
-        mpu.setZGyroOffset(22);
-        mpu.setXAccelOffset(3);
-        mpu.setYAccelOffset(-1635);
-        mpu.setZAccelOffset(1652); // 1688 factory default for my test chip
+        mpu.setXGyroOffset(86);
+        mpu.setYGyroOffset(8);
+        mpu.setZGyroOffset(40);
+        mpu.setXAccelOffset(-2669);
+        mpu.setYAccelOffset(-196);
+        mpu.setZAccelOffset(1083); // 1688 factory default for my test chip
 
 
     // make sure it worked (returns 0 if so)
