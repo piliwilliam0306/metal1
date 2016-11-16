@@ -2,31 +2,43 @@
 
 #include "Arduino.h"
 
-DDWheel::DDWheel(int pinA, int pinB, int pinC, int ind)
+DDWheel::DDWheel(SetENCPin* ENC_Pin, SetMotorParam* motor_param, SetCtrlParam* Ctrl_param, SetdqCmdLimit* Limit)
 {
-        Wheel_select = ind;
-        encoderPinA = pinA;
-        encoderPinB = pinB;
-        encoderPinC = pinC;
+	Hall = *ENC_Pin;
+	BLDC_DDWheel = *motor_param;
+	DDWheel_Ctrl = *Ctrl_param;
+	InputLimit = *Limit;
 
-	pinMode(encoderPinA, INPUT);
-	pinMode(encoderPinB, INPUT);
-	pinMode(encoderPinC, INPUT);
+	if (DDWheel_Ctrl.mode == VqVdMode)
+	{
+		InputCmd[0] = Vq;
+		InputCmd[1] = Vd;
+	}
+	else if (DDWheel_Ctrl.mode == VqIdMode)
+	{
+		InputCmd[0] = Vq;
+		InputCmd[1] = Vd;
+	}
+	else if (DDWheel_Ctrl.mode == IdIqMode)
+	{
+		InputCmd[0] = Id;
+		InputCmd[1] = Iq;
+	}
+
+	pinMode(Hall.pinA, INPUT);
+	pinMode(Hall.pinB, INPUT);
+	pinMode(Hall.pinC, INPUT);
 }
 
 void DDWheel::Init()
 {
-        digitalWrite(encoderPinA, HIGH);
-        digitalWrite(encoderPinB, HIGH);
-        digitalWrite(encoderPinC, HIGH);
+	digitalWrite(Hall.pinA, HIGH);
+	digitalWrite(Hall.pinB, HIGH);
+	digitalWrite(Hall.pinC, HIGH);
 
-        pinAStateOld = digitalRead(encodePinA);
-        pinBStateOld = digitalRead(encodePinB);
-        pinCStateOld = digitalRead(encodePinC);
-
-        attachInterrupt(0, doEncoder(), CHANGE);                                          //encoder pin on interrupt 0 - pin 2
-        attachInterrupt(1, doEncoder(), CHANGE);                                          //encoder pin on interrupt 1 - pin 3
-        attachInterrupt(2, doEncoder(), CHANGE);
+	pinAStateOld = digitalRead(Hall.pinA);
+	pinBStateOld = digitalRead(Hall.pinB);
+	pinCStateOld = digitalRead(Hall.pinC);
 }
 void DDWheel::Enable()
 {
@@ -34,16 +46,16 @@ void DDWheel::Enable()
     EncoderposPre = 0;
     //vol_target = 0;
     //sum_error = 0;
-    Vq = 0;
-    Vd = 0xFFFF;
+    InputCmd[0] = 0; //Vq = 0;
+    InputCmd[1] = 0xFFFF; //Vd = 0xFFFF;
     Serial.println("BLDC Enable");
-    sendData[1] = highByte(Vq);
-    sendData[2] = lowByte(Vq);
-    sendData[3] = highByte(Vd);
-    sendData[4] = lowByte(Vd);
+    sendData[1] = highByte(InputCmd[0]);
+    sendData[2] = lowByte(InputCmd[0]);
+    sendData[3] = highByte(InputCmd[1]);
+    sendData[4] = lowByte(InputCmd[1]);
     sendData[5] = (0x55 ^ sendData[1] ^ sendData[2] ^ sendData[3] ^ sendData[4]);
     Serial1.write(sendData, 7);
-    Vd = 0x0;
+    InputCmd[1] = 0x0;
 }
 void DDWheel::Disable()
 {
@@ -51,22 +63,22 @@ void DDWheel::Disable()
     EncoderposPre = 0;
     //vol_target = 0;
     //sum_error = 0;
-    Vq = 0;
-    Vd = 0xAAAA;
+    InputCmd[0] = 0;//Vq = 0;
+    InputCmd[1] = 0xAAAA;//Vd = 0xAAAA;
     Serial.println("BLDC Disable");
-    sendData[1] = highByte(Vq);
-    sendData[2] = lowByte(Vq);
-    sendData[3] = highByte(Vd);
-    sendData[4] = lowByte(Vd);
+    sendData[1] = highByte(InputCmd[0]);
+    sendData[2] = lowByte(InputCmd[0]);
+    sendData[3] = highByte(InputCmd[1]);
+    sendData[4] = lowByte(InputCmd[1]);
     sendData[5] = (0x55 ^ sendData[1] ^ sendData[2] ^ sendData[3] ^ sendData[4]);
     Serial1.write(sendData, 7);
-    Vd = 0x0;
+    InputCmd[1] = 0x0;
 }
 void DDWheel::doEncoder()
 {
-    pinAState = digitalRead(encoderPinA);
-    pinBState = digitalRead(encoderPinB);
-    pinCState = digitalRead(encoderPinC);
+    pinAState = digitalRead(Hall.pinA);
+    pinBState = digitalRead(Hall.pinB);
+    pinCState = digitalRead(Hall.pinC);
 
     if (pinAState == 0 && pinBState == 1 && pinCState == 1) {                       //value:=1
       if (pinAStateOld == 0 && pinBStateOld == 1 && pinCStateOld == 0)              //value:=5 // CW
@@ -140,65 +152,48 @@ void DDWheel::revFromMCU()
 }
 void DDWheel::sendVoltCmd()
 {
-  if (Wheel_select == left)
-  {
-    Vq = -Vq;
-  }
-  else;
+	if (DDWheel_Ctrl.axis == left) 		cmd_volt = -cmd_volt;
+	else;
 
+	Vq = cmd_volt * Vq_formatRatio;
 
+	if (Vq >= InputLimit.MaxVq)         Vq = InputLimit.MaxVq;
+	else if (Vq <= InputLimit.MINVq)    Vq = InputLimit.MINVq;
 
-          if (Vq >= Vq_MAX)            Vq = Vq_MAX;
-          else if (Vq <= Vq_MIN)    Vq = Vq_MIN;
+	//        if ((abs(Vq) <= VD_ENABLE_LIMITE) && (Vq != 0))
+	//        {
+	//              Vd = VD_ENABLE_VALUE;                                                         // The Vd always be postive value, even Vq is a negative value
+	//              digitalWrite(51, HIGH);                                                       // turn the LED on (HIGH is the voltage level)
+	//        }
+	//        else
+	//        {
+	//              Vd = 0;
+	//              digitalWrite(51, LOW);                                                        // turn the LED off by making the voltage LOW
+	//        }
 
-//        if ((abs(Vq) <= VD_ENABLE_LIMITE) && (Vq != 0))
-//        {
-//              Vd = VD_ENABLE_VALUE;                                                         // The Vd always be postive value, even Vq is a negative value
-//              digitalWrite(51, HIGH);                                                       // turn the LED on (HIGH is the voltage level)
-//        }
-//        else
-//        {
-//              Vd = 0;
-//              digitalWrite(51, LOW);                                                        // turn the LED off by making the voltage LOW
-//        }
+	Vd = 0;
+	sendData[1] = highByte(Vq);
+	sendData[2] = lowByte(Vq);
+	sendData[3] = highByte(Vd);
+	sendData[4] = lowByte(Vd);
+	sendData[5] = (0x55 ^ sendData[1] ^ sendData[2] ^ sendData[3] ^ sendData[4]);
 
-          Vd = 0;
-          sendData[1] = highByte(Vq);
-          sendData[2] = lowByte(Vq);
-          sendData[3] = highByte(Vd);
-          sendData[4] = lowByte(Vd);
-          sendData[5] = (0x55 ^ sendData[1] ^ sendData[2] ^ sendData[3] ^ sendData[4]);
-
-          Serial1.write(sendData, 7);
+	if (DDWheel_Ctrl.axis == left)	Serial1.write(sendData, 7);
+	else if (DDWheel_Ctrl.axis == right) Serial2.write(sendData, 7);
 }
-void DDWheel::FbMotorData()
+void DDWheel::FbMotorData(long dT)
 {
     EncodeDiff = Encoderpos - EncoderposPre;
-    fb_omega = ((EncodeDiff) * (1000 / dT)) * 2 * PI / (CPR);
+    fb_omega = ((EncodeDiff) * (1000 / dT)) * 2 * PI / (BLDC_DDWheel.CPR);
 
-    if(Wheel_select == left)
+    if(DDWheel_Ctrl.axis == left)
     {
       fb_omega = -fb_omega;
     }
     else;
-
 
     //  Encoderpos=0;//recount
     EncoderposPre = Encoderpos;
 //    Serial.println(String("EncodeDiff=") + " " + String(EncodeDiff));
 //    Serial.println(String("dT=") + " " + String(dT));
 }
-//void DDWheel::Feedback_wheel_angularVel()
-//{
-//
-//    if(WHEEL_SELECT==0) //left wheel
-//      fb_omega= int(-1 * fb_omega / (MAX_AngularSpeed /double(32767)));           //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
-//    else if(WHEEL_SELECT==1) //right wheel
-//      fb_omega = int(fb_omega / (MAX_AngularSpeed /double(32767)));           //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
-//
-//  //  char sT = '{';                                                                  //send start byte
-//  //  byte sH = highByte(actual_send);                                                //send high byte
-//  //  byte sL = lowByte(actual_send);                                                 //send low byte
-//  //  char sP = '}';                                                                  //send stop byte
-//  //  Serial3.write(sT); Serial3.write(sH); Serial3.write(sL); Serial3.write(sP);
-//}

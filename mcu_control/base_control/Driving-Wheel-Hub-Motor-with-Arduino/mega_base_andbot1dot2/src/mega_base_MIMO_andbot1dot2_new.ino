@@ -33,76 +33,36 @@
 #include <WheelFb.h>
 #include <DriverState.h>
 #include <Metro.h>
-#include <DDWheel.h>
+#include "DDWheel.h"
 
-union Data_Setting {
-  struct _ByteSet {
-    byte L;
-    byte H;
-  } Byte;
-  int Data;
-};
-
-char commandArray_L[3];
-
-// send/receive data through serial
-byte sT_L = 0;  //send start byte
-byte sH_L = 0;  //send high byte
-byte sL_L = 0;  //send low byte
-byte sP_L = 0;  //send stop byte
-
-byte rT_L = 0;  //receive start byte
-byte rH_L = 0;  //receive high byte
-byte rL_L = 0;  //receive low byte
-byte rP_L = 0;  //receive stop byte
-
-char commandArray_R[3];
-byte sT_R = 0;  //send start byte
-byte sH_R = 0;  //send high byte
-byte sL_R = 0;  //send low byte
-byte sP_R = 0;  //send stop byte
-
-byte rT_R = 0;  //receive start byte
-byte rH_R = 0;  //receive high byte
-byte rL_R = 0;  //receive low byte
-byte rP_R = 0;  //receive stop byte
+// robot param
+double wheelRadius = 0.085, wheelSeparation = 0.432;
 
 #define LOOPTIME 40//100
+#define rate 25
 unsigned long lastMilli = 0;
 long dT = 0;
-
-// motor parameters
-int CPR = 90;                                                                     //encoder count per revolution
-int gear_ratio = 1;
-int actual_send = 0;
-const double MAX_AngularSpeed = 47.1238898 ;//  450 / 60 * 2 * PI => DD motor nominal rotation speed: 450 rpm
-
-int target_receive = 0;
 
 #define Volt_MAX 12
 #define Volt_MIN -12
 #define Vq_MAX 1000 //  ~8V
 #define Vq_MIN -1000 // ~-8V
-const double Vq_formatRatio=1499/12; //convert voltage to Vq voltage format ( 12 (max voltage) : 1499 (Vq format max) )
 
-bool driverEn;
+DDWheel::SetdqCmdLimit BLDC_InputLimit = {Volt_MAX,Volt_MIN,Vq_MAX,Vq_MIN};
 
-unsigned long lastMilli = 0;
-long dT = 0;
-int left_actual_receive = 0;
-int left_target_send = 0;
-int right_actual_receive = 0;
-int right_target_send = 0;
+// motor parameters
+int CPR = 90;                                                                     //encoder count per revolution
+int gear_ratio = 1;
+const double MAXAngularSpeed = 47.1238898 ;//  450 / 60 * 2 * PI => DD motor nominal rotation speed: 450 rpm
 
-union Data_Setting MotorData_left[3];
-//byte getData_left[8];
-//byte sendData_left[7] = {123, 0, 0, 0, 0, 0, 125};
-//byte sendDataStop_left[7] = {123, 0, 0, 0, 0, 85, 125};
+#define MotorDefault \
+{\
+	90,\
+	1,\
+	1,\
+}
 
-//int Vq_left = 0, Vd_left = 0, checksum_left = 0;
-
-#define left 0
-#define right 1
+DDWheel::SetMotorParam BLDC_DDWheel = {CPR,gear_ratio,MAXAngularSpeed};//MotorDefault;//CPR,gear_ratio,MAXAngularSpeed};
 
 //encoder pin assignment
 //left wheel
@@ -114,60 +74,38 @@ union Data_Setting MotorData_left[3];
 #define enc_pinB_right 6
 #define enc_pinC_right 7
 
-DDWheel Wheel_left(enc_pinA_left,enc_pinB_left,enc_pinC_left,left);
-DDWheel Wheel_right(enc_pinA_right,enc_pinB_right,enc_pinC_right,right);
+DDWheel::SetENCPin left_enc = {enc_pinA_left,enc_pinB_left,enc_pinC_left};
+DDWheel::SetENCPin right_enc = {enc_pinA_right,enc_pinB_right,enc_pinC_right};
 
-void readCmd_wheel_volt()
-{
-        if (rT == '{')
-        {
-//                  byte commandArray[3];
-//                  Serial3.readBytes(commandArray, 3);
-//                  byte rH = commandArray[0];
-//                  byte rL = commandArray[1];
-//                  char rP = commandArray[2];
+#define Axis_left 0
+#define Axis_right 1
 
-                  if (rP == '}')
-                  {
-                        target_receive = (rH << 8) + rL;
-                        vol_target = double (target_receive * double(Volt_MAX)/double(32767));          //convert received 16 bit integer to actual voltage => Vq_MAX/32767
-                        if(WHEEL_SELECT==0) //left wheel
-                        vol_target = -vol_target;
-                  }
-        }
+//cmd ref
+#define VqVdMode 0
+#define VqIdMode 1
+#define IdIqMode 2
 
-}    //end of if (Serial3.available())
+DDWheel::SetCtrlParam Ctrl_left = {Axis_left, VqVdMode};
+DDWheel::SetCtrlParam Ctrl_right = {Axis_right, VqVdMode};
 
-void sendCmd_wheel_volt_L()
-{
-    if(volt_left_target>Volt_MAX)           volt_left_target=Volt_MAX;
-    else if(volt_left_target<Volt_MIN)      volt_left_target=Volt_MIN;
+DDWheel Wheel_left(&left_enc,&BLDC_DDWheel,&Ctrl_left,&BLDC_InputLimit);
+DDWheel Wheel_right(&right_enc,&BLDC_DDWheel,&Ctrl_right,&BLDC_InputLimit);
 
-    //left_target_send = int(volt_left_target / (double(Volt_MAX)/double(32767)));   //convert received 16 bit integer to actual voltage => Vq_MAX/32767
+bool driverEn;
 
-//    //transmit command to the lower level mega board.
-//    char sT_L = '{'; //send start byte
-//    byte sH_L = highByte(left_target_send);
-//    byte sL_L = lowByte(left_target_send);
-//    char sP_L = '}';
-//    Serial2.write(sT_L); Serial2.write(sH_L); Serial2.write(sL_L); Serial2.write(sP_L);
-}
+// variables for MIMO closed loop control
+double vel_ref=0.0;
+double vel_fb = 0.0;
+double omega_ref = 0.0;
+double omega_fb = 0.0;
+double u_sum = 0.0;
+double u_diff = 0.0;
+double omega_fb_right = 0.0;
+double omega_fb_left = 0.0;
 
-
-void sendCmd_wheel_volt_R()
-{
-    if(volt_right_target>Volt_MAX)          volt_right_target=Volt_MAX;
-    else if(volt_right_target<Volt_MIN)     volt_right_target=Volt_MIN;
-
-    right_target_send = int(volt_right_target / (double(Volt_MAX)/double(32767)));   //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
-
-//    //transmit command to the lower level mega board.
-//    char sT_R = '{';
-//    byte sH_R = highByte(right_target_send);
-//    byte sL_R = lowByte(right_target_send);
-//    char sP_R = '}';
-//    Serial1.write(sT_R); Serial1.write(sH_R); Serial1.write(sL_R); Serial1.write(sP_R);
-}
+// varibles for controllers
+double sum_error_vel = 0.0;
+double sum_error_omega = 0.0;
 
 void DriverState_service_callback(const andbot1dot2::DriverStateRequest& req, andbot1dot2::DriverStateResponse& res)
 {
@@ -193,83 +131,69 @@ void DriverState_service_callback(const andbot1dot2::DriverStateRequest& req, an
     Serial.print("Server says");
     Serial.print(res.driverstate,DEC);
 }
-
-void cmd_wheel_voltCb(const andbot1dot2::WheelCmd& msg)
+double vel_controller(double targetValue, double currentValue)
 {
-    volt_left_target = msg.speed1;
-    volt_right_target = msg.speed2;
-    sendCmd_wheel_volt_L();
-    sendCmd_wheel_volt_R();
+  //static double last_error = 0;
+  //long dT = 1/rate;
+  double error;
+  double iTerm;
+  double iTerm_Umax = 6;
+  double iTerm_Umin = -6;
+  double pidTerm ;
+  //double sum_error ;
+  // PI control
+  double Kp = 14.9624;
+  double Ki = 21.3962;
+
+  error = targetValue - currentValue;
+
+  sum_error_vel = sum_error_vel + error * (1/rate);
+  iTerm = Ki * sum_error_vel;
+
+  if (iTerm >= iTerm_Umax)        	iTerm = iTerm_Umax;
+  else if (iTerm<= iTerm_Umin)		iTerm = iTerm_Umin;
+
+  pidTerm = Kp * error + iTerm;
+
+  //ROS_INFO("In vel_loop, we get error:[%f], sum_error:[%f] and pidTerm:[%f]", error, sum_error_vel, pidTerm);
+
+  //saturation protection
+//  if (pidTerm >= 10)        	constrained_pidTerm = 10;
+//  else if (pidTerm <= -10)  	constrained_pidTerm = -10;
+//  else 	                        constrained_pidTerm = pidTerm ;
+
+  return pidTerm;
 }
+double omega_controller(double targetValue, double currentValue)
+{
+  //static double last_error = 0;
+  //long dT = 1/rate;
+  double error;
+  double iTerm;
+  double iTerm_Umax = 6;
+  double iTerm_Umin = -6;
+  double pidTerm;
+  //double sum_error;
+  double Kp = 4.4157;
+  double Ki = 5.8287;
 
-//void readFeadback_angularVel_L()
-//{
-//    if (Serial2.available() >= 4)
-//    {
-//        char rT_L = (char)Serial2.read();
-//        if (rT_L == '{')
-//        {
-//            char commandArray_L[3];
-//            Serial2.readBytes(commandArray_L,3);
-//            byte rH_L = commandArray_L[0];
-//            byte rL_L = commandArray_L[1];
-//            char rP_L = commandArray_L[2];
-//            if (rP_L == '}')
-//            {
-//                left_actual_receive =(rH_L << 8) + rL_L;
-//                omega_left_actual = double (left_actual_receive * (MAX_AngularSpeed/double(32767)));   //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
-//            }
-//        }
-//    }
-//}
+  error = targetValue - currentValue;
 
-//void readFeadback_angularVel_R()
-//{
-//    if (Serial1.available() >= 4)
-//    {
-//        char rT_R = (char)Serial1.read();
-//        if (rT_R == '{')
-//        {
-//            char commandArray_R[3];
-//            Serial1.readBytes(commandArray_R, 3);
-//            byte rH_R = commandArray_R[0];
-//            byte rL_R = commandArray_R[1];
-//            char rP_R = commandArray_R[2];
-//            if (rP_R == '}')
-//            {
-//                right_actual_receive = (rH_R << 8) + rL_R;
-//                omega_right_actual = double (right_actual_receive * (MAX_AngularSpeed/double(32767)));   //convert received 16 bit integer to actual speed 6.283/32767=1.917477950376904e-4=0.0001917477950376904
-//            }
-//        }
-//    }
-//}
+  sum_error_omega = sum_error_omega + error * (1/rate);
+  iTerm = Ki * sum_error_omega;
 
-ros::NodeHandle nh;
+  if (iTerm >= iTerm_Umax)        	iTerm = iTerm_Umax;
+  else if (iTerm<= iTerm_Umin)		iTerm = iTerm_Umin;
 
-andbot1dot2::WheelFb vel_msg;
-ros::Publisher p("feedback_wheel_angularVel", &vel_msg);
-ros::Subscriber<andbot1dot2::WheelCmd> s("cmd_wheel_volt", cmd_wheel_voltCb);
-ros::ServiceServer<andbot1dot2::DriverStateRequest, andbot1dot2::DriverStateResponse> service("DriverState_service", &DriverState_service_callback);
-cmd_vel_sub = n1.subscribe("/andbot1dot2/cmd_vel", 10, cmd_velCallback);
+  pidTerm = Kp * error + iTerm;
 
-void setup(){
+  //ROS_INFO("In omega_loop, we get error:[%f], sum_error:[%f] and pidTerm:[%f]", error, sum_error_omega, pidTerm);
+//  if (pidTerm >= 10)  		constrained_pidTerm = 10;
+//  else if (pidTerm <= -10) 	constrained_pidTerm = -10;
+//  else  	                constrained_pidTerm = pidTerm ;
 
-    nh.getHardware()->setBaud(115200);
-    nh.initNode();
-    nh.subscribe(s);
-    nh.advertise(p);
-    nh.advertiseService(service);
-
-    Serial1.begin(115200);
-    Serial2.begin(115200);
-    Serial3.begin(115200);
-
-    pinMode(51, OUTPUT);                                                           //for VD_ENABLE_VALUE check
-
-    Wheel_left.Init(); //left wheel
-    Wheel_right.Init();//right wheel
+  return pidTerm;
 }
-
 // MIMO control loop
 void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
 {
@@ -281,8 +205,8 @@ void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
   double FeedForward_vel = 6.313/1.054; // from model
   double FeedForward_omega = 4.9887/3.2393; //from model
 
-  vel_ref = twist_aux.linear.x;
-  omega_ref = twist_aux.angular.z;
+  vel_ref = twist.linear.x;
+  omega_ref = twist.angular.z;
 
   u_sum = vel_controller(vel_ref,vel_fb) + vel_ref * FeedForward_vel;
   u_diff = omega_controller(omega_ref, omega_fb) + omega_ref * FeedForward_omega ;
@@ -311,15 +235,17 @@ void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
 
   wheel.speed1 = u_left ;
   wheel.speed2 = u_right;
+  //cmd_wheel_volt_pub.publish(wheel);
 
-  cmd_wheel_volt_pub.publish(wheel);
+  Wheel_left.cmd_volt = u_left;
+  Wheel_right.cmd_volt = u_right;
 }
 
-void feedback_wheel_angularVelCallback(const andbot1dot2::WheelFb &wheel)
+void feedback_wheel_angularVelCal(const andbot1dot2::WheelFb &wheel)
 {
   geometry_msgs::Twist twist_aux;
   omega_fb_left = wheel.speed1;
-  omega_fb_right  = wheel.speed2;
+  omega_fb_right = wheel.speed2;
 
   //mobile robot kinematics transformation: differential drive
   vel_fb = wheelRadius / 2 * (omega_fb_right + omega_fb_left);
@@ -327,41 +253,82 @@ void feedback_wheel_angularVelCallback(const andbot1dot2::WheelFb &wheel)
 
   twist_aux.linear.x = vel_fb;
   twist_aux.angular.z = omega_fb;
-  feedback_Vel_pub.publish(twist_aux);
+  //feedback_Vel_pub.publish(twist_aux);
+}
+
+/* ************  declarations for ROS usages *****************************************/
+
+/*  define  ROS node and topics */
+ros::NodeHandle nh;
+
+andbot1dot2::WheelFb velFb_msg;
+andbot1dot2::WheelCmd velCmd_msg;
+ros::Publisher feedback_wheel_angularVel_pub("feedback_wheel_angularVel",&velFb_msg);
+ros::Publisher cmd_wheel_volt_pub("cmd_wheel_volt", &velCmd_msg);
+ros::Subscriber<geometry_msgs::Twist> cmd_vel_sub("/andbot1dot2/cmd_vel", cmd_velCallback);
+ros::ServiceServer<andbot1dot2::DriverStateRequest, andbot1dot2::DriverStateResponse> service("DriverState_service", &DriverState_service_callback);
+
+/* ************  End of declarations for ROS usages ****************/
+
+void setup(){
+
+    nh.getHardware()->setBaud(115200);
+    nh.initNode();
+    nh.advertise(cmd_wheel_volt_pub);
+    nh.advertise(feedback_wheel_angularVel_pub);
+    nh.subscribe(cmd_vel_sub);
+    nh.advertiseService(service);
+
+    Serial1.begin(115200);
+    Serial2.begin(115200);
+    Serial3.begin(115200);
+
+    pinMode(51, OUTPUT);                                                           //for VD_ENABLE_VALUE check
+
+    Wheel_left.Init(); //left wheel
+    Wheel_right.Init();//right wheel
+
+	attachInterrupt(0, ISR_left, CHANGE);                                          //encoder pin on interrupt 0 - pin 2
+	attachInterrupt(1, ISR_left, CHANGE);                                          //encoder pin on interrupt 1 - pin 3
+	attachInterrupt(2, ISR_left, CHANGE);
+	attachInterrupt(3, ISR_right, CHANGE);                                          //encoder pin on interrupt 0 - pin 2
+	attachInterrupt(4, ISR_right, CHANGE);                                          //encoder pin on interrupt 1 - pin 3
+	attachInterrupt(5, ISR_right, CHANGE);
 }
 
 void loop()
 {
-    readFeadback_angularVel_L();
-    readFeadback_angularVel_R();
 
     if ((millis() - lastMilli) >= LOOPTIME)
     {
         dT = millis() - lastMilli;
         lastMilli = millis();
 
-        Wheel_left.FbMotorData();
-        Wheel_right.FbMotorData();
+        Wheel_left.FbMotorData(dT);
+        Wheel_right.FbMotorData(dT);
 
+        velFb_msg.speed1 = Wheel_left.fb_omega;
+        velFb_msg.speed2 = Wheel_right.fb_omega;
 
-        if (vol_target == 0)
-        {
-                Vq = 0;
-                //sum_error = 0;
-        }
-        else
-        {
-                Vq = vol_target * Vq_formatRatio;
-        }
+        feedback_wheel_angularVelCal(velFb_msg);
 
         Wheel_left.sendVoltCmd();
         Wheel_right.sendVoltCmd();
 
-        vel_msg.speed1 = fb_omega_left;
-        vel_msg.speed2 = fb_omega_right;
-        vel_msg.current1 = 0.0;
-        vel_msg.current2 = 0.0;
-        p.publish(&vel_msg);
+//        vel_msg.speed1 = fb_omega_left;
+//        vel_msg.speed2 = fb_omega_right;
+//        vel_msg.current1 = 0.0;
+//        vel_msg.current2 = 0.0;
+//        feedback_wheel_angularVel_pub.publish(&vel_msg);
     }
     nh.spinOnce();
+}
+
+void ISR_left()
+{
+	Wheel_left.doEncoder();
+}
+void ISR_right()
+{
+	Wheel_right.doEncoder();
 }
