@@ -60,7 +60,7 @@ class BLDCMotor {
 		}CmdRef;
 
 		struct FbMotorInfo{
-			double FbAngularSpeed = 0.0;
+			double AngularVel = 0.0;
 		}FbMotorInfo;
 
 		typedef struct{
@@ -82,11 +82,11 @@ class BLDCMotor {
 		void doEncoder();
 		void revFromMCU();
 		void SendCmd();
-		void FbMotorData(long dT);
+		void GetMotorData(long dT);
 		void Enable();
 		void Disable();
 		void dqInputSelect(int dCmd, int qCmd);
-		void DriverSerialSend();
+		void SerialSend2Driver(byte* sendData, int axis);
 
 		BLDCMotor(SetENCPin* ENC_Pin, SetMotorParam* motor_param, SetCtrlParam* Ctrl_param,SetdqCmdLimit* Limit);
 	private:
