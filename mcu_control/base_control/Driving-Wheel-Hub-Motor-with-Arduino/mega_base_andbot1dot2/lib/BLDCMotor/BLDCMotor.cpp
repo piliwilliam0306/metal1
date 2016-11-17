@@ -1,36 +1,55 @@
-#include "DDWheel.h"
+/*
+ * =====================================================================================
+ *
+ *       Filename:  BLDCMotor.cpp
+ *
+ *    Description:  This is a BLDC control library for differential drive mobile.
+ *
+ *        Version:  1.0
+ *        Created:
+ *       Revision:  none
+ *       Compiler:  gcc
+ *
+ *         Author:  Weber-Hsu
+ *   Organization:  Advanced Robotics Corporation
+ *
+ * =====================================================================================
+ */
+#include "BLDCMotor.h"
 
 #include "Arduino.h"
 
-DDWheel::DDWheel(SetENCPin* ENC_Pin, SetMotorParam* motor_param, SetCtrlParam* Ctrl_param, SetdqCmdLimit* Limit)
+BLDCMotor::BLDCMotor(SetENCPin* ENC_Pin, SetMotorParam* motor_param, SetCtrlParam* Ctrl_param, SetdqCmdLimit* Limit)
 {
 	Hall = *ENC_Pin;
-	BLDC_DDWheel = *motor_param;
-	DDWheel_Ctrl = *Ctrl_param;
+	BLDCParam = *motor_param;
+	BLDCCtrl = *Ctrl_param;
 	InputLimit = *Limit;
-
-	if (DDWheel_Ctrl.mode == VqVdMode)
-	{
-		InputCmd[0] = Vq;
-		InputCmd[1] = Vd;
-	}
-	else if (DDWheel_Ctrl.mode == VqIdMode)
-	{
-		InputCmd[0] = Vq;
-		InputCmd[1] = Vd;
-	}
-	else if (DDWheel_Ctrl.mode == IdIqMode)
-	{
-		InputCmd[0] = Id;
-		InputCmd[1] = Iq;
-	}
 
 	pinMode(Hall.pinA, INPUT);
 	pinMode(Hall.pinB, INPUT);
 	pinMode(Hall.pinC, INPUT);
 }
 
-void DDWheel::Init()
+void BLDCMotor::dqInputSelect(int qCmd, int dCmd)
+{
+	if (BLDCCtrl.mode == VqVdMode)
+	{
+		dqCmd.InputCmd[0] = qCmd;//dqCmd.Vq;
+		dqCmd.InputCmd[1] = dCmd;//dqCmd.Vd;
+	}
+	else if (BLDCCtrl.mode == VqIdMode)
+	{
+		dqCmd.InputCmd[0] = qCmd;//dqCmd.Vq;
+		dqCmd.InputCmd[1] = dCmd;//dqCmd.Vd;
+	}
+	else if (BLDCCtrl.mode == IqIdMode)
+	{
+		dqCmd.InputCmd[0] = qCmd;//dqCmd.Iq;
+		dqCmd.InputCmd[1] = dCmd;;//dqCmd.Id;
+	}
+}
+void BLDCMotor::Init()
 {
 	digitalWrite(Hall.pinA, HIGH);
 	digitalWrite(Hall.pinB, HIGH);
@@ -40,41 +59,41 @@ void DDWheel::Init()
 	pinBStateOld = digitalRead(Hall.pinB);
 	pinCStateOld = digitalRead(Hall.pinC);
 }
-void DDWheel::Enable()
+void BLDCMotor::Enable()
 {
     Encoderpos = 0;
     EncoderposPre = 0;
-    //vol_target = 0;
-    //sum_error = 0;
-    InputCmd[0] = 0; //Vq = 0;
-    InputCmd[1] = 0xFFFF; //Vd = 0xFFFF;
+    dqInputSelect(0,0xFFFF); //Input q then d;
+    //dqCmd.InputCmd[0] = 0; //Vq = 0;
+    //dqCmd.InputCmd[1] = 0xFFFF; //Vd = 0xFFFF;
     Serial.println("BLDC Enable");
-    sendData[1] = highByte(InputCmd[0]);
-    sendData[2] = lowByte(InputCmd[0]);
-    sendData[3] = highByte(InputCmd[1]);
-    sendData[4] = lowByte(InputCmd[1]);
+    sendData[1] = highByte(dqCmd.InputCmd[0]);
+    sendData[2] = lowByte(dqCmd.InputCmd[0]);
+    sendData[3] = highByte(dqCmd.InputCmd[1]);
+    sendData[4] = lowByte(dqCmd.InputCmd[1]);
     sendData[5] = (0x55 ^ sendData[1] ^ sendData[2] ^ sendData[3] ^ sendData[4]);
-    Serial1.write(sendData, 7);
-    InputCmd[1] = 0x0;
+	if (BLDCCtrl.axis == left)	Serial2.write(sendData, 7);
+	else if (BLDCCtrl.axis == right) Serial3.write(sendData, 7);
+	dqCmd.InputCmd[1] = 0x0;
 }
-void DDWheel::Disable()
+void BLDCMotor::Disable()
 {
     Encoderpos = 0;
     EncoderposPre = 0;
-    //vol_target = 0;
-    //sum_error = 0;
-    InputCmd[0] = 0;//Vq = 0;
-    InputCmd[1] = 0xAAAA;//Vd = 0xAAAA;
+    dqInputSelect(0,0xFFFF); //Input q then d;
+    //dqCmd.InputCmd[0] = 0;//Vq = 0;
+    //dqCmd.InputCmd[1] = 0xAAAA;//Vd = 0xAAAA;
     Serial.println("BLDC Disable");
-    sendData[1] = highByte(InputCmd[0]);
-    sendData[2] = lowByte(InputCmd[0]);
-    sendData[3] = highByte(InputCmd[1]);
-    sendData[4] = lowByte(InputCmd[1]);
+    sendData[1] = highByte(dqCmd.InputCmd[0]);
+    sendData[2] = lowByte(dqCmd.InputCmd[0]);
+    sendData[3] = highByte(dqCmd.InputCmd[1]);
+    sendData[4] = lowByte(dqCmd.InputCmd[1]);
     sendData[5] = (0x55 ^ sendData[1] ^ sendData[2] ^ sendData[3] ^ sendData[4]);
-    Serial1.write(sendData, 7);
-    InputCmd[1] = 0x0;
+	if (BLDCCtrl.axis == left)	Serial2.write(sendData, 7);
+	else if (BLDCCtrl.axis == right) Serial3.write(sendData, 7);
+	dqCmd.InputCmd[1] = 0x0;
 }
-void DDWheel::doEncoder()
+void BLDCMotor::doEncoder()
 {
     pinAState = digitalRead(Hall.pinA);
     pinBState = digitalRead(Hall.pinB);
@@ -127,7 +146,7 @@ void DDWheel::doEncoder()
     pinCStateOld = pinCState;
 }
 
-void DDWheel::revFromMCU()
+void BLDCMotor::revFromMCU()
 {
   if (Serial1.available()) {
       if (Serial1.read() == '{') {
@@ -150,15 +169,14 @@ void DDWheel::revFromMCU()
       }
     }
 }
-void DDWheel::sendVoltCmd()
+void BLDCMotor::SendCmd()
 {
-	if (DDWheel_Ctrl.axis == left) 		cmd_volt = -cmd_volt;
+	if (BLDCCtrl.axis == left) 		CmdRef.VoltCmd = -CmdRef.VoltCmd;
 	else;
+	dqInputSelect(CmdRef.VoltCmd*Vq_formatRatio,0); //Input q then d;Vq format transformation
 
-	Vq = cmd_volt * Vq_formatRatio;
-
-	if (Vq >= InputLimit.MaxVq)         Vq = InputLimit.MaxVq;
-	else if (Vq <= InputLimit.MINVq)    Vq = InputLimit.MINVq;
+	if (dqCmd.InputCmd[0] >= InputLimit.MaxVq)         dqCmd.InputCmd[0] = InputLimit.MaxVq;
+	else if (dqCmd.InputCmd[0] <= InputLimit.MINVq)    dqCmd.InputCmd[0] = InputLimit.MINVq;
 
 	//        if ((abs(Vq) <= VD_ENABLE_LIMITE) && (Vq != 0))
 	//        {
@@ -170,25 +188,23 @@ void DDWheel::sendVoltCmd()
 	//              Vd = 0;
 	//              digitalWrite(51, LOW);                                                        // turn the LED off by making the voltage LOW
 	//        }
-
-	Vd = 0;
-	sendData[1] = highByte(Vq);
-	sendData[2] = lowByte(Vq);
-	sendData[3] = highByte(Vd);
-	sendData[4] = lowByte(Vd);
+	sendData[1] = highByte(dqCmd.InputCmd[0]);
+	sendData[2] = lowByte(dqCmd.InputCmd[0]);
+	sendData[3] = highByte(dqCmd.InputCmd[1]);
+	sendData[4] = lowByte(dqCmd.InputCmd[1]);
 	sendData[5] = (0x55 ^ sendData[1] ^ sendData[2] ^ sendData[3] ^ sendData[4]);
 
-	if (DDWheel_Ctrl.axis == left)	Serial1.write(sendData, 7);
-	else if (DDWheel_Ctrl.axis == right) Serial2.write(sendData, 7);
+	if (BLDCCtrl.axis == left)	Serial2.write(sendData, 7);
+	else if (BLDCCtrl.axis == right) Serial3.write(sendData, 7);
 }
-void DDWheel::FbMotorData(long dT)
+void BLDCMotor::FbMotorData(long dT)
 {
     EncodeDiff = Encoderpos - EncoderposPre;
-    fb_omega = ((EncodeDiff) * (1000 / dT)) * 2 * PI / (BLDC_DDWheel.CPR);
+    FbMotorInfo.FbAngularSpeed = ((EncodeDiff) * (1000 / dT)) * 2 * PI / (BLDCParam.CPR);
 
-    if(DDWheel_Ctrl.axis == left)
+    if(BLDCCtrl.axis == left)
     {
-      fb_omega = -fb_omega;
+    	FbMotorInfo.FbAngularSpeed = -FbMotorInfo.FbAngularSpeed;
     }
     else;
 
@@ -196,4 +212,8 @@ void DDWheel::FbMotorData(long dT)
     EncoderposPre = Encoderpos;
 //    Serial.println(String("EncodeDiff=") + " " + String(EncodeDiff));
 //    Serial.println(String("dT=") + " " + String(dT));
+}
+void BLDCMotor::DriverSerialSend()
+{
+
 }

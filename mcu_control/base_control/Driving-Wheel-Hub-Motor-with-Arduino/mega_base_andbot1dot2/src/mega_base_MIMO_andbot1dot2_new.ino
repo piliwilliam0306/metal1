@@ -33,65 +33,26 @@
 #include <WheelFb.h>
 #include <DriverState.h>
 #include <Metro.h>
-#include "DDWheel.h"
+#include "../lib/BLDCMotor/BLDCMotor.h"
+#include "mech_param.h"
 
-// robot param
-double wheelRadius = 0.085, wheelSeparation = 0.432;
-
-#define LOOPTIME 40//100
-#define rate 25
+#define LOOPTIME 1//40//100
+//#define rate 25
+float rate;
 unsigned long lastMilli = 0;
 long dT = 0;
 
-#define Volt_MAX 12
-#define Volt_MIN -12
-#define Vq_MAX 1000 //  ~8V
-#define Vq_MIN -1000 // ~-8V
+BLDCMotor::SetdqCmdLimit DDWheelInputLimit = {Volt_MAX,Volt_MIN,Vq_MAX,Vq_MIN};
+BLDCMotor::SetMotorParam DDWheelParam = {CPR,gear_ratio,MAXAngularSpeed};//MotorDefault;//CPR,gear_ratio,MAXAngularSpeed};
+BLDCMotor::SetENCPin DDWheelENCAxisleft = {enc_pinA_left,enc_pinB_left,enc_pinC_left};
+BLDCMotor::SetENCPin DDWheelENCAxisright = {enc_pinA_right,enc_pinB_right,enc_pinC_right};
+BLDCMotor::SetCtrlParam DDWheelCtrlAxisleft = {Axis_left, VqVdMode};
+BLDCMotor::SetCtrlParam DDWheelCtrlAxisright = {Axis_right, VqVdMode};
 
-DDWheel::SetdqCmdLimit BLDC_InputLimit = {Volt_MAX,Volt_MIN,Vq_MAX,Vq_MIN};
+// robot
+BLDCMotor Wheel_left(&DDWheelENCAxisleft,&DDWheelParam,&DDWheelCtrlAxisleft,&DDWheelInputLimit);
+BLDCMotor Wheel_right(&DDWheelENCAxisright,&DDWheelParam,&DDWheelCtrlAxisright,&DDWheelInputLimit);
 
-// motor parameters
-int CPR = 90;                                                                     //encoder count per revolution
-int gear_ratio = 1;
-const double MAXAngularSpeed = 47.1238898 ;//  450 / 60 * 2 * PI => DD motor nominal rotation speed: 450 rpm
-
-#define MotorDefault \
-{\
-	90,\
-	1,\
-	1,\
-}
-
-DDWheel::SetMotorParam BLDC_DDWheel = {CPR,gear_ratio,MAXAngularSpeed};//MotorDefault;//CPR,gear_ratio,MAXAngularSpeed};
-
-//encoder pin assignment
-//left wheel
-#define enc_pinA_left 2
-#define enc_pinB_left 3
-#define enc_pinC_left 21
-//right wheel
-#define enc_pinA_right 5
-#define enc_pinB_right 6
-#define enc_pinC_right 7
-
-DDWheel::SetENCPin left_enc = {enc_pinA_left,enc_pinB_left,enc_pinC_left};
-DDWheel::SetENCPin right_enc = {enc_pinA_right,enc_pinB_right,enc_pinC_right};
-
-#define Axis_left 0
-#define Axis_right 1
-
-//cmd ref
-#define VqVdMode 0
-#define VqIdMode 1
-#define IdIqMode 2
-
-DDWheel::SetCtrlParam Ctrl_left = {Axis_left, VqVdMode};
-DDWheel::SetCtrlParam Ctrl_right = {Axis_right, VqVdMode};
-
-DDWheel Wheel_left(&left_enc,&BLDC_DDWheel,&Ctrl_left,&BLDC_InputLimit);
-DDWheel Wheel_right(&right_enc,&BLDC_DDWheel,&Ctrl_right,&BLDC_InputLimit);
-
-bool driverEn;
 
 // variables for MIMO closed loop control
 double vel_ref=0.0;
@@ -115,16 +76,12 @@ void DriverState_service_callback(const andbot1dot2::DriverStateRequest& req, an
       res.driverstate = true;
       Wheel_left.Enable();
       Wheel_right.Enable();
-//      Serial1.write("m", 1);
-//      Serial2.write("m", 1);
     }
     else
     {
       res.driverstate = false;
       Wheel_left.Disable();
       Wheel_right.Disable();
-//      Serial1.write("k", 1);
-//      Serial2.write("k", 1);
     }
     Serial.print("From Client");
     Serial.println(req.driverstate,DEC);
@@ -237,8 +194,8 @@ void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
   wheel.speed2 = u_right;
   //cmd_wheel_volt_pub.publish(wheel);
 
-  Wheel_left.cmd_volt = u_left;
-  Wheel_right.cmd_volt = u_right;
+  Wheel_left.CmdRef.VoltCmd = u_left;
+  Wheel_right.CmdRef.VoltCmd = u_right;
 }
 
 void feedback_wheel_angularVelCal(const andbot1dot2::WheelFb &wheel)
@@ -248,8 +205,8 @@ void feedback_wheel_angularVelCal(const andbot1dot2::WheelFb &wheel)
   omega_fb_right = wheel.speed2;
 
   //mobile robot kinematics transformation: differential drive
-  vel_fb = wheelRadius / 2 * (omega_fb_right + omega_fb_left);
-  omega_fb = wheelRadius / wheelSeparation * (omega_fb_right - omega_fb_left);
+  vel_fb = double(wheelRadius) / 2 * (omega_fb_right + omega_fb_left);
+  omega_fb = double(wheelRadius) / double(wheelSeparation) * (omega_fb_right - omega_fb_left);
 
   twist_aux.linear.x = vel_fb;
   twist_aux.angular.z = omega_fb;
@@ -279,6 +236,14 @@ void setup(){
     nh.subscribe(cmd_vel_sub);
     nh.advertiseService(service);
 
+
+    while(!nh.connected()){
+    	nh.spinOnce();
+    }
+    nh.getParam("rate",&rate);
+    nh.getParam("wheelRadius",&wheelSeparation);
+    nh.getParam("wheelRadius",&wheelRadius);
+
     Serial1.begin(115200);
     Serial2.begin(115200);
     Serial3.begin(115200);
@@ -288,12 +253,12 @@ void setup(){
     Wheel_left.Init(); //left wheel
     Wheel_right.Init();//right wheel
 
-	attachInterrupt(0, ISR_left, CHANGE);                                          //encoder pin on interrupt 0 - pin 2
-	attachInterrupt(1, ISR_left, CHANGE);                                          //encoder pin on interrupt 1 - pin 3
-	attachInterrupt(2, ISR_left, CHANGE);
-	attachInterrupt(3, ISR_right, CHANGE);                                          //encoder pin on interrupt 0 - pin 2
-	attachInterrupt(4, ISR_right, CHANGE);                                          //encoder pin on interrupt 1 - pin 3
-	attachInterrupt(5, ISR_right, CHANGE);
+	attachInterrupt(0, ISRENCleft, CHANGE);                                          //encoder pin on interrupt 0 - pin 2
+	attachInterrupt(1, ISRENCleft, CHANGE);                                          //encoder pin on interrupt 1 - pin 3
+	attachInterrupt(2, ISRENCleft, CHANGE);
+	attachInterrupt(3, ISRENCright, CHANGE);                                          //encoder pin on interrupt 0 - pin 2
+	attachInterrupt(4, ISRENCright, CHANGE);                                          //encoder pin on interrupt 1 - pin 3
+	attachInterrupt(5, ISRENCright, CHANGE);
 }
 
 void loop()
@@ -307,13 +272,13 @@ void loop()
         Wheel_left.FbMotorData(dT);
         Wheel_right.FbMotorData(dT);
 
-        velFb_msg.speed1 = Wheel_left.fb_omega;
-        velFb_msg.speed2 = Wheel_right.fb_omega;
+        velFb_msg.speed1 = Wheel_left.FbMotorInfo.FbAngularSpeed;
+        velFb_msg.speed2 = Wheel_right.FbMotorInfo.FbAngularSpeed;
 
         feedback_wheel_angularVelCal(velFb_msg);
 
-        Wheel_left.sendVoltCmd();
-        Wheel_right.sendVoltCmd();
+        Wheel_left.SendCmd();
+        Wheel_right.SendCmd();
 
 //        vel_msg.speed1 = fb_omega_left;
 //        vel_msg.speed2 = fb_omega_right;
@@ -324,11 +289,11 @@ void loop()
     nh.spinOnce();
 }
 
-void ISR_left()
+void ISRENCleft()
 {
 	Wheel_left.doEncoder();
 }
-void ISR_right()
+void ISRENCright()
 {
 	Wheel_right.doEncoder();
 }
