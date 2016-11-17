@@ -33,10 +33,10 @@
 #include <WheelFb.h>
 #include <DriverState.h>
 #include <Metro.h>
-#include "../lib/BLDCMotor/BLDCMotor.h"
+#include "BLDCMotor.h"
 #include "mech_param.h"
 
-#define LOOPTIME 1//40//100
+#define LOOPTIME 40//100
 //#define rate 25
 float rate;
 unsigned long lastMilli = 0;
@@ -198,9 +198,25 @@ void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
   Wheel_right.CmdRef.VoltCmd = u_right;
 }
 
+/* ************  declarations for ROS usages *****************************************/
+
+/*  define  ROS node and topics */
+ros::NodeHandle nh;
+
+andbot1dot2::WheelFb WheelFb_msg;
+andbot1dot2::WheelCmd WheelCmd_msg;
+geometry_msgs::Twist VelFb_msgs;
+ros::Publisher feedback_wheel_angularVel_pub("feedback_wheel_angularVel",&WheelFb_msg);
+ros::Publisher feedbackVel_pub("feedbackVel",&VelFb_msgs);
+ros::Publisher cmd_wheel_volt_pub("cmd_wheel_volt", &WheelCmd_msg);
+ros::Subscriber<geometry_msgs::Twist> cmd_vel_sub("/andbot1dot2/cmd_vel", cmd_velCallback);
+ros::ServiceServer<andbot1dot2::DriverStateRequest, andbot1dot2::DriverStateResponse> service("DriverState_service", &DriverState_service_callback);
+
+/* ************  End of declarations for ROS usages ****************/
+
 void feedback_wheel_angularVelCal(const andbot1dot2::WheelFb &wheel)
 {
-  geometry_msgs::Twist twist_aux;
+  //geometry_msgs::Twist twist_aux;
   omega_fb_left = wheel.speed1;
   omega_fb_right = wheel.speed2;
 
@@ -208,25 +224,10 @@ void feedback_wheel_angularVelCal(const andbot1dot2::WheelFb &wheel)
   vel_fb = double(wheelRadius) / 2 * (omega_fb_right + omega_fb_left);
   omega_fb = double(wheelRadius) / double(wheelSeparation) * (omega_fb_right - omega_fb_left);
 
-  twist_aux.linear.x = vel_fb;
-  twist_aux.angular.z = omega_fb;
-  //feedback_Vel_pub.publish(twist_aux);
+  VelFb_msgs.linear.x = vel_fb;
+  VelFb_msgs.angular.z = omega_fb;
+  feedbackVel_pub.publish(&VelFb_msgs);
 }
-
-/* ************  declarations for ROS usages *****************************************/
-
-/*  define  ROS node and topics */
-ros::NodeHandle nh;
-
-andbot1dot2::WheelFb velFb_msg;
-andbot1dot2::WheelCmd velCmd_msg;
-ros::Publisher feedback_wheel_angularVel_pub("feedback_wheel_angularVel",&velFb_msg);
-ros::Publisher cmd_wheel_volt_pub("cmd_wheel_volt", &velCmd_msg);
-ros::Subscriber<geometry_msgs::Twist> cmd_vel_sub("/andbot1dot2/cmd_vel", cmd_velCallback);
-ros::ServiceServer<andbot1dot2::DriverStateRequest, andbot1dot2::DriverStateResponse> service("DriverState_service", &DriverState_service_callback);
-
-/* ************  End of declarations for ROS usages ****************/
-
 void setup(){
 
     nh.getHardware()->setBaud(115200);
@@ -272,10 +273,11 @@ void loop()
         Wheel_left.FbMotorData(dT);
         Wheel_right.FbMotorData(dT);
 
-        velFb_msg.speed1 = Wheel_left.FbMotorInfo.FbAngularSpeed;
-        velFb_msg.speed2 = Wheel_right.FbMotorInfo.FbAngularSpeed;
+        WheelFb_msg.speed1 = Wheel_left.FbMotorInfo.FbAngularSpeed;
+        WheelFb_msg.speed2 = Wheel_right.FbMotorInfo.FbAngularSpeed;
 
-        feedback_wheel_angularVelCal(velFb_msg);
+        feedback_wheel_angularVelCal(WheelFb_msg);
+        //feedback_wheel_angularVel_pub.publish(&velFb_msg);
 
         Wheel_left.SendCmd();
         Wheel_right.SendCmd();

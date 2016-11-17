@@ -80,7 +80,7 @@ void BLDCMotor::Disable()
 {
     Encoderpos = 0;
     EncoderposPre = 0;
-    dqInputSelect(0,0xFFFF); //Input q then d;
+    dqInputSelect(0,0xAAAA); //Input q then d;
     //dqCmd.InputCmd[0] = 0;//Vq = 0;
     //dqCmd.InputCmd[1] = 0xAAAA;//Vd = 0xAAAA;
     Serial.println("BLDC Disable");
