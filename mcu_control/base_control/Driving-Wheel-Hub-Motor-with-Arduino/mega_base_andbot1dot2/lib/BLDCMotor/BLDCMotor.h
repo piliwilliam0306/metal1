@@ -66,7 +66,7 @@ class BLDCMotor {
 		typedef struct{
 			int MAXVoltCmd;
 			int MINVoltCmd;
-			int MaxVq;
+			int MAXVq;
 			int MINVq;
 		}SetdqCmdLimit;
 

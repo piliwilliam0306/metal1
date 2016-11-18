@@ -50,5 +50,5 @@ const double MAXAngularSpeed = 47.1238898 ;//  450 / 60 * 2 * PI => DD motor nom
 #define IdIqMode 2
 
 // robot param
-float wheelRadius, wheelSeparation;//wheelRadius = 0.085, wheelSeparation = 0.432;
+double wheelRadius = 0.085, wheelSeparation = 0.432;
 /* ************  End of declarations for ROS usages ****************/

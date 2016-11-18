@@ -177,7 +177,7 @@ void BLDCMotor::SendCmd()
 	else;
 	dqInputSelect(CmdRef.VoltCmd*Vq_formatRatio,0); //Input q then d;Vq format transformation
 
-	if (dqCmd.InputCmd[0] >= InputLimit.MaxVq)         dqCmd.InputCmd[0] = InputLimit.MaxVq;
+	if (dqCmd.InputCmd[0] >= InputLimit.MAXVq)         dqCmd.InputCmd[0] = InputLimit.MAXVq;
 	else if (dqCmd.InputCmd[0] <= InputLimit.MINVq)    dqCmd.InputCmd[0] = InputLimit.MINVq;
 
 	//        if ((abs(Vq) <= VD_ENABLE_LIMITE) && (Vq != 0))
