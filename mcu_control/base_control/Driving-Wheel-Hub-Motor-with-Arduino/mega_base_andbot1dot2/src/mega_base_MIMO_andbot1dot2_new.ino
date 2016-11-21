@@ -36,6 +36,9 @@
 #include "BLDCMotor.h"
 #include "mech_param.h"
 
+#include <std_msgs/Int16.h>
+#include <std_msgs/Float64.h>
+
 #define LOOPTIME 40//100
 #define PUBLISHTIME 40
 //#define rate 25
@@ -82,9 +85,13 @@ ros::NodeHandle nh;
 andbot1dot2::WheelFb WheelFb_msgs;
 andbot1dot2::WheelCmd WheelCmd_msgs;
 geometry_msgs::Twist VelFb_msgs;
+std_msgs::Int16 ENC_msgs;
+std_msgs::Float64 elecVel_msgs;
 ros::Publisher feedback_wheel_angularVel_pub("andbot1dot2/feedback_wheel_angularVel",&WheelFb_msgs);
 ros::Publisher feedbackVel_pub("andbot1dot2/feedbackVel",&VelFb_msgs);
 ros::Publisher cmd_wheel_volt_pub("andbot1dot2/cmd_wheel_volt", &WheelCmd_msgs);
+ros::Publisher ENC_raw_pub("ENC_raw",&ENC_msgs);
+ros::Publisher elecVel_pub("elecVel",&elecVel_msgs);
 ros::Subscriber<geometry_msgs::Twist> cmd_vel_sub("/andbot1dot2/cmd_vel", cmd_velCallback);
 ros::Subscriber<andbot1dot2::WheelCmd> WheelCmd_sub("andbot1dot2/WheelInput", WheelCmdModeCallback);
 ros::ServiceServer<andbot1dot2::DriverStateRequest, andbot1dot2::DriverStateResponse> service("DriverState_service", &DriverState_service_callback);
@@ -250,6 +257,8 @@ void setup(){
     nh.advertise(cmd_wheel_volt_pub);
     nh.advertise(feedbackVel_pub);
     nh.advertise(feedback_wheel_angularVel_pub);
+    nh.advertise(ENC_raw_pub);
+    nh.advertise(elecVel_pub);
     nh.subscribe(cmd_vel_sub);
     nh.subscribe(WheelCmd_sub);
     nh.advertiseService(service);
@@ -272,21 +281,18 @@ void setup(){
 
 void loop()
 {
-    if ((millis() - lastMilli) >= LOOPTIME)
+    if ((dT = millis() - lastMilli) >= LOOPTIME)
     {
-        dT = millis() - lastMilli;
         lastMilli = millis();
 
-        Wheel_left.GetMotorData(dT);
-        Wheel_right.GetMotorData(dT);
-
+        Wheel_left.GetMotorData(dT,ENCMovFilterMode);
+        Wheel_right.GetMotorData(dT,ENCMovFilterMode);
 
         FbVelCal(WheelFb_msgs);
-
+        ENC_msgs.data = Wheel_right.Encoderpos;
+	elecVel_msgs.data = double(Wheel_left.SerialGetDriverData(Axis_left)) * 1.0472 * double(10) / double(30); //rad/s
 //        Wheel_left.SendCmd();
 //        Wheel_right.SendCmd();
-
-
     }
     else;
 
@@ -296,6 +302,8 @@ void loop()
     	cmd_wheel_volt_pub.publish(&WheelCmd_msgs);
     	feedbackVel_pub.publish(&VelFb_msgs);
     	feedback_wheel_angularVel_pub.publish(&WheelFb_msgs);
+    	ENC_raw_pub.publish(&ENC_msgs);
+	elecVel_pub.publish(&elecVel_msgs);
     }
     else;
     nh.spinOnce();

@@ -44,6 +44,9 @@ const double MAXAngularSpeed = 47.1238898 ;//  450 / 60 * 2 * PI => DD motor nom
 #define enc_pinB_right 19
 #define enc_pinC_right 18
 
+#define ENCDiffMode 0
+#define ENCMovFilterMode 1
+
 //cmd ref
 #define VqVdMode 0
 #define VqIdMode 1

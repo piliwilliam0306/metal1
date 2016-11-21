@@ -73,8 +73,6 @@ void BLDCMotor::Enable()
     sendData[4] = lowByte(dqCmd.InputCmd[1]);
     sendData[5] = (0x55 ^ sendData[1] ^ sendData[2] ^ sendData[3] ^ sendData[4]);
     SerialSend2Driver(sendData,BLDCCtrl.axis);
-//	if (BLDCCtrl.axis == left)	Serial2.write(sendData, 7);
-//	else if (BLDCCtrl.axis == right) Serial3.write(sendData, 7);
 	dqCmd.InputCmd[1] = 0x0;
 }
 void BLDCMotor::Disable()
@@ -91,8 +89,6 @@ void BLDCMotor::Disable()
     sendData[4] = lowByte(dqCmd.InputCmd[1]);
     sendData[5] = (0x55 ^ sendData[1] ^ sendData[2] ^ sendData[3] ^ sendData[4]);
     SerialSend2Driver(sendData,BLDCCtrl.axis);
-//	if (BLDCCtrl.axis == left)	Serial2.write(sendData, 7);
-//	else if (BLDCCtrl.axis == right) Serial3.write(sendData, 7);
 	dqCmd.InputCmd[1] = 0x0;
 }
 void BLDCMotor::doEncoder()
@@ -148,28 +144,38 @@ void BLDCMotor::doEncoder()
     pinCStateOld = pinCState;
 }
 
-void BLDCMotor::revFromMCU()
+int BLDCMotor::SerialGetDriverData(int axis)
 {
-  if (Serial1.available()) {
-      if (Serial1.read() == '{') {
-        Serial1.readBytes(getData, 8);
-        if (getData[7] == '}') {
-          checksum = (0x55 ^ getData[0] ^ getData[1] ^ getData[2] ^ getData[3] ^ getData[4] ^ getData[5]);
-          if (checksum == getData[6]) {
-            for (int i = 0; i < 3; i ++) {
-              MotorData[i].Byte.L = getData[2 * i];
-              MotorData[i].Byte.H = getData[2 * i + 1];
-            }
-            Serial.println(String("MCU Vq=") + " " + \
-                           String(MotorData[0].Data) + " " + \
-                           String("MCU Vd=") + " " + \
-                           String(MotorData[1].Data) + " " + \
-                           String("MCU rds=") + " " + \
-                           String(MotorData[2].Data));
+  if (axis == left){	
+	if (Serial2.available()) {
+      		if (Serial2.read() == '{') {
+		        Serial2.readBytes(getData, 8);
+			}
+		}
+	}
+  else if (axis == right){
+	if (Serial3.available()){
+		if (Serial3.read() == '{') {
+			Serial3.readBytes(getData, 8);
+			}
+		}
+	}
+	if (getData[7] == '}') {
+          	checksum = (0x55 ^ getData[0] ^ getData[1] ^ getData[2] ^ getData[3] ^ getData[4] ^ getData[5]);
+          	if (checksum == getData[6]) {
+            		for (int i = 0; i < 3; i ++) {
+             			MotorData[i].Byte.L = getData[2 * i];
+              			MotorData[i].Byte.H = getData[2 * i + 1];
+            		}
+            			//Serial.println(String("MCU Vq=") + " " + \
+                           	//String(MotorData[0].Data) + " " + \
+                           	//String("MCU Vd=") + " " + \
+                           	//String(MotorData[1].Data) + " " + \
+                           	//String("MCU rds=") + " " + \
+                           	//String(MotorData[2].Data));
           }
         }
-      }
-    }
+	return MotorData[2].Data;
 }
 void BLDCMotor::SendCmd()
 {
@@ -195,24 +201,28 @@ void BLDCMotor::SendCmd()
 	sendData[3] = highByte(dqCmd.InputCmd[1]);
 	sendData[4] = lowByte(dqCmd.InputCmd[1]);
 	sendData[5] = (0x55 ^ sendData[1] ^ sendData[2] ^ sendData[3] ^ sendData[4]);
-
 	SerialSend2Driver(sendData,BLDCCtrl.axis);
-//	if (BLDCCtrl.axis == left)	Serial2.write(sendData, 7);
-//	else if (BLDCCtrl.axis == right) Serial3.write(sendData, 7);
 }
-void BLDCMotor::GetMotorData(long dT)
+void BLDCMotor::GetMotorData(long dT, int mode)
 {
-    EncodeDiff = Encoderpos - EncoderposPre;
-    FbMotorInfo.AngularVel = ((EncodeDiff) * (1000 / dT)) * 2 * PI / (BLDCParam.CPR);
+    if (mode == ENCMovFilterMode)
+    {
+    	FbMotorInfo.AngularVel = SetENCMovFilter(100, dT) * 2 * PI / (BLDCParam.CPR);
+    }
+    else if (mode == ENCDiffMode)
+    {
+    	EncodeDiff = Encoderpos - EncoderposPre;
+    	FbMotorInfo.AngularVel = ((EncodeDiff) * (1000 / dT)) * 2 * PI / (BLDCParam.CPR);
+    	EncoderposPre = Encoderpos;
+    }
 
     if(BLDCCtrl.axis == left)
     {
     	FbMotorInfo.AngularVel = -FbMotorInfo.AngularVel;
     }
     else;
-
     //  Encoderpos=0;//recount
-    EncoderposPre = Encoderpos;
+
 //    Serial.println(String("EncodeDiff=") + " " + String(EncodeDiff));
 //    Serial.println(String("dT=") + " " + String(dT));
 }
@@ -220,4 +230,20 @@ void BLDCMotor::SerialSend2Driver(byte* sendData, int axis)
 {
   if (axis == left)    Serial2.write(sendData, 7);
   else if (axis == right) Serial3.write(sendData, 7);
+}
+double BLDCMotor::SetENCMovFilter(int Total, long dT)
+{
+	long curEncoderpos;
+	ENCMovFilter.Samples[ENCMovFilter.count] = Encoderpos; //update
+	curEncoderpos = ENCMovFilter.Samples[ENCMovFilter.count];
+	ENCMovFilter.count++;
+	if (ENCMovFilter.count >= Total)
+	{
+		ENCMovFilter.count = 0;
+	}
+	else;
+	EncoderposPre = ENCMovFilter.Samples[ENCMovFilter.count]; //The first index of last round.
+	ENCMovFilter.sum = curEncoderpos - EncoderposPre;
+	ENCMovFilter.Output = ENCMovFilter.sum / Total * (1000 / dT);
+	return ENCMovFilter.Output;
 }
