@@ -63,7 +63,19 @@ void BLDCMotor::Enable()
 {
     Encoderpos = 0;
     EncoderposPre = 0;
-    dqInputSelect(0,0xFFFF); //Input q then d;
+    if (BLDCCtrl.mode == VqVdMode)
+	{
+    	dqInputSelect(0,0xFFFF); //Input q then d;
+	}
+	else if (BLDCCtrl.mode == VqIdMode)
+	{
+		dqInputSelect(0,0xBBBB); //Input q then d;
+	}
+	else if (BLDCCtrl.mode == IqIdMode)
+	{
+		dqInputSelect(0,0); //Input q then d;
+	}
+
     //dqCmd.InputCmd[0] = 0; //Vq = 0;
     //dqCmd.InputCmd[1] = 0xFFFF; //Vd = 0xFFFF;
     Serial.println("BLDC Enable");
@@ -73,13 +85,31 @@ void BLDCMotor::Enable()
     sendData[4] = lowByte(dqCmd.InputCmd[1]);
     sendData[5] = (0x55 ^ sendData[1] ^ sendData[2] ^ sendData[3] ^ sendData[4]);
     SerialSend2Driver(sendData,BLDCCtrl.axis);
+    dqCmd.InputCmd[0] = 0x0;
 	dqCmd.InputCmd[1] = 0x0;
+    sendData[1] = highByte(dqCmd.InputCmd[0]);
+    sendData[2] = lowByte(dqCmd.InputCmd[0]);
+    sendData[3] = highByte(dqCmd.InputCmd[1]);
+    sendData[4] = lowByte(dqCmd.InputCmd[1]);
+    sendData[5] = (0x55 ^ sendData[1] ^ sendData[2] ^ sendData[3] ^ sendData[4]);
+    SerialSend2Driver(sendData,BLDCCtrl.axis);
 }
 void BLDCMotor::Disable()
 {
     Encoderpos = 0;
     EncoderposPre = 0;
-    dqInputSelect(0,0xAAAA); //Input q then d;
+    if (BLDCCtrl.mode == VqVdMode)
+	{
+    	dqInputSelect(0,0xAAAA); //Input q then d;
+	}
+	else if (BLDCCtrl.mode == VqIdMode)
+	{
+		dqInputSelect(0,0xAAAA); //Input q then d;
+	}
+	else if (BLDCCtrl.mode == IqIdMode)
+	{
+		dqInputSelect(0,0); //Input q then d;
+	}
     //dqCmd.InputCmd[0] = 0;//Vq = 0;
     //dqCmd.InputCmd[1] = 0xAAAA;//Vd = 0xAAAA;
     Serial.println("BLDC Disable");
@@ -89,7 +119,14 @@ void BLDCMotor::Disable()
     sendData[4] = lowByte(dqCmd.InputCmd[1]);
     sendData[5] = (0x55 ^ sendData[1] ^ sendData[2] ^ sendData[3] ^ sendData[4]);
     SerialSend2Driver(sendData,BLDCCtrl.axis);
+    dqCmd.InputCmd[0] = 0x0;
 	dqCmd.InputCmd[1] = 0x0;
+    sendData[1] = highByte(dqCmd.InputCmd[0]);
+    sendData[2] = lowByte(dqCmd.InputCmd[0]);
+    sendData[3] = highByte(dqCmd.InputCmd[1]);
+    sendData[4] = lowByte(dqCmd.InputCmd[1]);
+    sendData[5] = (0x55 ^ sendData[1] ^ sendData[2] ^ sendData[3] ^ sendData[4]);
+    SerialSend2Driver(sendData,BLDCCtrl.axis);
 }
 void BLDCMotor::doEncoder()
 {

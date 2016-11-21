@@ -51,8 +51,8 @@ BLDCMotor::SetdqCmdLimit DDWheelInputLimit = {Volt_MAX,Volt_MIN,Vq_MAX,Vq_MIN};
 BLDCMotor::SetMotorParam DDWheelParam = {CPR,gear_ratio,MAXAngularSpeed};//MotorDefault;//CPR,gear_ratio,MAXAngularSpeed};
 BLDCMotor::SetENCPin DDWheelENCAxisleft = {enc_pinA_left,enc_pinB_left,enc_pinC_left};
 BLDCMotor::SetENCPin DDWheelENCAxisright = {enc_pinA_right,enc_pinB_right,enc_pinC_right};
-BLDCMotor::SetCtrlParam DDWheelCtrlAxisleft = {Axis_left, VqVdMode};
-BLDCMotor::SetCtrlParam DDWheelCtrlAxisright = {Axis_right, VqVdMode};
+BLDCMotor::SetCtrlParam DDWheelCtrlAxisleft = {Axis_left, dqCmdMode};
+BLDCMotor::SetCtrlParam DDWheelCtrlAxisright = {Axis_right, dqCmdMode};
 
 // robot
 BLDCMotor Wheel_left(&DDWheelENCAxisleft,&DDWheelParam,&DDWheelCtrlAxisleft,&DDWheelInputLimit);
@@ -290,7 +290,7 @@ void loop()
 
         FbVelCal(WheelFb_msgs);
         ENC_msgs.data = Wheel_right.Encoderpos;
-	elecVel_msgs.data = double(Wheel_left.SerialGetDriverData(Axis_left)) * 1.0472 * double(10) / double(30); //rad/s
+        elecVel_msgs.data = double(Wheel_left.SerialGetDriverData(Axis_left)) * 1.0472 * double(10) / double(30); //rad/s
 //        Wheel_left.SendCmd();
 //        Wheel_right.SendCmd();
     }
@@ -303,7 +303,7 @@ void loop()
     	feedbackVel_pub.publish(&VelFb_msgs);
     	feedback_wheel_angularVel_pub.publish(&WheelFb_msgs);
     	ENC_raw_pub.publish(&ENC_msgs);
-	elecVel_pub.publish(&elecVel_msgs);
+    	elecVel_pub.publish(&elecVel_msgs);
     }
     else;
     nh.spinOnce();
