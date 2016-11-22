@@ -39,12 +39,13 @@
 #include <std_msgs/Int16.h>
 #include <std_msgs/Float64.h>
 
-#define LOOPTIME 40//100
+#define LOOPTIME 1//40//100
 #define PUBLISHTIME 40
 //#define rate 25
 float rate;
 unsigned long lastMilli = 0;
 unsigned long PrePubMilli = 0;
+long testMilli = 0;
 long dT = 0;
 
 BLDCMotor::SetdqCmdLimit DDWheelInputLimit = {Volt_MAX,Volt_MIN,Vq_MAX,Vq_MIN};
@@ -86,11 +87,13 @@ andbot1dot2::WheelFb WheelFb_msgs;
 andbot1dot2::WheelCmd WheelCmd_msgs;
 geometry_msgs::Twist VelFb_msgs;
 std_msgs::Int16 ENC_msgs;
+std_msgs::Int16 ENCPre_msgs;
 std_msgs::Float64 elecVel_msgs;
 ros::Publisher feedback_wheel_angularVel_pub("andbot1dot2/feedback_wheel_angularVel",&WheelFb_msgs);
 ros::Publisher feedbackVel_pub("andbot1dot2/feedbackVel",&VelFb_msgs);
 ros::Publisher cmd_wheel_volt_pub("andbot1dot2/cmd_wheel_volt", &WheelCmd_msgs);
 ros::Publisher ENC_raw_pub("ENC_raw",&ENC_msgs);
+ros::Publisher ENCPre_pub("ENCPre_raw",&ENCPre_msgs);
 ros::Publisher elecVel_pub("elecVel",&elecVel_msgs);
 ros::Subscriber<geometry_msgs::Twist> cmd_vel_sub("/andbot1dot2/cmd_vel", cmd_velCallback);
 ros::Subscriber<andbot1dot2::WheelCmd> WheelCmd_sub("andbot1dot2/WheelInput", WheelCmdModeCallback);
@@ -258,10 +261,12 @@ void setup(){
     nh.advertise(feedbackVel_pub);
     nh.advertise(feedback_wheel_angularVel_pub);
     nh.advertise(ENC_raw_pub);
+    nh.advertise(ENCPre_pub);
     nh.advertise(elecVel_pub);
     nh.subscribe(cmd_vel_sub);
     nh.subscribe(WheelCmd_sub);
     nh.advertiseService(service);
+
 
     Serial2.begin(115200);
     Serial3.begin(115200);
@@ -271,16 +276,20 @@ void setup(){
     Wheel_left.Init(); //left wheel
     Wheel_right.Init();//right wheel
 
-	attachInterrupt(0, ISRENCleft, CHANGE);                                          //encoder pin on interrupt 0 - pin 2
-	attachInterrupt(1, ISRENCleft, CHANGE);                                          //encoder pin on interrupt 1 - pin 3
-	attachInterrupt(2, ISRENCleft, CHANGE);
-	attachInterrupt(3, ISRENCright, CHANGE);                                          //encoder pin on interrupt 0 - pin 2
-	attachInterrupt(4, ISRENCright, CHANGE);                                          //encoder pin on interrupt 1 - pin 3
-	attachInterrupt(5, ISRENCright, CHANGE);
+//	attachInterrupt(0, ISRENCleft, CHANGE);                                          //encoder pin on interrupt 0 - pin 2
+//	attachInterrupt(1, ISRENCleft, CHANGE);                                          //encoder pin on interrupt 1 - pin 3
+//	attachInterrupt(2, ISRENCleft, CHANGE);
+//	attachInterrupt(3, ISRENCright, CHANGE);                                          //encoder pin on interrupt 0 - pin 2
+//	attachInterrupt(4, ISRENCright, CHANGE);                                          //encoder pin on interrupt 1 - pin 3
+//	attachInterrupt(5, ISRENCright, CHANGE);
 }
 
 void loop()
 {
+	long test,testhead ;
+	testhead = millis();// - test;
+	ENC_msgs.data = testhead;//testMilli;//dT;//Wheel_right.curEncoderpos;
+
     if ((dT = millis() - lastMilli) >= LOOPTIME)
     {
         lastMilli = millis();
@@ -289,7 +298,8 @@ void loop()
         Wheel_right.GetMotorData(dT,ENCMovFilterMode);
 
         FbVelCal(WheelFb_msgs);
-        ENC_msgs.data = Wheel_right.Encoderpos;
+        ENC_msgs.data = testhead;//testMilli;//dT;//Wheel_right.curEncoderpos;
+        ENCPre_msgs.data = test;//Wheel_right.EncoderposPre;
         elecVel_msgs.data = double(Wheel_left.SerialGetDriverData(Axis_left)) * 1.0472 * double(10) / double(30); //rad/s
 //        Wheel_left.SendCmd();
 //        Wheel_right.SendCmd();
@@ -303,9 +313,20 @@ void loop()
     	feedbackVel_pub.publish(&VelFb_msgs);
     	feedback_wheel_angularVel_pub.publish(&WheelFb_msgs);
     	ENC_raw_pub.publish(&ENC_msgs);
-    	elecVel_pub.publish(&elecVel_msgs);
+    	ENCPre_pub.publish(&ENCPre_msgs);
+    	//elecVel_pub.publish(&elecVel_msgs);
     }
     else;
+    test = millis();
+    ENCPre_msgs.data = test;
+
+    testMilli = test - testhead;
+    Serial.println(String("head=") + " " + \
+	String(testhead) + " " + \
+	String("bottom=") + " " + \
+	String(test) + " " + \
+	String("diff=") + " " + \
+	String(testMilli));
     nh.spinOnce();
 }
 

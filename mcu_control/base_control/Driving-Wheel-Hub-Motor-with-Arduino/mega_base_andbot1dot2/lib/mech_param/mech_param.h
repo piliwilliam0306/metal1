@@ -51,7 +51,7 @@ const double MAXAngularSpeed = 47.1238898 ;//  450 / 60 * 2 * PI => DD motor nom
 #define VqVdMode 0
 #define VqIdMode 1
 #define IdIqMode 2
-#define dqCmdMode VqIdMode
+#define dqCmdMode VqVdMode
 
 // robot param
 double wheelRadius = 0.085, wheelSeparation = 0.432;

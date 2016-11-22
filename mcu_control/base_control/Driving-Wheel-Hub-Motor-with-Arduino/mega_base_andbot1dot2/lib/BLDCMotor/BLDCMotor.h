@@ -89,7 +89,9 @@ class BLDCMotor {
 		void SerialSend2Driver(byte* sendData, int axis);
 		int SerialGetDriverData(int axis);
 
-		volatile long Encoderpos = 0;
+		volatile int Encoderpos = 0;
+		int curEncoderpos = 0;
+		int EncoderposPre = 0;
 
 		BLDCMotor(SetENCPin* ENC_Pin, SetMotorParam* motor_param, SetCtrlParam* Ctrl_param,SetdqCmdLimit* Limit);
 	private:
@@ -110,12 +112,12 @@ class BLDCMotor {
 		#define ENCMovFilterMode 1
 		struct ENCMovFilter{
 			int count = 0;
-			double Samples[100];
-			double sum;
+			int Samples[500] = {0};
+			int sum;
 			double Output;
 		}ENCMovFilter;
 		SetENCPin Hall;
-		long EncoderposPre = 0;
+
 		volatile int lastEncoded = 0;
 
 		int pinAState = 0, pinAStateOld = 0;
@@ -123,7 +125,7 @@ class BLDCMotor {
 		int pinCState = 0, pinCStateOld = 0;
 		int EncodeDiff = 0, EncodeDiffPre = 0;
 
-		double SetENCMovFilter(int Total, long dT);
+		int SetENCMovFilter(int Total, long dT);
 
 		//Volt control
 		dqCmd dqCmd;
