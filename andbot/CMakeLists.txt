@@ -72,6 +72,7 @@ add_service_files(
    Calibrate.srv
    DeviceCheck.srv
    DriverState.srv
+   Startup.srv
  )
 
 ## Generate actions in the 'action' folder
