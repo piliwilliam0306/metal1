@@ -265,8 +265,8 @@ void BLDCMotor::GetMotorData(long dT, int mode)
 }
 void BLDCMotor::SerialSend2Driver(byte* sendData, int axis)
 {
-  if (axis == left)    Serial2.write(sendData, 7);
-  else if (axis == right) Serial3.write(sendData, 7);
+	if (axis == left)    Serial2.write(sendData, 7);
+	else if (axis == right) Serial3.write(sendData, 7);
 }
 int BLDCMotor::SetENCMovFilter(int Total, long dT)
 {

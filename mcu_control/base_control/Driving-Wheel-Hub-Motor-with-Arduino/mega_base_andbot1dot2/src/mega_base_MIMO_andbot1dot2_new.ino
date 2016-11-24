@@ -37,9 +37,11 @@
 #include "mech_param.h"
 
 #include <std_msgs/Int16.h>
+#include <std_msgs/Float32.h>
 #include <std_msgs/Float64.h>
 
-#define LOOPTIME 1//40//100
+//#define LOOPTIME 10//40//100
+int LOOPTIME = 10;
 #define PUBLISHTIME 40
 //#define rate 25
 float rate;
@@ -78,6 +80,7 @@ double sum_error_omega = 0.0;
 void cmd_velCallback(const geometry_msgs::Twist &twist_aux);
 void DriverState_service_callback(const andbot1dot2::DriverStateRequest& req, andbot1dot2::DriverStateResponse& res);
 void WheelCmdModeCallback(const andbot1dot2::WheelCmd &WheelCmd);
+void LoopRateCallback(const std_msgs::Float32 &rate);
 
 /* ************  declarations for ROS usages *****************************************/
 
@@ -97,9 +100,15 @@ ros::Publisher ENCPre_pub("ENCPre_raw",&ENCPre_msgs);
 ros::Publisher elecVel_pub("elecVel",&elecVel_msgs);
 ros::Subscriber<geometry_msgs::Twist> cmd_vel_sub("/andbot1dot2/cmd_vel", cmd_velCallback);
 ros::Subscriber<andbot1dot2::WheelCmd> WheelCmd_sub("andbot1dot2/WheelInput", WheelCmdModeCallback);
+ros::Subscriber<std_msgs::Float32> LoopRate_sub("andbot1dot2/base_mega_LoopRate", LoopRateCallback);
 ros::ServiceServer<andbot1dot2::DriverStateRequest, andbot1dot2::DriverStateResponse> service("DriverState_service", &DriverState_service_callback);
 
 /* ************  End of declarations for ROS usages ****************/
+void LoopRateCallback(const std_msgs::Float32 &rate)
+{
+	LOOPTIME = (double)1/(rate.data);
+}
+
 void WheelCmdModeCallback(const andbot1dot2::WheelCmd &WheelCmd)
 {
 	Wheel_left.CmdRef.VoltCmd = WheelCmd.speed1;
@@ -230,7 +239,6 @@ void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
   }
   else;
 
-
   WheelCmd_msgs.speed1 = u_left ;
   WheelCmd_msgs.speed2 = u_right;
 
@@ -265,44 +273,41 @@ void setup(){
     nh.advertise(elecVel_pub);
     nh.subscribe(cmd_vel_sub);
     nh.subscribe(WheelCmd_sub);
+    nh.subscribe(LoopRate_sub);
     nh.advertiseService(service);
-
-
+//
+//
     Serial2.begin(115200);
     Serial3.begin(115200);
-
-    pinMode(51, OUTPUT);                                                           //for VD_ENABLE_VALUE check
-
+//
+//    pinMode(51, OUTPUT);                                                           //for VD_ENABLE_VALUE check
+//
     Wheel_left.Init(); //left wheel
     Wheel_right.Init();//right wheel
-
-//	attachInterrupt(0, ISRENCleft, CHANGE);                                          //encoder pin on interrupt 0 - pin 2
-//	attachInterrupt(1, ISRENCleft, CHANGE);                                          //encoder pin on interrupt 1 - pin 3
-//	attachInterrupt(2, ISRENCleft, CHANGE);
-//	attachInterrupt(3, ISRENCright, CHANGE);                                          //encoder pin on interrupt 0 - pin 2
-//	attachInterrupt(4, ISRENCright, CHANGE);                                          //encoder pin on interrupt 1 - pin 3
-//	attachInterrupt(5, ISRENCright, CHANGE);
+//
+	attachInterrupt(0, ISRENCleft, CHANGE);                                          //encoder pin on interrupt 0 - pin 2
+	attachInterrupt(1, ISRENCleft, CHANGE);                                          //encoder pin on interrupt 1 - pin 3
+	attachInterrupt(2, ISRENCleft, CHANGE);
+	attachInterrupt(3, ISRENCright, CHANGE);                                          //encoder pin on interrupt 0 - pin 2
+	attachInterrupt(4, ISRENCright, CHANGE);                                          //encoder pin on interrupt 1 - pin 3
+	attachInterrupt(5, ISRENCright, CHANGE);
 }
 
 void loop()
 {
-	long test,testhead ;
-	testhead = millis();// - test;
-	ENC_msgs.data = testhead;//testMilli;//dT;//Wheel_right.curEncoderpos;
-
     if ((dT = millis() - lastMilli) >= LOOPTIME)
     {
         lastMilli = millis();
 
-        Wheel_left.GetMotorData(dT,ENCMovFilterMode);
-        Wheel_right.GetMotorData(dT,ENCMovFilterMode);
+        Wheel_left.GetMotorData(dT,ENCOutputMode);
+        Wheel_right.GetMotorData(dT,ENCOutputMode);
 
         FbVelCal(WheelFb_msgs);
-        ENC_msgs.data = testhead;//testMilli;//dT;//Wheel_right.curEncoderpos;
-        ENCPre_msgs.data = test;//Wheel_right.EncoderposPre;
+        ENC_msgs.data = dT;//Wheel_right.curEncoderpos;
+        ENCPre_msgs.data = Wheel_right.EncoderposPre;
         elecVel_msgs.data = double(Wheel_left.SerialGetDriverData(Axis_left)) * 1.0472 * double(10) / double(30); //rad/s
-//        Wheel_left.SendCmd();
-//        Wheel_right.SendCmd();
+        Wheel_left.SendCmd();
+        Wheel_right.SendCmd();
     }
     else;
 
@@ -317,16 +322,13 @@ void loop()
     	//elecVel_pub.publish(&elecVel_msgs);
     }
     else;
-    test = millis();
-    ENCPre_msgs.data = test;
 
-    testMilli = test - testhead;
-    Serial.println(String("head=") + " " + \
-	String(testhead) + " " + \
-	String("bottom=") + " " + \
-	String(test) + " " + \
-	String("diff=") + " " + \
-	String(testMilli));
+//    Serial.println(String("head=") + " " + \
+//	String(testhead) + " " + \
+//	String("bottom=") + " " + \
+//	String(test) + " " + \
+//	String("diff=") + " " + \
+//	String(testMilli));
     nh.spinOnce();
 }
 
