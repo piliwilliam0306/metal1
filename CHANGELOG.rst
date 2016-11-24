@@ -12,3 +12,7 @@ Changelog for package metal1
 * RobotposeEKF odometry 
 * position listener for android
   * implement machine : metal prototype 
+
+0.0.2 (2016-11-24)
+------------------
+* change lidar sensor to rplidar

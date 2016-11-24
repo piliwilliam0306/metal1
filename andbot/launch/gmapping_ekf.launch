@@ -4,7 +4,7 @@
 <launch>
 
   <!-- <arg name="scan_topic" default="scan" /> -->
-  <arg name="scan_topic" default="xv11_scan" />
+  <arg name="scan_topic" default="rplidar_scan" />
 
   <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen"> 
     <param name="odom_frame" value="odom_combined"/>
