@@ -8,7 +8,7 @@
   <arg name="scan_subscriber_queue_size" default="5"/>
   <arg name="scan_topic" default="scan"/>
   <arg name="map_size" default="640"/>
-  
+  <node pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="1 0 0 0 0 0 base_footprint rplidar 100" />  
   <node pkg="hector_mapping" type="hector_mapping" name="hector_mapping" output="screen">
     
     <!-- Frame names -->

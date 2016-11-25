@@ -17,10 +17,10 @@
   	</node>
 	
 	<node pkg="andbot" type="mybot_odom_ekf_v1" name="mybot_odom_ekf_v1" />
-<!--
 	<include file="$(find andbot)/launch/gmapping_ekf.launch" />
--->	
+<!--
 	<include file="$(find andbot)/launch/amcl_578.launch" />
+-->
 
 	<node pkg="rosserial_python" type="serial_node1.py" name="serial_node1">
                 <param name="port" value="/dev/ttyACM1"/>

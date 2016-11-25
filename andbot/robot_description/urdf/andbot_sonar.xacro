@@ -18,7 +18,7 @@
   <!-- Base footprint link-->
   <link name="base_footprint"/>
 
-  <link name="xv11">
+  <link name="rplidar">
     <collision>
       <origin xyz="0 0 -0.019" rpy="1.57 0 -1.57"/>
       <geometry>
@@ -40,17 +40,17 @@
       <inertia ixx="0.2" ixy="0" ixz="0" iyy="0.2" iyz="0" izz="0.3"/>
     </inertial>
   </link>
-  <gazebo reference="xv11">
+  <gazebo reference="rplidar">
     <material>Gazebo/Green</material>
   </gazebo>
 
-  <joint name="xv11_fixed" type="fixed">
+  <joint name="rplidar_fixed" type="fixed">
     <parent link="base_footprint"/>
-    <child link="xv11"/>
+    <child link="rplidar"/>
 	
 <!--    plastic model     -->
 
-<origin xyz="-0.022 0 ${radius_wheel+0.135}" rpy="0 0 0"/>
+<origin xyz="-0.022 0 ${radius_wheel+0.135}" rpy="0 0 3.14"/>
 
 <!--	metal model	-->
 <!--	<origin xyz="0.07 0 ${radius_wheel+0.135}" rpy="0 0 0"/>-->
@@ -1076,12 +1076,12 @@
     </sensor>
   </gazebo>
 
-<!-- xv11 plugin -->
-  <gazebo reference="xv11">
+<!-- rplidar plugin -->
+  <gazebo reference="rplidar">
     <mu1>1.0</mu1>
     <mu2>1.0</mu2>
     <material>Gazebo/Blue</material>
-    <sensor type="ray" name="xv11_sensor">
+    <sensor type="ray" name="rplidar_sensor">
       <pose>0 0 0 0 0 0</pose>
       <visualize>true</visualize>
       <update_rate>40</update_rate>
@@ -1112,8 +1112,8 @@
         </noise>
       </ray>
       <plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_laser.so">
-        <topicName>xv11_scan</topicName>
-        <frameName>xv11</frameName>
+        <topicName>rplidar_scan</topicName>
+        <frameName>rplidar</frameName>
       </plugin>
     </sensor>
   </gazebo>
