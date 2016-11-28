@@ -42,7 +42,7 @@ from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 
 degrees2rad = math.pi/180.0
 imu_yaw_calibration = 0.0
-
+banana = 0.0
 # Callback for dynamic reconfigure requests
 def reconfig_callback(config, level):
     global imu_yaw_calibration
@@ -248,7 +248,11 @@ while not rospy.is_shutdown():
         imuMsg.angular_velocity.y = -float(words[7])
         #in AHRS firmware z axis points down, in ROS z axis points up (see REP 103) 
         imuMsg.angular_velocity.z = -float(words[8])
-
+    banana = -float(words[8]) + banana
+    if (banana <= -180):
+	banana += 360
+    if (banana > 180):
+	banana -=360
     q = quaternion_from_euler(roll,pitch,yaw)
     imuMsg.orientation.x = q[0]
     imuMsg.orientation.y = q[1]
@@ -259,6 +263,9 @@ while not rospy.is_shutdown():
     imuMsg.header.seq = seq
     seq = seq + 1
     pub.publish(imuMsg)
+    wtf = -float(words[8])
+    print "banana = %f" %banana 
+    print "wtf = %f" %wtf
 
     if (diag_pub_time < rospy.get_time()) :
         diag_pub_time += 1
