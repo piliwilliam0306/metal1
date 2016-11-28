@@ -35,6 +35,7 @@ import sys
 
 #from time import time
 from sensor_msgs.msg import Imu
+from std_msgs.msg import Float64
 from tf.transformations import quaternion_from_euler
 from dynamic_reconfigure.server import Server
 from razor_imu_9dof.cfg import imuConfig
@@ -55,6 +56,7 @@ def reconfig_callback(config, level):
 rospy.init_node("razor_node")
 #We only care about the most recent measurement, i.e. queue_size=1
 pub = rospy.Publisher('imu', Imu, queue_size=1)
+pub1 = rospy.Publisher('w', Float64, queue_size=1)
 srv = Server(imuConfig, reconfig_callback)  # define dynamic_reconfigure callback
 diag_pub = rospy.Publisher('diagnostics', DiagnosticArray, queue_size=1)
 diag_pub_time = rospy.get_time();
@@ -263,9 +265,11 @@ while not rospy.is_shutdown():
     imuMsg.header.seq = seq
     seq = seq + 1
     pub.publish(imuMsg)
-    wtf = -float(words[8])
+    w = -float(words[8])
+    pub1.publish(w)
+    #w = -float(words[8])
     print "banana = %f" %banana 
-    print "wtf = %f" %wtf
+    #print "wtf = %f" %wtf
 
     if (diag_pub_time < rospy.get_time()) :
         diag_pub_time += 1
