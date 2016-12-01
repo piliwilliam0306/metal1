@@ -25,8 +25,8 @@
  * And vice versa.
  * This is an issue to be solved either configuring software or hardware.
  **/
-//#define WHEEL_TYPE LEFT_WHEEL
-#define WHEEL_TYPE RIGHT_WHEEL
+#define WHEEL_TYPE LEFT_WHEEL
+//#define WHEEL_TYPE RIGHT_WHEEL
 
 #define encoder0PinA  2 /*! encoder A phrase */
 #define encoder0PinB  3 /*! encoder B phrase */
