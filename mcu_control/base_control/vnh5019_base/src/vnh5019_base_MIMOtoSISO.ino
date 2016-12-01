@@ -115,7 +115,7 @@ void setup()
 //digitalWrite(EN, LOW);
  digitalWrite(EN, HIGH);
 
- Serial.begin(1000000);
+ Serial.begin(115200);
 } 
 
 /**

@@ -42,9 +42,9 @@ const int EchoPin6 = 47;  //PL2
 const int EchoPin7 = 48;  //PL1
 const int EchoPin8 = 49;  //PL0
 
-#define LOOPTIME        100
+#define LOOPTIME        40
 #define BOOLTIME        1000 //1 Hz publish rate for cliff and bump sensor
-#define PUBLISHRATE 	(1/25*1000)
+#define PUBLISHRATE 	100
 
 double omega_left_target = 0.0;
 double omega_right_target = 0.0;
@@ -106,9 +106,9 @@ angelbot::WheelCmd WheelCmd_msgs;
 geometry_msgs::Twist VelFb_msgs;
 ros::Publisher feedback_wheel_angularVel_pub("angelbot/feedback_wheel_angularVel", &WheelFb_msgs);
 ros::Publisher cmd_wheel_volt_pub("angelbot/cmd_wheel_volt", &WheelCmd_msgs);
-ros::Publisher feedbackVel_pub("andbot1dot2/feedbackVel",&VelFb_msgs);
+ros::Publisher feedbackVel_pub("angelbot/feedbackVel",&VelFb_msgs);
 ros::Subscriber<angelbot::WheelCmd> s("angelbot/cmd_wheel_angularVel",WheelCmdModeCallback);
-ros::Subscriber<geometry_msgs::Twist> cmd_vel_sub("/andbot1dot2/cmd_vel", cmd_velCallback);
+ros::Subscriber<geometry_msgs::Twist> cmd_vel_sub("/angelbot/cmd_vel", cmd_velCallback);
 
 angelbot::Bump bump_msg;
 ros::Publisher pub_bump("bump", &bump_msg);
@@ -149,8 +149,8 @@ void WheelCmdModeCallback(const angelbot::WheelCmd& msg)
 
 void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
 {
-  double u_left = 0.0;
-  double u_right = 0.0;
+  double u_left;
+  double u_right;
   double volt_friction_compensation = 0.7;
 
   vel_ref = twist_aux.linear.x;
@@ -214,6 +214,7 @@ void setup()
   nh.getHardware()->setBaud(115200);
   nh.initNode();
   nh.subscribe(s);
+  nh.subscribe(cmd_vel_sub);
   nh.advertise(feedbackVel_pub);
   nh.advertise(cmd_wheel_volt_pub);
   nh.advertise(feedback_wheel_angularVel_pub);
