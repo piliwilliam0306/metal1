@@ -1,7 +1,20 @@
-//This code uses direct port manipulation which only works on Arduino Mega 2560
-//#define ANDBOT 1
-//#define RUGBY 2
-#define ANGELBOT 3
+/*
+ * =====================================================================================
+ *
+ *       Filename:  mega_base_MIMOtoSISO_angelbot.ino
+ *
+ *    Description:  This code uses direct port manipulation which only works on Arduino Mega 2560
+ *
+ *        Version:  1.2
+ *        Modified: 2016年12月01日 21時28分36秒
+ *       Revision:  none
+ *       Compiler:  gcc
+ *
+ *         Author:  Weber-Hsu
+ *        Company:  Advanced Robotics Corporation
+ *
+ * =====================================================================================
+ */
 
 #include <ros.h>
 #include <geometry_msgs/Twist.h>
@@ -11,36 +24,10 @@
 #include <WheelFb.h>
 #include <avr/io.h>
 #include <DriverState.h>
-
 #include <std_msgs/Int16.h>
 #include <std_msgs/Float32.h>
 #include <std_msgs/Float64.h>
-
-#if defined (ANDBOT)
-	#define MaxSpeed 10.96
-#elif (ANGELBOT)
-	#define MaxSpeed 31
-#else
-	#define MaxSpeed 31
-#endif
-
-const int TrigPin1 = 30;  //PC7
-const int TrigPin2 = 31;  //PC6
-const int TrigPin3 = 32;  //PC5
-const int TrigPin4 = 33;  //PC4
-const int TrigPin5 = 34;  //PC3
-const int TrigPin6 = 35;  //PC2
-const int TrigPin7 = 36;  //PC1
-const int TrigPin8 = 37;  //PC0
-
-const int EchoPin1 = 42;  //PL7
-const int EchoPin2 = 43;  //PL6
-const int EchoPin3 = 44;  //PL5
-const int EchoPin4 = 45;  //PL4
-const int EchoPin5 = 46;  //PL3
-const int EchoPin6 = 47;  //PL2
-const int EchoPin7 = 48;  //PL1
-const int EchoPin8 = 49;  //PL0
+#include "../lib/ParamSettings/ParamSettings.h"
 
 #define LOOPTIME        40
 #define BOOLTIME        1000 //1 Hz publish rate for cliff and bump sensor
@@ -53,17 +40,8 @@ double omega_right_actual = 0;
 unsigned long lastMilli = 0;
 unsigned long lastBool = 0;
 unsigned long PrePubMilli = 0;
-
 long dT = 0;
 
-bool bump1_reading;
-bool bump2_reading;
-bool bump3_reading;
-bool bump4_reading;
-bool cliff1_reading;
-bool cliff2_reading;
-bool cliff3_reading;
-bool cliff4_reading;
 //Max.Distance(cm) = 200cm
 #define TimeOut 5000//TimeOut = Max.Distance(cm) * 58
 
@@ -85,8 +63,6 @@ double omega_fb_left = 0.0;
 double sum_error_vel = 0.0;
 double sum_error_omega = 0.0;
 
-double WheelRadius = 0.0375, WheelSeparation = 0.247;
-
 //declarations
 void cmd_velCallback(const geometry_msgs::Twist &twist_aux);
 void DriverState_service_callback(const angelbot::DriverStateRequest& req, angelbot::DriverStateResponse& res);
@@ -96,7 +72,6 @@ void LoopRateCallback(const std_msgs::Float32 &rate);
 /* ************  declarations for ROS usages *****************************************/
 
 /*  define  ROS node and topics */
-
 ros::NodeHandle nh;
 using angelbot::DriverState;
 bool set_; 
@@ -149,8 +124,8 @@ void WheelCmdModeCallback(const angelbot::WheelCmd& msg)
 
 void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
 {
-  double u_left;
-  double u_right;
+//  double u_left;
+//  double u_right;
   double volt_friction_compensation = 0.7;
 
   vel_ref = twist_aux.linear.x;
@@ -181,15 +156,13 @@ void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
 //  }
 //  else;
 
-	u_right = (vel_ref + (omega_ref*WheelSeparation)/2)/ WheelRadius;
-	u_left = (vel_ref - (omega_ref*WheelSeparation)/2) / WheelRadius;
+  omega_right_target = (vel_ref + (omega_ref*WheelSeparation)/2)/ WheelRadius;
+  omega_left_target = (vel_ref - (omega_ref*WheelSeparation)/2) / WheelRadius;
 
-	//for publish
-  WheelCmd_msgs.speed1 = u_left ;
-  WheelCmd_msgs.speed2 = u_right;
+  //for publish
+  WheelCmd_msgs.speed1 = omega_left_target ;
+  WheelCmd_msgs.speed2 = omega_right_target;
 
-  omega_left_target = u_left;
-  omega_right_target = u_right;
   //driver_mode = msg.driverstate;
   sendCmd_wheel_angularVel_L();
   sendCmd_wheel_angularVel_R();
@@ -245,6 +218,7 @@ void loop()
 
 		WheelFb_msgs.current1 = current_left;
 		WheelFb_msgs.current2 = current_right;
+	        nh.spinOnce();
 	}
 	else;
 
@@ -294,7 +268,7 @@ void loop()
           pub_sonar.publish(&sonar_msg);
         }
     else;
-    	nh.spinOnce();
+
 }
 
 uint8_t ping(int TrigPin, int EchoPin) 
