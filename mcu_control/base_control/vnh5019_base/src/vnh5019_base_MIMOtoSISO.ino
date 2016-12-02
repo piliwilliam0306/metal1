@@ -25,8 +25,8 @@
  * And vice versa.
  * This is an issue to be solved either configuring software or hardware.
  **/
-#define WHEEL_TYPE LEFT_WHEEL
-//#define WHEEL_TYPE RIGHT_WHEEL
+//#define WHEEL_TYPE LEFT_WHEEL
+#define WHEEL_TYPE RIGHT_WHEEL
 
 #define encoder0PinA  2 /*! encoder A phrase */
 #define encoder0PinB  3 /*! encoder B phrase */
@@ -36,7 +36,7 @@
 #define InB 5 /*! 328p -> vnh ; Output for forward/reverse*/
 #define EN 7 /*! 328p -> vnh ; Enable command*/
 
-#define LOOPTIME 40
+#define LOOPTIME 1
 #define FeedbackTime 100
 #define CurrentLimit 9000 //for metal0
 #define Umax_volt 12
@@ -97,6 +97,10 @@ unsigned int current = 0;
 //Motor Driver mode
 bool driver_mode = false;
 
+int arraysize_=100;
+uint8_t arrayPtr = 0;
+int *countArray = new int[arraysize_];
+
 /**
  * Initializations of vnh5019 board.
  * Start serial port.
@@ -115,7 +119,7 @@ void setup()
 //digitalWrite(EN, LOW);
  digitalWrite(EN, HIGH);
 
- Serial.begin(115200);
+ Serial.begin(1000000);
 } 
 
 /**
@@ -136,14 +140,14 @@ void loop()
         dT = millis()-lastMilli;
         lastMilli = millis();
         
-        getMotorData();                                                        // calculate speed
+        getMotorData_Moving_Filter();//getMotorData();                                                        // calculate speed
 
-        cmd_volt = (controller(omega_target, omega_actual));                       // compute PWM value from rad/s
+        cmd_volt = (controller(omega_target, 0));//omega_actual));                       // compute PWM value from rad/s
         if (cmd_volt >= Umax_volt)		cmd_volt = Umax_volt;
         else if (cmd_volt <= Umin_volt)	cmd_volt = Umin_volt;
 
-        if (WHEEL_TYPE == LEFT_WHEEL)  PWM_val = cmd_volt/(double(MaxSpeed)/double(MaxPWM));
-        else                            PWM_val = -cmd_volt/(double(MaxSpeed)/double(MaxPWM));
+        if (WHEEL_TYPE == LEFT_WHEEL)  PWM_val = cmd_volt/(double(Umax_volt)/double(MaxPWM));
+        else                            PWM_val = -cmd_volt/(double(Umax_volt)/double(MaxPWM));
 
         if ((omega_target == 0) && (driver_mode == true))  { PWM_val = 0;  sum_error = 0;  digitalWrite(EN, HIGH); }
         //if (omega_target == 0)  { PWM_val = 0;  sum_error = 0;  }
@@ -153,14 +157,15 @@ void loop()
 	    if (PWM_val < 0)         { analogWrite(motorIn1,abs(PWM_val));  digitalWrite(InA, LOW);  digitalWrite(InB, HIGH); }
         else if (PWM_val > 0)    { analogWrite(motorIn1,abs(PWM_val));  digitalWrite(InA, HIGH);   digitalWrite(InB, LOW);}
         else                     { digitalWrite(InA, LOW);   digitalWrite(InB, LOW);} //for brake
+	    sendFeedback_wheel_angularVel(); //send actually speed to mega
      }
      
-  if((millis()-lastSend) >= FeedbackTime)    
-     {                                    // enter tmed loop
-        lastSend = millis();
-        sendFeedback_wheel_angularVel(); //send actually speed to mega
-        printMotorInfo();
-     }
+//  if((millis()-lastSend) >= FeedbackTime)
+//     {                                    // enter tmed loop
+//        lastSend = millis();
+//        sendFeedback_wheel_angularVel(); //send actually speed to mega
+//        printMotorInfo();
+//     }
      
 }
 
@@ -181,13 +186,15 @@ void readCmd_wheel_angularVel()
               if(rP=='}') //B01111101 motor driver on         
                 {
                   target_receive = (rH<<8)+rL; 
-                  omega_target = double (target_receive*((double(MaxSpeed)/32767)));  //convert received 16 bit integer to actual speed
+//                  omega_target = double (target_receive*((double(MaxSpeed)/32767)));  //convert received 16 bit integer to actual speed
+                  omega_target = double (target_receive*((double(Umax_volt)/32767)));  //convert received 16 bit integer to actual speed
                   driver_mode = true;
                 }
               if(rP=='|') //B01111100 motor driver off         
                 {
                   target_receive = (rH<<8)+rL; 
-                  omega_target = double (target_receive*((double(MaxSpeed)/32767)));  //convert received 16 bit integer to actual speed
+//                  omega_target = double (target_receive*((double(MaxSpeed)/32767)));  //convert received 16 bit integer to actual speed?
+                  omega_target = double (target_receive*((double(Umax_volt)/32767)));  //convert received 16 bit integer to actual speed
                   driver_mode = false;
                 }  
             }
@@ -224,6 +231,19 @@ void getMotorData()
   EncoderposPre = Encoderpos;                 
 }
 
+void getMotorData_Moving_Filter()
+{
+  countArray[arrayPtr] = Encoderpos;
+  uint8_t nextPtr = arrayPtr + 1;
+  if(nextPtr > (arraysize_ - 1) ){nextPtr = 0;}
+
+  if (WHEEL_TYPE == LEFT_WHEEL)
+	omega_actual = ((double) 1000*(countArray[arrayPtr] - countArray[nextPtr])/ arraysize_)*2*PI/(CPR*gear_ratio);
+  else
+	omega_actual = -((double) 1000*(countArray[arrayPtr] - countArray[nextPtr])/ arraysize_)*2*PI/(CPR*gear_ratio);
+  arrayPtr ++;
+  if(arrayPtr > (arraysize_ -1) ){arrayPtr = 0;}
+}
 /**
  * Limit current flow. (new development)
  */
@@ -242,15 +262,16 @@ void CurrentMonitor()
 double controller(double targetValue,double currentValue)
 {              
   static double last_error=0;                 
-  double calculated_pidTerm, constrained_pidterm, error, iTerm, pidTerm;
-  double Kp = 0.0,Ki = 0.0,Kd = 0.0;
+  double calculated_pidTerm, constrained_pidterm, error,pTerm, iTerm, pidTerm;
+  double Kp = 1.0,Ki = 0.0,Kd = 0.0;
     
   error = targetValue - currentValue; 
 
+  pTerm = Kp * error;
   sum_error = sum_error + error * dT;
   iTerm = Ki * sum_error;
 
-  pidTerm = Kp * error + iTerm;
+  pidTerm = pTerm + iTerm;
 
   return pidTerm;
 }

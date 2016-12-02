@@ -58,6 +58,7 @@ double WheelRadius = 0.0375, WheelSeparation = 0.247;
         #define MaxSpeed 10.96
 #elif (ANGELBOT)
         #define MaxSpeed 31
+		#define Umax_volt 12
 #else
         #define MaxSpeed 31
 #endif
