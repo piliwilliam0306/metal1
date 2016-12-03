@@ -29,7 +29,7 @@
 #include <std_msgs/Float64.h>
 #include "ParamSettings.h"
 
-#define LOOPTIME        20
+#define LOOPTIME        1//20
 #define BOOLTIME        1000 //1 Hz publish rate for cliff and bump sensor
 #define PUBLISHRATE 	100
 
@@ -92,6 +92,23 @@ angelbot::Sonar sonar_msg;
 ros::Publisher pub_sonar( "sonar", &sonar_msg);
 /* ************  End of declarations for ROS usages ****************/
 
+typedef union{
+	double doublepoint;
+	byte binary[4];
+}binarydouble;
+
+void sendTest()
+{
+	//double left_send =  1.1;
+	binarydouble left_send;
+	left_send.doublepoint = 1.1;
+//	byte buf[6];
+//	buf[0] =  '{'; //send start byte
+//	buf[1] = highByte(left_send);
+//	buf[2] = lowByte(left_send);
+//	buf[3] = '}';
+	Serial.write(left_send.binary,sizeof(left_send));
+}
 void sendCmd_wheel_angularVel_L()
 {
   //int left_target_send = int(omega_left_target/(double(MaxSpeed)/32767)); //convert rad/s to 16 bit integer to send
@@ -137,7 +154,7 @@ void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
 {
   double u_left;
   double u_right;
-  double volt_friction_compensation = 1.7;
+  double volt_friction_compensation = 3.2;
   double u_sum,u_diff;
 
   vel_ref = twist_aux.linear.x;
@@ -194,7 +211,7 @@ void setup()
 {
   TCCR0B = TCCR0B & B11111000 | B00000010; 
   //set baud rate for rosserial
-  nh.getHardware()->setBaud(1000000);
+  //nh.getHardware()->setBaud(1000000);
   nh.initNode();
   nh.advertise(feedbackVel_pub);
   nh.advertise(cmd_wheel_volt_pub);
@@ -204,6 +221,7 @@ void setup()
 //  nh.advertise(pub_sonar);
 //  nh.advertise(pub_bump);
 
+  Serial.begin(115200);
   Serial2.begin (1000000);  //left
   Serial1.begin (1000000);  //right
   DDRA &= ~0b11111111;  //set DDRA register as input for bump and cliff sensors
@@ -228,7 +246,7 @@ void loop()
 
 		WheelFb_msgs.current1 = current_left;
 		WheelFb_msgs.current2 = current_right;
-
+		sendTest();
 	}
 	else;
 
