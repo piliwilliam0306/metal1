@@ -42,8 +42,12 @@ from razor_imu_9dof.cfg import imuConfig
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 
 degrees2rad = math.pi/180.0
+rad2deg = 180/math.pi#/180.0
 imu_yaw_calibration = 0.0
 banana = 0.0
+current = 0.0
+last = 0.0
+dt = 0.0
 # Callback for dynamic reconfigure requests
 def reconfig_callback(config, level):
     global imu_yaw_calibration
@@ -55,8 +59,9 @@ def reconfig_callback(config, level):
 
 rospy.init_node("razor_node")
 #We only care about the most recent measurement, i.e. queue_size=1
-pub = rospy.Publisher('imu', Imu, queue_size=1)
-pub1 = rospy.Publisher('w', Float64, queue_size=1)
+pub = rospy.Publisher('imu_data', Imu, queue_size=1)
+#pub1 = rospy.Publisher('w', Float64, queue_size=1)
+#pub2 = rospy.Publisher('d_time', Float64, queue_size=1)
 srv = Server(imuConfig, reconfig_callback)  # define dynamic_reconfigure callback
 diag_pub = rospy.Publisher('diagnostics', DiagnosticArray, queue_size=1)
 diag_pub_time = rospy.get_time();
@@ -94,12 +99,12 @@ imuMsg.angular_velocity_covariance = [
 # nonliniarity spec: 0.5% of full scale => 0.2m/s^2
 # Choosing 0.2 as std dev, variance = 0.2^2 = 0.04
 imuMsg.linear_acceleration_covariance = [
-0.04 , 0 , 0,
-0 , 0.04, 0,
-0 , 0 , 0.04
+-1 , 0 , 0,
+0 , 0, 0,
+0 , 0 , 0
 ]
 
-default_port='/dev/ttyUSB0'
+default_port='/dev/gyro'
 port = rospy.get_param('~port', default_port)
 
 #read calibration parameters
@@ -250,25 +255,31 @@ while not rospy.is_shutdown():
         imuMsg.angular_velocity.y = -float(words[7])
         #in AHRS firmware z axis points down, in ROS z axis points up (see REP 103) 
         imuMsg.angular_velocity.z = -float(words[8])
-    banana = -float(words[8]) + banana
+    banana = -float(words[8])*rad2deg*dt + banana
     if (banana <= -180):
 	banana += 360
     if (banana > 180):
 	banana -=360
-    q = quaternion_from_euler(roll,pitch,yaw)
+    banana_rad = banana * degrees2rad
+    current = rospy.get_time()
+    dt = current - last;
+    last = current
+    #q = quaternion_from_euler(roll,pitch,yaw)
+    q = quaternion_from_euler(0,0,banana_rad)
     imuMsg.orientation.x = q[0]
     imuMsg.orientation.y = q[1]
     imuMsg.orientation.z = q[2]
     imuMsg.orientation.w = q[3]
     imuMsg.header.stamp= rospy.Time.now()
-    imuMsg.header.frame_id = 'base_imu_link'
+    imuMsg.header.frame_id = 'IMU_link'
     imuMsg.header.seq = seq
     seq = seq + 1
     pub.publish(imuMsg)
-    w = -float(words[8])
-    pub1.publish(w)
     #w = -float(words[8])
-    print "banana = %f" %banana 
+    #pub1.publish(w)
+    #pub2.publish(dt)
+    #w = -float(words[8])
+    #print "banana = %f" %banana 
     #print "wtf = %f" %wtf
 
     if (diag_pub_time < rospy.get_time()) :

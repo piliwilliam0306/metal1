@@ -68,7 +68,7 @@
 ## Make robot move via Teleop app
   * Now, put the robot on the ground
   * In ssh terminal in Odroid board, launch startup script
-     $ roslaunch andbot andbot_v1.launch
+     $ roslaunch andbot andbot2.launch (launch andbot1.launch if you are using andbot #1)
   * Open Teleop app in Android phone
     * Enter "http://[Odroid IP address]:11311 as ROS_MASTER_URI. 
   * Now you should see a map in the Teleop app

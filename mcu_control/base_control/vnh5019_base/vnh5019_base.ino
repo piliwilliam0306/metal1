@@ -93,8 +93,8 @@ void loop()
         getMotorData();                                                           // calculate speed
 
         PWM_val = (updatePid(omega_target, omega_actual));                       // compute PWM value from rad/s 
-        if ((omega_target == 0) && (driver_mode == true))  { PWM_val = 0;  sum_error = 0;  digitalWrite(EN, HIGH); }
-        //if (omega_target == 0)  { PWM_val = 0;  sum_error = 0;  }
+        //if ((omega_target == 0) && (driver_mode == true))  { PWM_val = 0;  sum_error = 0;  digitalWrite(EN, HIGH); }
+        if (omega_target == 0)  { PWM_val = 0;  sum_error = 0;  }
         
         if (PWM_val <= 0)   { analogWrite(motorIn1,abs(PWM_val));  digitalWrite(InA, LOW);  digitalWrite(InB, HIGH); }
         if (PWM_val > 0)    { analogWrite(motorIn1,abs(PWM_val));  digitalWrite(InA, HIGH);   digitalWrite(InB, LOW);}
@@ -160,7 +160,7 @@ void getMotorData()
 void CurrentMonitor()
 {
   current = analogRead(analogPin) * 34;  // 5V / 1024 ADC counts / 144 mV per A = 34 mA per count
-  if ((current > CurrentLimit) || (driver_mode == false))  digitalWrite(EN, LOW);
+  //if ((current > CurrentLimit) || (driver_mode == false))  digitalWrite(EN, LOW);
 }
 
 double updatePid(double targetValue,double currentValue)   
