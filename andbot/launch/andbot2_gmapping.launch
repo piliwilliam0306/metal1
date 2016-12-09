@@ -4,6 +4,11 @@
 <launch>
 	<include file="$(find andbot)/launch/display_sonar.launch" />
 	
+	<arg name="razor_config_file" default="$(find razor_imu_9dof)/config/andbot2_razor.yaml"/>
+        <node pkg="razor_imu_9dof" type="imu_node.py" name="imu_node" output="screen">
+          <rosparam file="$(arg razor_config_file)" command="load"/>
+        </node>
+	
 	<include file="$(find andbot)/launch/dwa_move_base_ekf.launch" />
 	
 	<include file="$(find rplidar_ros)/launch/rplidar.launch" />
@@ -17,10 +22,10 @@
   	</node>
 	
 	<node pkg="andbot" type="mybot_odom_ekf_v1" name="mybot_odom_ekf_v1" />
-<!--
 	<include file="$(find andbot)/launch/gmapping_ekf.launch" />
--->	
+<!--
 	<include file="$(find andbot)/launch/amcl_578.launch" />
+-->
 
 	<node pkg="rosserial_python" type="serial_node1.py" name="serial_node1">
                 <param name="port" value="/dev/ttyACM1"/>

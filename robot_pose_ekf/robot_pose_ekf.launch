@@ -21,8 +21,9 @@
 <!--
 <node pkg="robot_pose_ekf" type="gyro_node.py" name="gyro_node" />
 -->
+<!--
 <node pkg="robot_pose_ekf" type="mpu6050.py" name="mpu6050" />
-	
+-->	
 <node pkg="robot_pose_ekf" type="odom_ekf.py" name="odom_ekf" />
 </launch>
 

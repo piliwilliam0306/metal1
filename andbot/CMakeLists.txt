@@ -153,6 +153,9 @@ include_directories(
 #add_executable(mybot_odometry src/mybot_odometry.cpp)
 #target_link_libraries(mybot_odometry ${catkin_LIBRARIES})
 
+add_executable(app_sub src/app_sub.cpp)
+target_link_libraries(app_sub ${catkin_LIBRARIES})
+
 add_executable(mybot_odometry_v1 src/mybot_odometry_v1.cpp)
 target_link_libraries(mybot_odometry_v1 ${catkin_LIBRARIES})
 

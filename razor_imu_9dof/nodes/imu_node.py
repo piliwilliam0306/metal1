@@ -81,7 +81,7 @@ imuMsg = Imu()
 imuMsg.orientation_covariance = [
 0.0025 , 0 , 0,
 0, 0.0025, 0,
-0, 0, 0.0025
+0, 0, 0.000025
 ]
 
 # Angular velocity covariance estimation:
