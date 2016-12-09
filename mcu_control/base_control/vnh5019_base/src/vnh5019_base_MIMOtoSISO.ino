@@ -1,13 +1,20 @@
-/**
+/*
+ * =====================================================================================
  *
- * @file vnh5019_base.ino
- * driver for vnh5019 board to control motor.
- * @brief Motor driver vnh5019.
- * @author will
- * @version 1.00
+ *       Filename:  mega_base_MIMOtoSISO_angelbot.ino
  *
+ *    Description:
  *
- **/
+ *        Version:  1.2
+ *        Modified: 2016年12月01日 21時28分36秒
+ *       Revision:  none
+ *       Compiler:  gcc
+ *
+ *         Author:  Will, Weber-Hsu
+ *        Company:  Advanced Robotics Corporation
+ *
+ * =====================================================================================
+ */
 
 /**
  * Marco
@@ -28,6 +35,9 @@
 //#define WHEEL_TYPE LEFT_WHEEL
 #define WHEEL_TYPE RIGHT_WHEEL
 
+/* =====================================================================================
+ * Pin assignment
+ * ===================================================================================*/
 #define encoder0PinA  2 /*! encoder A phrase */
 #define encoder0PinB  3 /*! encoder B phrase */
 
@@ -42,7 +52,12 @@
 #define Umax_volt 12
 #define Umin_volt -12
 #define MaxPWM 255
-
+/* =====================================================================================
+ * End of Pin assignment
+ * ===================================================================================*/
+/* =====================================================================================
+ * Motor params
+ * ===================================================================================*/
 #if defined (ANDBOT)
   #define CPR 28 /*! count per rev */
   #define MaxSumError 2500 /*! limit integration */
@@ -55,7 +70,7 @@
   #define CPR 64  /*! count per rev */
   #define MaxSumError 6000 /*! limit integration */
   #define gear_ratio 18.8 
-  #define MaxSpeed 31 /*! to be determined? */
+  #define MaxSpeed 31
 //  #define Kp 0.9
 //  #define Ki 0.005
 //  #define Kd 0
@@ -68,7 +83,9 @@
   #define Ki 0.005
   #define Kd 0
 #endif
-
+/* =====================================================================================
+ * End of Motor params
+ * ===================================================================================*/
 volatile long Encoderpos = 0; /*! counting encoder position */
 volatile long unknownvalue = 0;
 
@@ -82,8 +99,13 @@ unsigned long lastMilli = 0;  /*! loop timing */
 unsigned long lastSend = 0;   /*! send timing */
 long dT = 0; /*! differential time */
 
+//moving average filter for encoder
+int arraysize_=100;
+uint8_t arrayPtr = 0;
+int *countArray = new int[arraysize_];
+
 double omega_target = 0.0; /*! target angular velocity */
-double omega_actual = 0; /*! actural angular velocity */
+double omega_actual = 0; /*! actual angular velocity */
 
 double cmd_volt = 0.0;
 int PWM_val = 0;  /*! (25% = 64; 50% = 127; 75% = 191; 100% = 255) */
@@ -97,9 +119,14 @@ unsigned int current = 0;
 //Motor Driver mode
 bool driver_mode = false;
 
-int arraysize_=100;
-uint8_t arrayPtr = 0;
-int *countArray = new int[arraysize_];
+// ctrler params through serial
+double Kp = 1.0,Ki = 0.0,Kd = 0.0;
+typedef union{
+	double Data;
+	byte binary[4];
+}SerialDataDouble;
+byte getData[17];
+SerialDataDouble dataRecv[3];
 
 /**
  * Initializations of vnh5019 board.
@@ -120,6 +147,8 @@ void setup()
  digitalWrite(EN, HIGH);
 
  Serial.begin(1000000);
+ SerialGetCtrlerPID();
+
 } 
 
 /**
@@ -169,6 +198,36 @@ void loop()
      
 }
 
+void SerialGetCtrlerPID()
+{
+	if (Serial.available() >=18)
+	{
+//		if (Serial.read() == '{')
+//		{
+//			Serial.readBytes(getData, 17);
+//		}
+//		else;
+		Serial.readBytes(getData,18);
+		if (getData[0] == '{')
+		{
+			if (getData[17] == '}')
+			{
+				for (int j = 1; j<=3;j++){
+					for (int i = 1; i <= 4; i ++) {
+						dataRecv[j-1].binary[i-1] = getData[i*j];
+					}
+				}
+				//Serial.println("data=");
+				//Serial.println(dataRecv.doublepoint,10);
+			}
+			else;
+		}
+		else;
+	}
+	Kp = dataRecv[0];
+	Ki = dataRecv[1];
+	Kd = dataRecv[2];
+}
 /**
  * Read cmd [velocity] from mega2560.
  */
@@ -263,7 +322,6 @@ double controller(double targetValue,double currentValue)
 {              
   static double last_error=0;                 
   double calculated_pidTerm, constrained_pidterm, error,pTerm, iTerm, pidTerm;
-  double Kp = 1.0,Ki = 0.0,Kd = 0.0;
     
   error = targetValue - currentValue; 
 

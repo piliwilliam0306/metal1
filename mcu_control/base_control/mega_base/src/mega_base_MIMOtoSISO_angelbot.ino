@@ -93,22 +93,25 @@ ros::Publisher pub_sonar( "sonar", &sonar_msg);
 /* ************  End of declarations for ROS usages ****************/
 
 typedef union{
-	double doublepoint;
+	double Data;
 	byte binary[4];
-}binarydouble;
+}SerialDataDouble;
+byte sendData[18] = {123,{0},125}; //{"{", 0, 0, 0, 0, "}"}
 
-void sendTest()
+void SerialSendPIDGaintoDriver()
 {
-	//double left_send =  1.1;
-	binarydouble left_send;
-	left_send.doublepoint = 1.1;
-//	byte buf[6];
-//	buf[0] =  '{'; //send start byte
-//	buf[1] = highByte(left_send);
-//	buf[2] = lowByte(left_send);
-//	buf[3] = '}';
-	Serial.write(left_send.binary,sizeof(left_send));
+	SerialDataDouble left_send[3];
+	left_send[0].Data = 1.1; //Kp
+	left_send[1].Data = 1.1; //Ki
+	left_send[2].Data = 0.0; //Kd
+	for (int j = 1; j <=3; j++){
+		for (int i = 1; i <= 4; i++){
+			sendData[i*j] = left_send[j-1].binary[i-1];
+		}
+		Serial1.write(sendData,sizeof(sendData));
+	}
 }
+
 void sendCmd_wheel_angularVel_L()
 {
   //int left_target_send = int(omega_left_target/(double(MaxSpeed)/32767)); //convert rad/s to 16 bit integer to send
