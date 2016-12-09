@@ -10,7 +10,7 @@ typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseCl
 
 int main(int argc, char** argv)
 {
-	ros::init(argc, argv, "send_angelbot_goal");
+	ros::init(argc, argv, "send_rugby_goal");
 	
 	//Initiating move_base client
 	MoveBaseClient ac("move_base", true);

@@ -3,11 +3,11 @@
  <!-- change this next line to include the launch file for your robot's hardware drivers: -->
 
 	<node pkg="rosserial_python" type="serial_node.py" name="serial_node">
-	    <param name="port" value="/dev/mega_base"/>
-	    <param name="baud" value="57600"/></node>
+	    <param name="port" value="/dev/ttyUSB1"/>
+	    <param name="baud" value="1000000"/></node>
 
   <!-- urdf xml robot description loaded on the Parameter Server-->
-	<param name="robot_description" command="$(find xacro)/xacro '$(find rugby)/modeldescription/urdf/angelbot.xacro'" />
+	<param name="robot_description" command="$(find xacro)/xacro '$(find rugby)/modeldescription/urdf/rugby.xacro'" />
 	
 	<!-- Robot parameters -->
 	<param name="wheelSeparation" value="0.245"></param>
@@ -21,8 +21,8 @@
 		<param name="publish_frequency" type="double" value="50.0"></param></node>
 		
 	<!-- Starting twist to motor and diff_tf nodes -->
-	<node pkg="rugby" type="mybot_base_controller_v1_angelbot" name="mybot_base_controller_v1_angelbot" output="screen"/>
- 	<node pkg="rugby" type="mybot_odom_ekf_angelbot" name="mybot_odom_ekf_angelbot" output="screen"/>
+	<node pkg="rugby" type="mybot_base_controller_v1_rugby" name="mybot_base_controller_v1_rugby" output="screen"/>
+ 	<node pkg="rugby" type="mybot_odom_ekf_rugby" name="mybot_odom_ekf_rugby" output="screen"/>
  	 
  	 <!-- Starting robot_pose_ekf nodes -->
 	<include file="$(find rugby)/launch/robot_pose_ekf.launch" />

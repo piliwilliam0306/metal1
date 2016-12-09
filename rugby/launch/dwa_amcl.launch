@@ -13,7 +13,7 @@
 	<arg name="initial_pose_y"  default="-0.908104"/>
 	<arg name="initial_pose_a"  default="3.14159"/>
 	<arg name="odom_frame_id"   default="odom"/>
-	<arg name="base_frame_id"   default="angelbot_base"/>
+	<arg name="base_frame_id"   default="rugby_base"/>
 	<arg name="global_frame_id" default="map"/>
 	
 	<!-- Launches amcl node -->

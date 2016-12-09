@@ -1,6 +1,6 @@
 #include <ros/ros.h>
 #include <tf/transform_broadcaster.h>
-#include <angelbot/WheelCmd.h>
+#include <rugby/WheelCmd.h>
 #include <iostream>
 
 using namespace std;
@@ -12,7 +12,7 @@ double rate;
 
 void cmd_velCallback(const geometry_msgs::Twist &twist_aux)
 {
-  angelbot::WheelCmd wheel;
+  rugby::WheelCmd wheel;
   geometry_msgs::Twist twist = twist_aux;
   double vel_x = twist_aux.linear.x;
   double vel_th = twist_aux.angular.z;
@@ -48,8 +48,8 @@ int main(int argc, char** argv){
 	ROS_INFO_STREAM("wheelRadius from param =" << wheelRadius);
   }
 
-  cmd_vel_sub = n1.subscribe("/angelbot/cmd_vel", 10, cmd_velCallback);
-  cmd_wheel_angularVel_pub = n2.advertise<angelbot::WheelCmd>("cmd_wheel_angularVel", 50);
+  cmd_vel_sub = n1.subscribe("/rugby/cmd_vel", 10, cmd_velCallback);
+  cmd_wheel_angularVel_pub = n2.advertise<rugby::WheelCmd>("cmd_wheel_angularVel", 50);
   ros::Rate loop_rate(rate);
 
   while(ros::ok())
