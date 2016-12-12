@@ -300,6 +300,6 @@ while not rospy.is_shutdown():
         diag_msg.values.append(KeyValue('sequence number', str(seq)))
         diag_arr.status.append(diag_msg)
         diag_pub.publish(diag_arr)
-        
+    rospy.spin()#keeps python from exiting    
 ser.close
 #f.close
