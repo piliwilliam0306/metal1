@@ -1,40 +1,24 @@
-//This code uses direct port manipulation which only works on Arduino Mega 2560
 #define ANDBOT 1
 //#define RUGBY 2
 
 #include <ros.h>
-#include <andbot/Bump.h>
-#include <andbot/Sonar.h>
+//#include <andbot/Bump.h>
+//#include <andbot/Sonar.h>
 #include <andbot/WheelCmd.h>
 #include <andbot/WheelFb.h>
 #include <avr/io.h>
-#include <andbot/DriverState.h>
-
-#if defined (ANDBOT)
-  #define MaxSpeed 10.96
-#else
-  #define MaxSpeed 31
-#endif
-
-const int TrigPin1 = 30;  //PC7
-const int TrigPin2 = 31;  //PC6
-const int TrigPin3 = 32;  //PC5
-const int TrigPin4 = 33;  //PC4
-const int TrigPin5 = 34;  //PC3
-const int TrigPin6 = 35;  //PC2
-const int TrigPin7 = 36;  //PC1
-const int TrigPin8 = 37;  //PC0
-
-const int EchoPin1 = 42;  //PL7
-const int EchoPin2 = 43;  //PL6
-const int EchoPin3 = 44;  //PL5
-const int EchoPin4 = 45;  //PL4
-const int EchoPin5 = 46;  //PL3
-const int EchoPin6 = 47;  //PL2
-const int EchoPin7 = 48;  //PL1
-const int EchoPin8 = 49;  //PL0
+//#include <andbot/DriverState.h>
+#include <andbot/Battery.h>
+#include <std_msgs/UInt8.h>
+#include <geometry_msgs/Vector3.h>
+#include <geometry_msgs/Twist.h>
+#include <tf/transform_broadcaster.h>
+#include <nav_msgs/Odometry.h>
+#include <std_msgs/UInt8.h>
+#include <std_msgs/Float64.h>
 
 #define LOOPTIME        100
+#define SONARTIME       200
 #define BOOLTIME        1000 //1 Hz publish rate for cliff and bump sensor
 
 double omega_left_target = 0.0;
@@ -43,26 +27,26 @@ double omega_left_actual = 0;
 double omega_right_actual = 0;
 unsigned long lastMilli = 0;
 unsigned long lastBool = 0;
+unsigned long lastSonar = 0;
 
 long dT = 0;
 
-bool bump1_reading;
-bool bump2_reading;
-bool bump3_reading;
-bool bump4_reading;
-bool cliff1_reading;
-bool cliff2_reading;
-bool cliff3_reading;
-bool cliff4_reading;
+
 //Max.Distance(cm) = 200cm
 #define TimeOut 15000//TimeOut = Max.Distance(cm) * 58
 
 unsigned int current_left = 0;
 unsigned int current_right = 0;
-bool driver_mode;
+bool driver_mode = false;
+
+int Vin = 0;           // variable to store the value read
+int Cin = 0;
+unsigned int current = 0;           // variable to store the value read
+byte capacity = 0;
+double voltage = 0;
 
 ros::NodeHandle nh;
-using andbot::DriverState;
+//using andbot::DriverState;
 bool set_; 
 
 andbot::WheelFb wheel_msg;
@@ -73,6 +57,13 @@ ros::Publisher pub_bump("bump", &bump_msg);
 
 andbot::Sonar sonar_msg;
 ros::Publisher pub_sonar( "sonar", &sonar_msg);
+/*
+andbot::Battery battery_msg;
+ros::Publisher pub_battery("battery", &battery_msg);
+*/
+
+std_msgs::UInt8 battery_msg;
+ros::Publisher pub_battery("battery", &battery_msg);
 
 //callback
 void messageCb(const andbot::WheelCmd& msg)
@@ -85,19 +76,32 @@ void messageCb(const andbot::WheelCmd& msg)
 }
 
 ros::Subscriber<andbot::WheelCmd> s("cmd_wheel_angularVel",messageCb);
+/*
+void callback(const DriverState::Request & req, DriverState::Response & res)
+{
+  driver_mode = req.driverstate;  
+  res.driverstate = driver_mode;
+  sendCmd_wheel_angularVel_L();
+  sendCmd_wheel_angularVel_R();
+}
+*/
+//ros::ServiceServer<DriverState::Request, DriverState::Response> server("DriverState",&callback);
 
 void setup() 
 {
+  //TCCR0B = TCCR0B & B11111000 | B00000010; 
   //set baud rate for rosserial
-  nh.getHardware()->setBaud(57600); 
+  nh.getHardware()->setBaud(1000000); 
   nh.initNode();
   nh.subscribe(s);
   nh.advertise(p);
   nh.advertise(pub_sonar);
   nh.advertise(pub_bump);
+  nh.advertise(pub_battery);
+  //nh.advertiseService(server);
 
-  Serial2.begin (57600);  //left
-  Serial1.begin (57600);  //right
+  Serial2.begin (1000000);  //left
+  Serial1.begin (1000000);  //right
   DDRA &= ~0b11111111;  //set DDRA register as input for bump and cliff sensors
   DDRL &= ~0b11111111;  //set DDRL register as input for Echo pins
   DDRC |= 0b11111111;  //set DDRC register as output for Trig pins
@@ -145,7 +149,17 @@ void loop()
           bump_msg.cliff4 = !cliff4_reading;
           pub_bump.publish(&bump_msg);
           
-          //sonar
+          batteryStatus();
+          /*battery_msg.capacity = capacity;
+          battery_msg.current = current;*/
+          battery_msg.data = capacity;
+          pub_battery.publish(&battery_msg);
+        }  
+        
+  if((millis()-lastSonar) >= SONARTIME)   
+       {                                    // enter tmed loop
+          lastSonar = millis();
+
           sonar_msg.sonar1 = ping(TrigPin1,EchoPin1);
           sonar_msg.sonar2 = ping(TrigPin2,EchoPin2);
           sonar_msg.sonar3 = ping(TrigPin3,EchoPin3);
@@ -155,8 +169,24 @@ void loop()
           sonar_msg.sonar7 = ping(TrigPin7,EchoPin7);
           sonar_msg.sonar8 = ping(TrigPin8,EchoPin8);
           pub_sonar.publish(&sonar_msg);
-        }  
+       }
   nh.spinOnce();
+}
+
+void batteryStatus()
+{
+  Vin = analogRead(A0);
+  //delay(20);
+  //Vin = analogRead(A0);
+  
+  voltage = Vin * 0.01642228739;
+  if (voltage > 16.66)  capacity = 100;
+  else if (voltage <= 14)  capacity = 0;
+  else                     capacity = (voltage-14)/0.028;
+
+  //Cin = analogRead(A1);
+  //voltage at 0A = vcc/2, nominally 2.5VDC, 509 count by measurement
+  //current = ((double(Cin-510)*5)/1024)/0.066*1000; //convert to mA
 }
 
 uint8_t ping(int TrigPin, int EchoPin) 
