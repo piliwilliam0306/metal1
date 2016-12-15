@@ -173,6 +173,7 @@ void sendFeedback_wheel_angularVel()
   buf[5] = '}'; //send stop byte
   buf[6] = 8;
   Serial.write(buf, sizeof(buf));
+  delayMicroseconds(15);
 }
 
 void getMotorData()

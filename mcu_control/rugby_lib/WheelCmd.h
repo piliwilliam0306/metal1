@@ -1,27 +1,25 @@
-#ifndef _ROS_angelbot_WheelFb_h
-#define _ROS_angelbot_WheelFb_h
+#ifndef _ROS_rugby_WheelCmd_h
+#define _ROS_rugby_WheelCmd_h
 
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
 #include "ros/msg.h"
 
-namespace angelbot
+namespace rugby
 {
 
-  class WheelFb : public ros::Msg
+  class WheelCmd : public ros::Msg
   {
     public:
       float speed1;
-      uint16_t current1;
       float speed2;
-      uint16_t current2;
+      bool driverstate;
 
-    WheelFb():
+    WheelCmd():
       speed1(0),
-      current1(0),
       speed2(0),
-      current2(0)
+      driverstate(0)
     {
     }
 
@@ -38,9 +36,6 @@ namespace angelbot
       *(outbuffer + offset + 2) = (u_speed1.base >> (8 * 2)) & 0xFF;
       *(outbuffer + offset + 3) = (u_speed1.base >> (8 * 3)) & 0xFF;
       offset += sizeof(this->speed1);
-      *(outbuffer + offset + 0) = (this->current1 >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->current1 >> (8 * 1)) & 0xFF;
-      offset += sizeof(this->current1);
       union {
         float real;
         uint32_t base;
@@ -51,9 +46,13 @@ namespace angelbot
       *(outbuffer + offset + 2) = (u_speed2.base >> (8 * 2)) & 0xFF;
       *(outbuffer + offset + 3) = (u_speed2.base >> (8 * 3)) & 0xFF;
       offset += sizeof(this->speed2);
-      *(outbuffer + offset + 0) = (this->current2 >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->current2 >> (8 * 1)) & 0xFF;
-      offset += sizeof(this->current2);
+      union {
+        bool real;
+        uint8_t base;
+      } u_driverstate;
+      u_driverstate.real = this->driverstate;
+      *(outbuffer + offset + 0) = (u_driverstate.base >> (8 * 0)) & 0xFF;
+      offset += sizeof(this->driverstate);
       return offset;
     }
 
@@ -71,9 +70,6 @@ namespace angelbot
       u_speed1.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
       this->speed1 = u_speed1.real;
       offset += sizeof(this->speed1);
-      this->current1 =  ((uint16_t) (*(inbuffer + offset)));
-      this->current1 |= ((uint16_t) (*(inbuffer + offset + 1))) << (8 * 1);
-      offset += sizeof(this->current1);
       union {
         float real;
         uint32_t base;
@@ -85,14 +81,19 @@ namespace angelbot
       u_speed2.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
       this->speed2 = u_speed2.real;
       offset += sizeof(this->speed2);
-      this->current2 =  ((uint16_t) (*(inbuffer + offset)));
-      this->current2 |= ((uint16_t) (*(inbuffer + offset + 1))) << (8 * 1);
-      offset += sizeof(this->current2);
+      union {
+        bool real;
+        uint8_t base;
+      } u_driverstate;
+      u_driverstate.base = 0;
+      u_driverstate.base |= ((uint8_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      this->driverstate = u_driverstate.real;
+      offset += sizeof(this->driverstate);
      return offset;
     }
 
-    const char * getType(){ return "angelbot/WheelFb"; };
-    const char * getMD5(){ return "cb918176b5631dae1371ac2bcdcb4261"; };
+    const char * getType(){ return "rugby/WheelCmd"; };
+    const char * getMD5(){ return "173609e82190eaee99c6e251573e54e9"; };
 
   };
 
