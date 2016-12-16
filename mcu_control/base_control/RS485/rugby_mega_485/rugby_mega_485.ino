@@ -53,6 +53,8 @@ void sendCmd_wheel_angularVel_L()
   buf[5] = 8;
   Serial1.write(buf, sizeof(buf));
   delayMicroseconds(25);
+  digitalWrite(8, RS485Receive);
+  delay(6);
   readFeadback_angularVel_L();
 }
 
@@ -69,6 +71,8 @@ void sendCmd_wheel_angularVel_R()
   buf[5] = 8;
   Serial1.write(buf, sizeof(buf));
   delayMicroseconds(25);
+  digitalWrite(8, RS485Receive);
+  delay(6);
   readFeadback_angularVel_R();
 }
 
@@ -82,7 +86,7 @@ void messageCb(const rugby::WheelCmd& msg)
   debug.speed1 = msg.speed1;
   debug.speed2 = msg.speed2;
   debug.driverstate = msg.driverstate;
-  d.publish(&debug);
+  //d.publish(&debug);
 }
 
 ros::Subscriber<rugby::WheelCmd> s("cmd_wheel_angularVel", messageCb);
@@ -111,10 +115,8 @@ void loop()
     lastMilli = millis();
 
     sendCmd_wheel_angularVel_L();
-    //delayMicroseconds(100);
     delay(1);
     sendCmd_wheel_angularVel_R();
-    //delayMicroseconds(100);
     delay(1);
 
     wheel_msg.speed1 = omega_left_actual;

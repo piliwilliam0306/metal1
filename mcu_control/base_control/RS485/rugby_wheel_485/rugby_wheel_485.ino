@@ -23,7 +23,7 @@ int pinAStateOld = 0;
 int pinBState = 0;
 int pinBStateOld = 0;
 
-char commandArray[3];
+//char commandArray[3];
 byte sT = 0;  //send start byte
 byte sH = 0;  //send high byte
 byte sL = 0;  //send low byte
@@ -82,26 +82,29 @@ void setup() {
   //eable RS485
   pinMode(8, OUTPUT);
   digitalWrite(8, RS485Receive);
-  
+
   pinMode(In1, OUTPUT);
   pinMode(In2, OUTPUT);
   pinMode(MC33926Enable, OUTPUT);
   digitalWrite(MC33926Enable, HIGH);
-  Serial.begin (1000000);  
+  Serial.begin (1000000);
 }
 
 void loop()
 {
-  
+  Serial.write(1);
   CurrentMonitor();
+  readCmd_wheel_angularVel();
 
   if ((millis() - lastMilli) >= LOOPTIME)
-  { // enter tmed loop
+  {
+    Serial.write(4);
+    // enter tmed loop
     dT = millis() - lastMilli;
     lastMilli = millis();
 
     getMotorData();// calculate speed
-    readCmd_wheel_angularVel();
+
 
     PWM_val = (updatePid(omega_target, omega_actual));                     // compute PWM value from rad/s
     if (omega_target == 0) {
@@ -128,24 +131,31 @@ void loop()
 
 void readCmd_wheel_angularVel()
 {
+  Serial.write(2);
   digitalWrite(8, RS485Receive);
   if (Serial.available() > 6)
   {
     char rT = (char)Serial.read(); //read target speed from mega
     if (rT == '{')
     {
-      char commandArray[5];
-      Serial.readBytes(commandArray, 5);
-      byte rA = commandArray[0];
-      byte rH = commandArray[1];
-      byte rL = commandArray[2];
-      char rP = commandArray[3];
-      byte rG = commandArray[4];
-      if (rP == '}' && rA == WHEEL_TYPE)
-      {
-        target_receive = (rH << 8) + rL;
-        omega_target = double (target_receive *(double(MaxSpeed)/32767)); //convert received 16 bit integer to actual speed
-        sendFeedback_wheel_angularVel(); //send actually speed to mega
+      byte rA = (byte)Serial.read();
+      if (rA == WHEEL_TYPE) {
+        char commandArray[4];
+        Serial.readBytes(commandArray, 4);
+        //byte rA = commandArray[0];
+        byte rH = commandArray[0];
+        byte rL = commandArray[1];
+        char rP = commandArray[2];
+        byte rG = commandArray[3];
+        if (rP == '}')
+        {
+          target_receive = (rH << 8) + rL;
+          omega_target = double (target_receive * (double(MaxSpeed) / 32767)); //convert received 16 bit integer to actual speed
+          sendFeedback_wheel_angularVel(); //send actually speed to mega
+        }
+      } else {
+        char garbage[4];
+        Serial.readBytes(garbage, 4);
       }
     }
   }
@@ -153,27 +163,29 @@ void readCmd_wheel_angularVel()
 
 void sendFeedback_wheel_angularVel()
 {
+  Serial.write(3);
   digitalWrite(8, RS485Transmit);
-  
+
   //getMotorData();
   byte current_send;
 
   //convert rad/s to 16 bit integer to send
-  int actual_send = int(omega_actual / (double(MaxSpeed) / 32767)); 
+  int actual_send = int(omega_actual / (double(MaxSpeed) / 32767));
 
   //max current is 20400mA 20400/255 = 80
   current_send = current / 80;
-  
+
   byte buf[7];
   buf[0] = '{'; //send start byte
   buf[1] = WHEEL_TYPE;
-  buf[2] = highByte(actual_send);  
+  buf[2] = highByte(actual_send);
   buf[3] = lowByte(actual_send);  //send low byte
   buf[4] = current_send;  //send current value
   buf[5] = '}'; //send stop byte
   buf[6] = 8;
   Serial.write(buf, sizeof(buf));
   delayMicroseconds(15);
+  digitalWrite(8, RS485Receive);
 }
 
 void getMotorData()
@@ -204,9 +216,9 @@ double updatePid(double targetValue, double currentValue)
 
   last_error = error;
   if (WHEEL_TYPE == LEFT_WHEEL)
-    calculated_pidTerm = -pidTerm / (MaxSpeed/MaxPWM);
+    calculated_pidTerm = -pidTerm / (MaxSpeed / MaxPWM);
   else
-    calculated_pidTerm = pidTerm / (MaxSpeed/MaxPWM);
+    calculated_pidTerm = pidTerm / (MaxSpeed / MaxPWM);
 
   constrained_pidterm = constrain(calculated_pidTerm, -255, 255);
 
