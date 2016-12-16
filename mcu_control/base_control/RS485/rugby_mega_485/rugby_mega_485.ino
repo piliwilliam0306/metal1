@@ -13,6 +13,9 @@
 
 #define LOOPTIME        80
 
+#define RIGHT_WHEEL 1
+#define LEFT_WHEEL 2
+
 double omega_left_target = 0.0;
 double omega_right_target = 0.0;
 double omega_left_actual = 0;
@@ -21,6 +24,7 @@ unsigned long lastMilli = 0;
 unsigned long lastBool = 0;
 
 long dT = 0;
+byte rD = 0;
 
 #define TimeOut 5000//TimeOut = Max.Distance(cm) * 58
 
@@ -50,12 +54,13 @@ void sendCmd_wheel_angularVel_L()
   buf[3] = lowByte(left_target_send);  //send low byte
   if (driver_mode == true)  buf[4] = '}'; //send stop byte motor on
   if (driver_mode == false)  buf[4] = '|'; //send stop byte motor off
-  buf[5] = 8;
+  buf[5] = rD;
   Serial1.write(buf, sizeof(buf));
   delayMicroseconds(25);
   digitalWrite(8, RS485Receive);
-  delay(6);
-  readFeadback_angularVel_L();
+
+  //delay(6);
+  //readFeadback_angularVel_L();
 }
 
 void sendCmd_wheel_angularVel_R()
@@ -68,12 +73,12 @@ void sendCmd_wheel_angularVel_R()
   buf[2] = highByte(right_target_send); //send high byte
   buf[3] = lowByte(right_target_send);  //send low byte
   buf[4] = '}'; //send stop byte motor on
-  buf[5] = 8;
+  buf[5] = rD;
   Serial1.write(buf, sizeof(buf));
   delayMicroseconds(25);
   digitalWrite(8, RS485Receive);
-  delay(6);
-  readFeadback_angularVel_R();
+  //delay(6);
+  //readFeadback_angularVel_R();
 }
 
 //callback
@@ -109,14 +114,22 @@ void setup()
 
 void loop()
 {
+  readFeadback_angularVel();
+  //readFeadback_angularVel_R();
+
   if ((millis() - lastMilli) >= LOOPTIME)
   { // enter tmed loop
     dT = millis() - lastMilli;
     lastMilli = millis();
 
-    sendCmd_wheel_angularVel_L();
-    delay(1);
+    rD++;
+    
+    if (rD > 200)
+      rD = 0;
+
     sendCmd_wheel_angularVel_R();
+    delay(1);
+    sendCmd_wheel_angularVel_L();
     delay(1);
 
     wheel_msg.speed1 = omega_left_actual;
@@ -130,58 +143,66 @@ void loop()
 }
 
 
-void readFeadback_angularVel_L()
+void readFeadback_angularVel()
 {
   digitalWrite(8, RS485Receive);
   int actual_receive;
   if (Serial1.available() >= 6)
   {
-    char rT_L = (char)Serial1.read(); //read actual speed from Uno
-    if (rT_L == '{')
+    char rT = (char)Serial1.read(); //read actual speed from Uno
+    if (rT == '{')
     {
-      char commandArray_L[6];
-      Serial1.readBytes(commandArray_L, 6);
-      byte rA = commandArray_L[0];
-      byte rH_L = commandArray_L[1];
-      byte rL_L = commandArray_L[2];
-      byte rCS_L = commandArray_L[3];
-      char rP_L = commandArray_L[4];
-      byte rG = commandArray_L[5];
-      if (rP_L == '}' && rA == 1)
+      char commandArray[6];
+      Serial1.readBytes(commandArray, 6);
+      byte rA = commandArray[0];
+      byte rH = commandArray[1];
+      byte rL = commandArray[2];
+      byte rCS = commandArray[3];
+      char rP = commandArray[4];
+      byte rG = commandArray[5];
+      if (rP == '}' && rA == LEFT_WHEEL)
       {
-        actual_receive = (rH_L << 8) + rL_L;
+        actual_receive = (rH << 8) + rL;
         omega_left_actual = double (actual_receive * (double(MaxSpeed) / 32767)); //convert received 16 bit integer to actual speed
         //max current is 20400mA, 255 * 80 = 20400mA
-        current_left = (rCS_L * 80);
+        current_left = (rCS * 80);
+      }
+       if (rP == '}' && rA == RIGHT_WHEEL)
+      {
+        actual_receive = (rH << 8) + rL;
+        omega_right_actual = double (actual_receive * (double(MaxSpeed) / 32767)); //convert received 16 bit integer to actual speed
+        current_right = rCS * 80;
       }
     }
   }
 }
 
-void readFeadback_angularVel_R()
-{
-  digitalWrite(8, RS485Receive);
-  int actual_receive;
-  if (Serial1.available() >= 6)
-  {
-    char rT_R = (char)Serial1.read(); //read actual speed from Uno
-    if (rT_R == '{')
-    {
-      char commandArray_R[6];
-      Serial1.readBytes(commandArray_R, 6);
-      byte rA = commandArray_R[0];
-      byte rH_R = commandArray_R[1];
-      byte rL_R = commandArray_R[2];
-      byte rCS_R = commandArray_R[3];
-      char rP_R = commandArray_R[4];
-      byte rG = commandArray_R[5];
-      if (rP_R == '}' && rA == 2)
-      {
-        actual_receive = (rH_R << 8) + rL_R;
-        omega_right_actual = double (actual_receive * (double(MaxSpeed) / 32767)); //convert received 16 bit integer to actual speed
-        current_right = rCS_R * 80;
-      }
-    }
-  }
-}
+
+
+//void readFeadback_angularVel_R()
+//{
+//  digitalWrite(8, RS485Receive);
+//  int actual_receive;
+//  if (Serial1.available() >= 6)
+//  {
+//    char rT_R = (char)Serial1.read(); //read actual speed from Uno
+//    if (rT_R == '{')
+//    {
+//      char commandArray_R[6];
+//      Serial1.readBytes(commandArray_R, 6);
+//      byte rA = commandArray_R[0];
+//      byte rH_R = commandArray_R[1];
+//      byte rL_R = commandArray_R[2];
+//      byte rCS_R = commandArray_R[3];
+//      char rP_R = commandArray_R[4];
+//      byte rG = commandArray_R[5];
+//      if (rP_R == '}' && rA == RIGHT_WHEEL)
+//      {
+//        actual_receive = (rH_R << 8) + rL_R;
+//        omega_right_actual = double (actual_receive * (double(MaxSpeed) / 32767)); //convert received 16 bit integer to actual speed
+//        current_right = rCS_R * 80;
+//      }
+//    }
+//  }
+//}
 

@@ -34,7 +34,7 @@ byte rT = 0;  //receive start byte
 byte rH = 0;  //receive high byte
 byte rL = 0;  //receive low byte
 byte rP = 0;  //receive stop byte
-byte rG = 0;
+byte rD = 0;
 
 
 volatile long Encoderpos = 0;
@@ -105,7 +105,6 @@ void loop()
 
     getMotorData();// calculate speed
 
-
     PWM_val = (updatePid(omega_target, omega_actual));                     // compute PWM value from rad/s
     if (omega_target == 0) {
       PWM_val = 0;
@@ -146,7 +145,7 @@ void readCmd_wheel_angularVel()
         byte rH = commandArray[0];
         byte rL = commandArray[1];
         char rP = commandArray[2];
-        byte rG = commandArray[3];
+        rD = commandArray[3];
         if (rP == '}')
         {
           target_receive = (rH << 8) + rL;
@@ -182,7 +181,7 @@ void sendFeedback_wheel_angularVel()
   buf[3] = lowByte(actual_send);  //send low byte
   buf[4] = current_send;  //send current value
   buf[5] = '}'; //send stop byte
-  buf[6] = 8;
+  buf[6] = rD;
   Serial.write(buf, sizeof(buf));
   delayMicroseconds(15);
   digitalWrite(8, RS485Receive);
@@ -193,10 +192,10 @@ void getMotorData()
   static long EncoderposPre = 0;
   //converting ticks/s to rad/s
   //omega_actual = 4.5;
-  if (WHEEL_TYPE == LEFT_WHEEL)
-    omega_actual = ((Encoderpos - EncoderposPre) * (1000 / dT)) * 2 * PI / (CPR * gear_ratio) ; //ticks/s to rad/s
-  else
+  if (WHEEL_TYPE == RIGHT_WHEEL)
     omega_actual = -((Encoderpos - EncoderposPre) * (1000 / dT)) * 2 * PI / (CPR * gear_ratio) ; //ticks/s to rad/s
+  else
+    omega_actual = ((Encoderpos - EncoderposPre) * (1000 / dT)) * 2 * PI / (CPR * gear_ratio) ; //ticks/s to rad/s
 
   EncoderposPre = Encoderpos;
 }
@@ -215,10 +214,10 @@ double updatePid(double targetValue, double currentValue)
   pidTerm = Kp * error + Ki * sum_error + Kd * d_error;
 
   last_error = error;
-  if (WHEEL_TYPE == LEFT_WHEEL)
-    calculated_pidTerm = -pidTerm / (MaxSpeed / MaxPWM);
-  else
+  if (WHEEL_TYPE == RIGHT_WHEEL)
     calculated_pidTerm = pidTerm / (MaxSpeed / MaxPWM);
+  else
+    calculated_pidTerm = -pidTerm / (MaxSpeed / MaxPWM);
 
   constrained_pidterm = constrain(calculated_pidTerm, -255, 255);
 
