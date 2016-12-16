@@ -11,7 +11,7 @@
 #define RS485Transmit    HIGH
 #define RS485Receive     LOW
 
-#define LOOPTIME        80
+#define LOOPTIME        10
 
 #define RIGHT_WHEEL 1
 #define LEFT_WHEEL 2
@@ -128,9 +128,11 @@ void loop()
       rD = 0;
 
     sendCmd_wheel_angularVel_R();
-    delay(1);
+    //delay(1);
+    delayMicroseconds(500);
     sendCmd_wheel_angularVel_L();
-    delay(1);
+    //delay(1);
+    delayMicroseconds(500);
 
     wheel_msg.speed1 = omega_left_actual;
     wheel_msg.speed2 = omega_right_actual;
