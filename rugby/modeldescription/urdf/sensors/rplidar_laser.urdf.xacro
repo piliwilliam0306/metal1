@@ -2,12 +2,12 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
   	<xacro:macro name="rplidar_laser" params="name parent ros_topic update_rate min_angle max_angle">
 	  	<joint name="base2rplidar" type="fixed">
-			<parent link="${parent}"></parent>
-			<child link="${name}_rplidar"></child>
+			<parent link="rugby_base"></parent>
+			<child link="rugby_rplidar"></child>
 			<!--  rotate z axis 180 degree according to the placement on angelbot -->
 			<origin xyz="0.0376 0.00015 0.128" rpy="0 0 3.1415"></origin> 
 		</joint>
-	  	<link name="${name}_rplidar">
+	  	<link name="rugby_rplidar">
 			<collision>
 				<geometry>
 					<mesh filename="package://angelbot/modeldescription/mesh/angel_rplidar.STL"></mesh></geometry></collision>

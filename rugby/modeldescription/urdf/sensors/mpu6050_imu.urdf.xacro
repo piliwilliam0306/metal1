@@ -2,11 +2,11 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
   	<xacro:macro name="mpu6050_imu" params="name parent">
 	  	<joint name="base2mpu6050" type="fixed">
-			<parent link="${parent}"></parent>
-			<child link="${name}_mpu6050_link"></child>
+			<parent link="rugby_base"></parent>
+			<child link="rugby_mpu6050_link"></child>
 			<origin xyz="0 0 -0.0155" rpy="0 0 0"></origin> 
 		</joint>
-	  	<link name="${name}_mpu6050_link">
+	  	<link name="rugby_mpu6050_link">
 			<collision>
 				<geometry>
 	          		<box size="0.016 0.021 0.003"/>
