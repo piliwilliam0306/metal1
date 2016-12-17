@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="angelbot">
-	<xacro:property name="robotname" value="angelbot"/>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rugby">
+	<xacro:property name="robotname" value="rugby"/>
 	<!-- Import all Gazebo-customization elements, including Gazebo colors--> 
- 	<xacro:include filename="$(find rugby)/modeldescription/urdf/angelbot.gazebo" />
+ 	<xacro:include filename="$(find rugby)/modeldescription/urdf/rugby.gazebo" />
  	<!-- Import Rviz colors -->
-	<xacro:include filename="$(find rugby)/modeldescription/urdf/angelbotmaterial4rviz.xacro"/>
+	<xacro:include filename="$(find rugby)/modeldescription/urdf/rugbymaterial4rviz.xacro"/>
 	
 	<xacro:include filename="$(find rugby)/modeldescription/urdf/sensors/rplidar_laser.urdf.xacro" />
 	<xacro:include filename="$(find rugby)/modeldescription/urdf/sensors/mpu6050_imu.urdf.xacro" />
@@ -25,10 +25,10 @@
 	<link name="${robotname}_housing">
 		<collision>
 			<geometry>
-				<mesh filename="package://angelbot/modeldescription/mesh/angel_housing.STL"></mesh></geometry></collision>
+				<mesh filename="package://rugby/modeldescription/mesh/angel_housing.STL"></mesh></geometry></collision>
 		<visual>
 			<geometry>
-				<mesh filename="package://angelbot/modeldescription/mesh/angel_housing.STL"/>
+				<mesh filename="package://rugby/modeldescription/mesh/angel_housing.STL"/>
 			</geometry>
 			<material name="blue"></material>
 			<origin rpy="0 0 0" xyz="0 0 0"/>
@@ -41,10 +41,10 @@
 	<link name="${robotname}_base">
 		<collision>
 			<geometry>
-				<mesh filename="package://angelbot/modeldescription/mesh/rugby_base.STL"></mesh></geometry></collision>
+				<mesh filename="package://rugby/modeldescription/mesh/rugby_base.STL"></mesh></geometry></collision>
 		<visual>
 			<geometry>
-				<mesh filename="package://angelbot/modeldescription/mesh/rugby_base.STL"/>
+				<mesh filename="package://rugby/modeldescription/mesh/rugby_base.STL"/>
 			</geometry>
 			<material name="white">
 			</material>
@@ -57,10 +57,10 @@
 	<link name="${robotname}_leftwheel">
 		<collision>
 			<geometry>
-				<mesh filename="package://angelbot/modeldescription/mesh/angel_leftwheel.STL"></mesh></geometry></collision>
+				<mesh filename="package://rugby/modeldescription/mesh/angel_leftwheel.STL"></mesh></geometry></collision>
 		<visual>
 			<geometry>
-				<mesh filename="package://angelbot/modeldescription/mesh/angel_leftwheel.STL"/>
+				<mesh filename="package://rugby/modeldescription/mesh/angel_leftwheel.STL"/>
 			</geometry>
 			<material name="grey">
 			</material>
@@ -73,10 +73,10 @@
 	<link name="${robotname}_rightwheel">
 		<collision>
 			<geometry>
-				<mesh filename="package://angelbot/modeldescription/mesh/angel_rightwheel.STL"></mesh></geometry></collision>
+				<mesh filename="package://rugby/modeldescription/mesh/angel_rightwheel.STL"></mesh></geometry></collision>
 		<visual>
 			<geometry>
-				<mesh filename="package://angelbot/modeldescription/mesh/angel_rightwheel.STL"/>
+				<mesh filename="package://rugby/modeldescription/mesh/angel_rightwheel.STL"/>
 			</geometry>
 			<material name="grey">
 			</material>

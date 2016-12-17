@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-	<xacro:property name="robotname" value="angelbot"/>
+	<xacro:property name="robotname" value="rugby"/>
 	<!-- ros_control plugin -->
 	<gazebo>
 	  <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-	    <robotNamespace>/angelbot</robotNamespace>
+	    <robotNamespace>/rugby</robotNamespace>
 	    <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
 	  </plugin>
 	  <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
@@ -22,7 +22,7 @@
 	  	<broadcastTF>1</broadcastTF>
 	  	<wheelTorque>30</wheelTorque>
 	  	<wheelAcceleration>1.8</wheelAcceleration>
-	  	<commandTopic>angelbot/cmd_vel</commandTopic>
+	  	<commandTopic>rugby/cmd_vel</commandTopic>
 	  	<odometryTopic>odom</odometryTopic>
     	<odometryFrame>odom</odometryFrame>
     	<robotBaseFrame>${robotname}_base</robotBaseFrame></plugin>
