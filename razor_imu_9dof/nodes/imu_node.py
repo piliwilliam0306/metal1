@@ -301,9 +301,9 @@ while not rospy.is_shutdown():
             diag_msg.values.append(KeyValue('sequence number', str(seq)))
             diag_arr.status.append(diag_msg)
             diag_pub.publish(diag_arr)
-        rospy.spin()#keeps python from exiting    
+        #rospy.spin()#keeps python from exiting    
     except:
-			rospy.logwarn("Error in Sensor values")
-	    	pass
+	rospy.logwarn("Error in Sensor values")
+	pass
 ser.close
 #f.close
