@@ -1,5 +1,6 @@
 #planner_frequency: 0.5	
-planner_frequency: 0.25
+#planner_frequency: 0.25
+planner_frequency: 0.0
 controller_frequency: 10.0
 
 DWAPlannerROS:
@@ -37,5 +38,8 @@ DWAPlannerROS:
    vy_samples: 1  # zero for a differential drive robot
    vtheta_samples: 20
    dwa: true
+   sum_scores: true
+   publish_cost_grid_pc: true
+   publish_traj_pc: true
 #   simple_attractor: false
 
