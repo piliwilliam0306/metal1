@@ -4,21 +4,6 @@ A much more extensive and standard ROS-style version of this documentation can b
 
 http://wiki.ros.org/razor_imu_9dof
 
-
-Install and Configure ROS Package
----------------------------------
-1) Install dependencies:
-
-	$ sudo apt-get install python-visual
-
-2) Download code:
-
-	$ cd ~/catkin_workspace/src
-	$ git clone https://github.com/KristofRobot/razor_imu_9dof.git
-	$ cd ..
-	$ catkin_make
-
-
 Install Arduino firmware
 -------------------------
 1) Open ``src/Razor_AHRS/Razor_AHRS.ino`` in Arduino IDE. Note: this is a modified version
