@@ -1,0 +1,35 @@
+## USB port
+#port: /dev/ttyUSB0
+port: /dev/gyro
+
+
+##### Calibration ####
+### accelerometer
+accel_x_min: -13.0
+accel_x_max: 0.0
+accel_y_min: -20.0
+accel_y_max: 3.0
+accel_z_min: 216.0
+accel_z_max: 242.0
+
+### magnetometer
+# standard calibration
+magn_x_min: -389.0
+magn_x_max: 607.0
+magn_y_min: -763.0
+magn_y_max: 486.0
+magn_z_min: -747.0
+magn_z_max: 136.0
+
+# extended calibration
+calibration_magn_use_extended: true
+magn_ellipsoid_center: [96.7557, -17.5484, -222.487]
+magn_ellipsoid_transform: [[0.974740, 0.0144663, 0.0626404], [0.0144663, 0.973976, 0.0135251], [0.0626404, 0.0135251, 0.707101]]
+
+# AHRS to robot calibration
+imu_yaw_calibration: 76.0
+
+### gyroscope
+gyro_average_offset_x: 20.69
+gyro_average_offset_y: 0.23
+gyro_average_offset_z: -1.0
